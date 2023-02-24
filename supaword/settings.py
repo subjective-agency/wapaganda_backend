@@ -17,7 +17,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-from .secure_env import SERVER_DEBUG, DJANGO_KEY, DB_PASSWORD, POSTGRES_ADDRESS, POSTGRES_USER, POSTGRES_DB
+from .secure_env import SERVER_DEBUG, DJANGO_KEY, POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_USER, POSTGRES_DB
 
 # Server version
 VERSION = "0.1.0"
@@ -85,9 +85,6 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
     "https://supaword-service-production.up.railway.app",
 ]
-CORS_ALLOWED_ORIGINS = [
-    "https://supaword-service-production.up.railway.app"
-]
 
 # CORS_ALLOW_METHODS = ['POST']
 
@@ -125,7 +122,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'postgres',
-        'PASSWORD': DB_PASSWORD,
+        'PASSWORD': POSTGRES_PASSWORD,
         'HOST': POSTGRES_ADDRESS,
         'PORT': '5432',
     },

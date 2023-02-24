@@ -839,6 +839,3 @@ class PeopleExtended(models.Model):
     class Meta:
         db_table = 'people_extended'
         managed = False
-
-from django.db.models import Q
-from typing import List
