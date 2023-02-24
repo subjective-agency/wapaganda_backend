@@ -34,6 +34,12 @@ def main():
         print("Production profile is not supported yet")
         sys.exit(0)
 
+    # This option is our custom option to fetch static files from AWS S3 or Supaword CDN
+    if len(sys.argv) > 1 and sys.argv[1] == 'fetchstatic':
+        version = sys.argv[2] if len(sys.argv) > 2 else FRONTEND_VERSION
+        fetch_static(version)
+        sys.exit(0)
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -42,11 +48,6 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-
-    if len(sys.argv) > 1 and sys.argv[1] == 'fetchstatic':
-        version = sys.argv[2] if len(sys.argv) > 2 else FRONTEND_VERSION
-        fetch_static(version)
-        sys.exit(0)
 
     execute_from_command_line(sys.argv)
 
