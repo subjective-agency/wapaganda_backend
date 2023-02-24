@@ -28,6 +28,12 @@ def fetch_static(version):
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'supaword.settings')
+
+    # Check if PROFILE_TYPE is not 'prod' which we do not support yet
+    if os.environ.get('PROFILE_TYPE') == 'prod':
+        print("Production profile is not supported yet")
+        sys.exit(0)
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
