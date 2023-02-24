@@ -27,7 +27,7 @@ We use `requirements.txt` file to specify Python dependencies.
 ### Django and Railway
 
 We make use of Django/Railway integrations, which allow us to use `manage.py` commands on the server.
-We use `manage.py` to run migrations, collect static files, and fetch static files from the CDN.
+We use `manage.py` to run migrations, collect static files, and fetch static files from the frontend releases.
 Also, we add some custom commands to `manage.py` (as a single deployment entry point), 
 which are used to populate the frontend:
 ```bash

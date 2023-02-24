@@ -13,6 +13,22 @@ from core.models import PeopleExtended
 from core.pagination import CustomPostPagination
 
 
+def search_model_fulltext(model, fields: list, values: list):
+    """
+    Perform full-text search on a Django model.
+    :param model: The Django model to search.
+    :param fields: List of field names to search.
+    :param values: List of search query values.
+    :return: QuerySet of objects matching the search query.
+    """
+    search_queries = [
+        Q(**{f'{field}__icontains': value}) for value in values
+        for field in fields
+    ]
+    results = model.objects.filter(reduce(lambda a, b: a | b, search_queries))
+    return results
+
+
 class PeopleExtendedAPIView(generics.CreateAPIView):
     """
     API view to handle PeopleExtended data
@@ -41,7 +57,11 @@ class PeopleExtendedAPIView(generics.CreateAPIView):
         :param _: Object of type rest_framework.request.Request
         :return: All the data in short JSON format
         """
-        people = PeopleExtended.objects.all().order_by('id')[:20]
+        # In DEBUG mode we return only 20 records for test purposes
+        if settings.DEBUG:
+            people = PeopleExtended.objects.all().order_by('id')[:20]
+        else:
+            people = PeopleExtended.objects.all().order_by('id')
         serializer = PeopleExtendedBriefSerializer(people, many=True)
         return Response(data=serializer.data, headers={'Server-Version': settings.VERSION})
 
@@ -86,12 +106,9 @@ class PeopleExtendedAPIView(generics.CreateAPIView):
         request_data = request.data
         values = request_data.get('values', [])
 
-        # This is the fulltext search query
-        search_queries = [
-            Q(**{f'{field}__icontains': value}) for value in values
-            for field in ["fullname_en", "fullname_ru", "fullname_uk"]
-        ]
-        people = PeopleExtended.objects.filter(reduce(lambda a, b: a | b, search_queries))
+        people = search_model_fulltext(model=PeopleExtended,
+                                       fields=['fullname_en', 'fullname_ru', 'fullname_uk'],
+                                       values=values)
 
         serializer = PeopleExtendedBriefSerializer(people, many=True)
         return Response(serializer.data)
