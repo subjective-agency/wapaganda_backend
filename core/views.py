@@ -189,3 +189,11 @@ class PeopleExtendedAPIView(generics.CreateAPIView):
         if request.method != 'POST':
             return Response({'error': 'Invalid access method'}, status=status.HTTP_400_BAD_REQUEST)
         return super().dispatch(request, *args, **kwargs)
+
+    @staticmethod
+    def get_extra_actions():
+        """
+        Return extra actions
+        :return:
+        """
+        return []

@@ -84,9 +84,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
     "https://supaword-service-production.up.railway.app",
+    "https://supaword-service-development.up.railway.app"
 ]
-
-# CORS_ALLOW_METHODS = ['POST']
+CORS_ALLOW_METHODS = ['POST', 'GET']
 
 ROOT_URLCONF = 'supaword.urls'
 
@@ -95,7 +95,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'templates',
+            BASE_DIR / 'static' / 'build',
             BASE_DIR / 'core' / 'templates'
         ],
         'APP_DIRS': True,
@@ -152,11 +152,22 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
+
+# STATIC_URL is the URL prefix that Django will use to serve static files. For example,
+# if you set STATIC_URL to 'static/', and you have a file called 'app.css' in your STATIC_ROOT directory,
+# then you can access that file at the URL 'http://localhost:8000/static/app.css'.
+# The URL prefix can be any string you like, but it should end with a forward slash /.
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    BASE_DIR / 'static'
-]
+
+# STATIC_ROOT is the absolute filesystem path to the directory where Django will collect
+# all your static files into a single location for deployment.
+# This directory will be created automatically when you run the collectstatic command.
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# STATICFILES_DIRS is a list of directories where Django will look
+# for additional static files in addition to the STATIC_ROOT directory.
+# This setting is useful when you have static files that are not tied to a specific app.
+STATICFILES_DIRS = []
 
 
 # Default primary key field type
