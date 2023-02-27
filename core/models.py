@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
+
 
 __doc__ = """This is an auto-generated Django model module.
 You'll have to do the following manually to clean this up:
@@ -27,6 +29,7 @@ class SixtyMinutesVids(models.Model):
     class Meta:
         managed = False
         db_table = '60_minutes_vids'
+        verbose_name_plural = "SixtyMinutesVids"
 
 
 class Articles(models.Model):
@@ -44,6 +47,7 @@ class Articles(models.Model):
     class Meta:
         managed = False
         db_table = 'articles'
+        verbose_name_plural = "Articles"
 
 
 class ArticlesAuthors(models.Model):
@@ -89,7 +93,7 @@ class Books(models.Model):
     relevant = models.BooleanField(blank=True, null=True)
     supa_url = models.TextField(unique=True, blank=True, null=True)
     year_first_published = models.SmallIntegerField(blank=True, null=True)
-    meta = models.TextField(blank=True, null=True)  # This field type is a guess.
+    meta = ArrayField(models.TextField(), blank=True, null=True)
     slug = models.TextField(blank=True, null=True)
     ext = models.CharField(max_length=255, blank=True, null=True)
 
@@ -146,8 +150,8 @@ class EMashMapdata(models.Model):
     """
     """
     id = models.BigAutoField(primary_key=True)
-    captured = models.TextField(blank=True, null=True)  # This field type is a guess.
-    hotspots = models.TextField(blank=True, null=True)  # This field type is a guess.
+    captured = ArrayField(models.TextField(), blank=True, null=True)
+    hotspots = ArrayField(models.JSONField(), blank=True, null=True)
     day = models.OneToOneField(DaysOfWar, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
@@ -329,16 +333,16 @@ class People(models.Model):
     lastname_en = models.TextField(blank=True, null=True)
     lastname_ru = models.TextField(blank=True, null=True)
     is_onmap = models.BooleanField(blank=True, null=True)
-    social = models.TextField(blank=True, null=True)  # This field type is a guess.
+    social = ArrayField(models.TextField(), blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     is_ttu = models.BooleanField(blank=True, null=True)
     is_ff = models.BooleanField(blank=True, null=True)
     relevant = models.BooleanField()
     contact = models.JSONField(blank=True, null=True)
-    address = models.TextField(blank=True, null=True)  # This field type is a guess.
-    associates = models.TextField(blank=True, null=True)  # This field type is a guess.
+    address = ArrayField(models.TextField(), blank=True, null=True)
+    associates = ArrayField(models.JSONField(), blank=True, null=True)
     additional = models.JSONField(blank=True, null=True)
-    aliases = models.TextField(blank=True, null=True)  # This field type is a guess.
+    aliases = ArrayField(models.JSONField(), blank=True, null=True)
     info = models.JSONField(blank=True, null=True)
     dod = models.DateField(blank=True, null=True)
     cod = models.CharField(max_length=255, blank=True, null=True)
@@ -348,9 +352,10 @@ class People(models.Model):
     fullname_uk = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people'
         unique_together = (('fullname_en', 'namesake_seq'),)
+        verbose_name_plural = "Person"
 
 
 class People3RdprtDetailsRaw(models.Model):
@@ -500,9 +505,10 @@ class PeopleOnPhotos(models.Model):
     photo = models.ForeignKey('Photos', models.DO_NOTHING)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_on_photos'
         unique_together = (('person', 'photo'),)
+        verbose_name_plural = "PeopleOnPhotos"
 
 
 class PeopleOnSolovyovlive(models.Model):
@@ -545,8 +551,9 @@ class Photos(models.Model):
     type = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'photos'
+        verbose_name_plural = "Photos"
 
 
 class Quotes(models.Model):
@@ -676,7 +683,7 @@ class TelegramChannels(models.Model):
     is_fake = models.BooleanField(blank=True, null=True)
     is_scam = models.BooleanField(blank=True, null=True)
     no_forward = models.BooleanField(blank=True, null=True)
-    restrictions = models.TextField(blank=True, null=True)  # This field type is a guess.
+    restrictions = ArrayField(models.JSONField(), blank=True, null=True)
     linked_chat_id = models.BigIntegerField(blank=True, null=True)
     history_count = models.BigIntegerField(blank=True, null=True)
     last_known_message_publish_date = models.DateTimeField(blank=True, null=True)
@@ -817,15 +824,15 @@ class PeopleExtended(models.Model):
     fullname_ru = models.TextField()
     lastname_en = models.TextField(blank=True, null=True)
     lastname_ru = models.TextField(blank=True, null=True)
-    social = models.TextField(blank=True, null=True)  # This field type is a guess.
+    social = ArrayField(models.TextField(), blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     is_ttu = models.BooleanField(blank=True, null=True)
     is_ff = models.BooleanField(blank=True, null=True)
     contact = models.JSONField(blank=True, null=True)
-    address = models.TextField(blank=True, null=True)  # This field type is a guess.
-    associates = models.TextField(blank=True, null=True)  # This field type is a guess.
+    address = ArrayField(models.TextField(), blank=True, null=True)
+    associates = ArrayField(models.JSONField(), blank=True, null=True)
     additional = models.JSONField(blank=True, null=True)
-    aliases = models.TextField(blank=True, null=True)  # This field type is a guess.
+    aliases = ArrayField(models.JSONField(), blank=True, null=True)
     info = models.JSONField(blank=True, null=True)
     dod = models.DateField(blank=True, null=True)
     cod = models.CharField(max_length=255, blank=True, null=True)
