@@ -6,7 +6,7 @@ import urllib.request
 import zipfile
 import io
 
-FRONTEND_VERSION = '0.2.14'
+FRONTEND_VERSION = '0.2.17'
 
 
 def fetch_static(version):
