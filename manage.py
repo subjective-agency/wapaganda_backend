@@ -14,7 +14,8 @@ def fetch_static(version):
     Fetch and unpack archive with static files from to static folder, e.g.
     https://wapaganda-frontend.s3.amazonaws.com/builds/wapaganda_frontend-0.2.11.zip
     """
-    url = f"https://wapaganda-frontend.s3.amazonaws.com/builds/wapaganda_frontend-{version}.zip"
+
+    url = f"https://wapaganda-frontend.s3.amazonaws.com/builds/wapaganda-frontend-{version}.zip"
     print(f"Fetching {url}")
     response = urllib.request.urlopen(url)
 
