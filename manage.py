@@ -20,6 +20,7 @@ def fetch_static(version):
     response = urllib.request.urlopen(url)
 
     if response.status == 200:
+        print(f"Successfully fetched from {url}")
         with zipfile.ZipFile(io.BytesIO(response.read())) as archive:
             archive.extractall("static")
     else:
