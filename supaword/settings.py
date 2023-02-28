@@ -21,51 +21,6 @@ from pathlib import Path
 from .secure_env import SERVER_DEBUG, DJANGO_KEY, POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_USER, POSTGRES_DB
 
 
-FRONTEND_MIME_TYPES = {
-    # JavaScript files
-    ".js": "application/javascript",
-    ".jsx": "application/javascript",
-    ".mjs": "application/javascript",
-
-    # CSS files
-    ".css": "text/css",
-
-    # HTML files
-    ".html": "text/html",
-    ".htm": "text/html",
-
-    # Image files
-    ".png": "image/png",
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".gif": "image/gif",
-    ".bmp": "image/bmp",
-    ".ico": "image/x-icon",
-    ".svg": "image/svg+xml",
-
-    # Font files
-    ".woff": "font/woff",
-    ".woff2": "font/woff2",
-    ".ttf": "font/ttf",
-    ".otf": "font/otf",
-
-    # Video files
-    ".mp4": "video/mp4",
-    ".webm": "video/webm",
-
-    # Audio files
-    ".mp3": "audio/mpeg",
-    ".wav": "audio/wav",
-    ".ogg": "audio/ogg",
-
-    # WebAssembly files
-    ".wasm": "application/wasm",
-}
-
-for ext, mimetype in FRONTEND_MIME_TYPES.items():
-    mimetypes.add_type(mimetype, ext)
-
-
 # Server version
 VERSION = "0.1.1"
 
@@ -253,3 +208,48 @@ REST_FRAMEWORK = {
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'vnd.api+json'
 }
+
+# Configure Django App for serving the frontend
+STATIC_MIME_TYPES = {
+    # JavaScript files
+    ".js": "application/javascript",
+    ".jsx": "application/javascript",
+    ".mjs": "application/javascript",
+
+    # CSS files
+    ".css": "text/css",
+
+    # HTML files
+    ".html": "text/html",
+    ".htm": "text/html",
+
+    # Image files
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".gif": "image/gif",
+    ".bmp": "image/bmp",
+    ".ico": "image/x-icon",
+    ".svg": "image/svg+xml",
+
+    # Font files
+    ".woff": "font/woff",
+    ".woff2": "font/woff2",
+    ".ttf": "font/ttf",
+    ".otf": "font/otf",
+
+    # Video files
+    ".mp4": "video/mp4",
+    ".webm": "video/webm",
+
+    # Audio files
+    ".mp3": "audio/mpeg",
+    ".wav": "audio/wav",
+    ".ogg": "audio/ogg",
+
+    # WebAssembly files
+    ".wasm": "application/wasm",
+}
+
+for ext, mimetype in STATIC_MIME_TYPES.items():
+    mimetypes.add_type(mimetype, ext)
