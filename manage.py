@@ -3,45 +3,51 @@
 import os
 import sys
 import urllib.request
+from urllib.error import HTTPError
 import zipfile
 import io
 
 FRONTEND_VERSION = '0.2.17'
+URLS = [
+    f'https://svfizyfozagyqkkjzqdc.supabase.co/storage/v1/object/public/packages/frontend/',
+    f'https://wapaganda-frontend.s3.amazonaws.com/builds/'
+]
 
 
-def fetch_static(version):
+def fetch_static(urls, version):
     """
-    Fetch and unpack archive with static files from to static folder, e.g.
-    https://wapaganda-frontend.s3.amazonaws.com/builds/wapaganda_frontend-0.2.11.zip
+    Fetch static files from the given urls, unpack to static if successful
     """
+    for url in urls:
+        archive_name = f'wapaganda-frontend-{version}.zip'
+        archive_url = f'{url}{archive_name}'
 
-    url = f"https://wapaganda-frontend.s3.amazonaws.com/builds/wapaganda-frontend-{version}.zip"
-    print(f"Fetching {url}")
-    response = urllib.request.urlopen(url)
+        try:
+            print(f"Try fetching {archive_url}")
+            response = urllib.request.urlopen(archive_url)
 
-    if response.status == 200:
-        print(f"Successfully fetched from {url}")
-        with zipfile.ZipFile(io.BytesIO(response.read())) as archive:
-            archive.extractall("static")
-    else:
-        print(f"Failed to fetch static files. Status code: {response.status}")
+            if response.status == 200:
+                print(f"Extracting zip from {archive_url}")
+                with zipfile.ZipFile(io.BytesIO(response.read())) as archive:
+                    archive.extractall("static")
+                extracted_files = os.listdir("static/build")
+                extracted_to = os.path.abspath("static/build")
+                print(f"Successfully extracted to {extracted_to} following static files: {extracted_files}")
+                return
+            else:
+                print(f"Failed to fetch static files, trying the next. Status code: {response.status}")
+                continue
+
+        except HTTPError as e:
+            print(f"Failed to fetch static files, trying the next. Return code {e.code}")
+            continue
 
 
 def main():
-    """Run administrative tasks."""
+    """
+    Run administrative tasks
+    """
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'supaword.settings')
-
-    # Check if PROFILE_TYPE is not 'prod' which we do not support yet
-    if os.environ.get('PROFILE_TYPE') == 'prod':
-        print("Production profile is not supported yet")
-        sys.exit(0)
-
-    # This option is our custom option to fetch static files from AWS S3 or Supaword CDN
-    if len(sys.argv) > 1 and sys.argv[1] == 'fetchstatic':
-        version = sys.argv[2] if len(sys.argv) > 2 else FRONTEND_VERSION
-        fetch_static(version)
-        sys.exit(0)
-
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -50,6 +56,11 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+
+    if len(sys.argv) > 1 and sys.argv[1] == 'fetchstatic':
+        version = sys.argv[2] if len(sys.argv) > 2 else FRONTEND_VERSION
+        fetch_static(URLS, version)
+        sys.exit(0)
 
     execute_from_command_line(sys.argv)
 

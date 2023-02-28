@@ -1,4 +1,5 @@
 import os
+import mimetypes
 
 from django.contrib import staticfiles
 from django.core.checks import templates
@@ -19,8 +20,54 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 from .secure_env import SERVER_DEBUG, DJANGO_KEY, POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_USER, POSTGRES_DB
 
+
+FRONTEND_MIME_TYPES = {
+    # JavaScript files
+    ".js": "application/javascript",
+    ".jsx": "application/javascript",
+    ".mjs": "application/javascript",
+
+    # CSS files
+    ".css": "text/css",
+
+    # HTML files
+    ".html": "text/html",
+    ".htm": "text/html",
+
+    # Image files
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".gif": "image/gif",
+    ".bmp": "image/bmp",
+    ".ico": "image/x-icon",
+    ".svg": "image/svg+xml",
+
+    # Font files
+    ".woff": "font/woff",
+    ".woff2": "font/woff2",
+    ".ttf": "font/ttf",
+    ".otf": "font/otf",
+
+    # Video files
+    ".mp4": "video/mp4",
+    ".webm": "video/webm",
+
+    # Audio files
+    ".mp3": "audio/mpeg",
+    ".wav": "audio/wav",
+    ".ogg": "audio/ogg",
+
+    # WebAssembly files
+    ".wasm": "application/wasm",
+}
+
+for ext, mimetype in FRONTEND_MIME_TYPES.items():
+    mimetypes.add_type(mimetype, ext)
+
+
 # Server version
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
