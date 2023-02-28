@@ -39,6 +39,7 @@ ALLOWED_HOSTS = [
     "*.railway.app"
 ]
 
+
 # Application definition
 INSTALLED_APPS = [
     # Django administrative interface
@@ -71,6 +72,7 @@ INSTALLED_APPS = [
     'core'
 ]
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -82,6 +84,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
+
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
@@ -92,13 +95,11 @@ CORS_ALLOW_METHODS = ['POST', 'GET']
 
 ROOT_URLCONF = 'supaword.urls'
 
+
 # noinspection PyUnresolvedReferences
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR / 'static' / 'build'
-        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -112,6 +113,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'supaword.wsgi.application'
+
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -137,6 +139,11 @@ DATABASES = {
     }
 }
 
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = []
@@ -150,6 +157,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -167,21 +175,16 @@ USE_TZ = True
 # if you set STATIC_URL to 'static/', and you have a file called 'app.css' in your STATIC_ROOT directory,
 # then you can access that file at the URL 'http://localhost:8000/static/app.css'.
 # The URL prefix can be any string you like, but it should end with a forward slash /.
-STATIC_URL = 'static/'
 
 # STATIC_ROOT is the absolute filesystem path to the directory where Django will collect
 # all your static files into a single location for deployment.
 # This directory will be created automatically when you run the collectstatic command.
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # STATICFILES_DIRS is a list of directories where Django will look
 # for additional static files in addition to the STATIC_ROOT directory.
 # This setting is useful when you have static files that are not tied to a specific app.
-STATICFILES_DIRS = []
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static', 'build')
 
 # Settings for projects to access DRF features
 REST_FRAMEWORK = {

@@ -1,11 +1,15 @@
 from functools import reduce
 
 from django.db.models import Q
+from django.http import HttpResponseBadRequest
+from django.conf import settings
+
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
+from core.search import search_model_fulltext
 from supaword import settings
 from core import models
 from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer
@@ -13,20 +17,11 @@ from core.models import PeopleExtended
 from core.pagination import CustomPostPagination
 
 
-def search_model_fulltext(model, fields: list, values: list):
+def bad_request(request):
     """
-    Perform full-text search on a Django model.
-    :param model: The Django model to search.
-    :param fields: List of field names to search.
-    :param values: List of search query values.
-    :return: QuerySet of objects matching the search query.
+    Return 400 Bad Request for GET requests
     """
-    search_queries = [
-        Q(**{f'{field}__icontains': value}) for value in values
-        for field in fields
-    ]
-    results = model.objects.filter(reduce(lambda a, b: a | b, search_queries))
-    return results
+    return HttpResponseBadRequest('<h1>400 Bad Request</h1>')
 
 
 class PeopleExtendedAPIView(generics.CreateAPIView):
@@ -103,6 +98,7 @@ class PeopleExtendedAPIView(generics.CreateAPIView):
         :param request: Object of type rest_framework.request.Request
         :return: JSON response
         """
+
         request_data = request.data
         values = request_data.get('values', [])
 
