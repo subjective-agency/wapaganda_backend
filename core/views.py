@@ -187,9 +187,9 @@ class PeopleExtendedAPIView(generics.CreateAPIView):
         """
         return []
 
-    @staticmethod
-    def bad_request(request):
-        """
-        Return 400 Bad Request for GET requests
-        """
-        return HttpResponseBadRequest('<h1>400 Bad Request</h1>')
+@staticmethod
+def bad_request(request):
+    """
+    Return 400 Bad Request for GET requests
+    """
+    return HttpResponseBadRequest('<h1>400 Bad Request</h1>')
