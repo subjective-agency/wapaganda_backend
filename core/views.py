@@ -17,13 +17,6 @@ from core.models import PeopleExtended
 from core.pagination import CustomPostPagination
 
 
-def bad_request(request):
-    """
-    Return 400 Bad Request for GET requests
-    """
-    return HttpResponseBadRequest('<h1>400 Bad Request</h1>')
-
-
 class PeopleExtendedAPIView(generics.CreateAPIView):
     """
     API view to handle PeopleExtended data
@@ -193,3 +186,10 @@ class PeopleExtendedAPIView(generics.CreateAPIView):
         :return:
         """
         return []
+
+    @staticmethod
+    def bad_request(request):
+        """
+        Return 400 Bad Request for GET requests
+        """
+        return HttpResponseBadRequest('<h1>400 Bad Request</h1>')
