@@ -13,12 +13,93 @@ from core.search import search_model_fulltext
 from supaword import settings
 from core import models
 from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer
-from core.serializers import OrganizationSerializer, PeopleInOrgsSerializer
-from core.models import PeopleExtended, Organizations, PeopleInOrgs
+from core.serializers import PeopleInOrgsSerializer, OrganizationSerializer
+from core.models import PeopleExtended, PeopleInOrgs, Organizations
 from core.pagination import CustomPostPagination
 
+class SupawordAPIView(generics.CreateAPIView):
 
-class PeopleExtendedAPIView(generics.CreateAPIView):
+    def __init__(self, request_handler):
+        """
+        Initialize the class
+        """
+        super().__init__()
+        self.request_handler = request_handler
+
+    def get_serializer_context(self):
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
+
+    def get_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        kwargs['context'] = self.get_serializer_context()
+        return self.serializer_class(*args, **kwargs)
+
+    @staticmethod
+    def get_extra_actions():
+        """
+        Return extra actions
+        :return:
+        """
+        return []
+
+    def _post(self, request, *args, **kwargs):
+        """
+        Version of POST without exception handling
+        """
+        if not isinstance(request.data, dict):
+            return Response({'error': 'Invalid request data'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if (request_type := request.data.get('type', '')) == '':
+            return Response({'error': 'No request type specified'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if handler := self.request_handler.get(request_type):
+            return handler(request)
+        else:
+            return Response({'error': 'Invalid request type'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def _post_protected(self, request, *args, **kwargs):
+        """
+        Version of POST with exception handling
+        """
+        try:
+            return self._post(request, *args, **kwargs)
+        except Exception as e:
+            return Response({'Server error:': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST request
+        If debug mode is on, use debug_post
+        :param request: Object of type rest_framework.request.Request
+        :param args: Additional arguments
+        :param kwargs: Additional keyword arguments
+        :return: JSON response
+        """
+        if settings.DEBUG:
+            return self._post(request, *args, **kwargs)
+        else:
+            return self._post_protected(request, *args, **kwargs)
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Check request type and allow only POST
+        """
+        if request.method != 'POST':
+            return Response({'error': 'Invalid access method'}, status=status.HTTP_400_BAD_REQUEST)
+        return super().dispatch(request, *args, **kwargs)
+
+
+class PeopleExtendedAPIView(SupawordAPIView):
     """
     API view to handle PeopleExtended data
     """
@@ -31,13 +112,12 @@ class PeopleExtendedAPIView(generics.CreateAPIView):
         """
         Initialize the class
         """
-        super().__init__()
-        self.request_handler = {
+        super().__init__(request_handler = {
             'all': self.return_all_data,
             'page': self.return_page,
             'search': self.return_fulltext_search_result,
             'person': self.return_person_data
-        }
+        })
 
     @staticmethod
     def return_all_data(_):
@@ -112,80 +192,63 @@ class PeopleExtendedAPIView(generics.CreateAPIView):
         """
         request_data = request.data
         person_id = request_data.get('id')
-        people = PeopleExtended.objects.filter(id=person_id)
-        people_serializer = PeopleExtendedSerializer(people, many=True)
 
-        # Get PeopleInOrgs records for person_id
-        people_in_orgs = PeopleInOrgs.objects.filter(person=person_id)
-        people_in_orgs_serializer = PeopleInOrgsSerializer(people_in_orgs, many=True)
-
-        # Get full info about Organizations for org IDs from PeopleInOrgs
-        org_ids = [p['org'] for p in people_in_orgs_serializer.data]
-        organizations = Organizations.objects.filter(id__in=org_ids)
-        organization_serializer = OrganizationSerializer(organizations, many=True)
-
-        response = {
-            'person': people_serializer.data,
-            'organizations': organization_serializer.data
-        }
-
-        return Response(response)
-
-    def _post(self, request, *args, **kwargs):
-        """
-        Version of POST without exception handling
-        """
-        if not isinstance(request.data, dict):
-            return Response({'error': 'Invalid request data'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if (request_type := request.data.get('type', '')) == '':
-            return Response({'error': 'No request type specified'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if handler := self.request_handler.get(request_type):
-            return handler(request)
-        else:
-            return Response({'error': 'Invalid request type'}, status=status.HTTP_400_BAD_REQUEST)
-
-    def _post_protected(self, request, *args, **kwargs):
-        """
-        Version of POST with exception handling
-        """
         try:
-            return self._post(request, *args, **kwargs)
-        except Exception as e:
-            return Response({'Server error:': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            person = PeopleExtended.objects.get(id=person_id)
+        except PeopleExtended.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-    def post(self, request, *args, **kwargs):
-        """
-        Handle POST request
-        If debug mode is on, use debug_post
-        :param request: Object of type rest_framework.request.Request
-        :param args: Additional arguments
-        :param kwargs: Additional keyword arguments
-        :return: JSON response
-        """
-        if settings.DEBUG:
-            return self._post(request, *args, **kwargs)
-        else:
-            return self._post_protected(request, *args, **kwargs)
+        # Get all the organizations where the person is registered
+        people_in_orgs = PeopleInOrgs.objects.filter(person=person_id)
 
-    def get_serializer_context(self):
-        """
-        Extra context provided to the serializer class.
-        """
-        return {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self
-        }
+        # Serialize the person and organizations data
+        person_serializer = PeopleExtendedSerializer(person)
+        orgs_serializer = PeopleInOrgsSerializer(people_in_orgs, many=True)
 
-    def get_serializer(self, *args, **kwargs):
+        # Combine the serialized data and return the response
+        response_data = person_serializer.data
+
+        response_data['organizations'] = orgs_serializer.data
+
+        return Response(response_data)
+
+
+class OrganizationsAPIView(SupawordAPIView):
+    """
+    API view to handle PeopleExtended data
+    """
+    queryset = models.Organizations.objects.all()
+    serializer_class = OrganizationSerializer
+    parser_classes = [JSONParser]
+    pagination_class = CustomPostPagination
+
+    def __init__(self):
         """
-        Return the serializer instance that should be used for validating and
-        deserializing input, and for serializing output.
+        Initialize the class
         """
-        kwargs['context'] = self.get_serializer_context()
-        return self.serializer_class(*args, **kwargs)
+        super().__init__(request_handler = {
+            'all': self.return_all_organizations,
+            'person': self.person_organization_data
+        })
+
+    @staticmethod
+    def return_all_organizations(request):
+        pass
+
+    @staticmethod
+    def person_organization_data(request):
+        request_data = request.data
+        person_id = request_data.get('id')
+
+        # Get all the organization IDs where the person is registered
+        orgs = PeopleInOrgs.objects.filter(person=person_id)
+        orgs_ids = [org.id for org in orgs]
+
+        # Get all the organizations with the IDs
+        organizations = Organizations.objects.filter(id__in=orgs_ids)
+        organizations_serializer = OrganizationSerializer(organizations, many=True)
+
+        return Response(data=organizations_serializer.data, headers={'Server-Version': settings.VERSION})
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -194,14 +257,6 @@ class PeopleExtendedAPIView(generics.CreateAPIView):
         if request.method != 'POST':
             return Response({'error': 'Invalid access method'}, status=status.HTTP_400_BAD_REQUEST)
         return super().dispatch(request, *args, **kwargs)
-
-    @staticmethod
-    def get_extra_actions():
-        """
-        Return extra actions
-        :return:
-        """
-        return []
 
 
 def bad_request(request):

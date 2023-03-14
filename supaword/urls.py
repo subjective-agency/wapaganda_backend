@@ -10,4 +10,5 @@ urlpatterns = [
     path('', core_views.bad_request),
     path('admin/', admin.site.urls),
     path('people/', core_views.PeopleExtendedAPIView.as_view()),
+    path('org/', core_views.OrganizationsAPIView.as_view())
 ]
