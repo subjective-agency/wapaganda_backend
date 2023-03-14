@@ -107,3 +107,99 @@ class PeopleExtendedSerializer(serializers.Serializer):
             'known_for',
             'wiki_ref'
         )
+
+
+class OrganizationSerializer(serializers.Serializer):
+    """
+    Serializer for model Organizations
+    """
+    id = serializers.IntegerField()
+    name_en = serializers.CharField()
+    name_ru = serializers.CharField()
+    name_uk = serializers.CharField(allow_blank=True, allow_null=True)
+    parent_org = serializers.IntegerField(allow_null=True)
+    region = serializers.IntegerField(allow_null=True)
+    source_url = serializers.CharField(allow_blank=True, allow_null=True)
+    org_type = serializers.IntegerField(allow_null=True)
+    coverage_type = serializers.IntegerField(allow_null=True)
+    short_name = serializers.JSONField(allow_null=True)
+    state_affiliated = serializers.BooleanField(allow_null=True)
+    org_form_raw = serializers.CharField(allow_blank=True, allow_null=True)
+    org_form = serializers.JSONField(allow_null=True)
+    international = serializers.BooleanField(allow_null=True)
+    relevant = serializers.BooleanField()
+
+    def create(self, validated_data):
+        """
+        We do not manage the creation of the data
+        """
+        pass
+
+    def update(self, instance, validated_data):
+        """
+        We do not manage the update of the data
+        """
+        pass
+
+    class Meta:
+        model = models.Organizations
+        fields = (
+            'id',
+            'name_en',
+            'name_ru',
+            'name_uk',
+            'parent_org',
+            'region',
+            'source_url',
+            'org_type',
+            'coverage_type',
+            'short_name',
+            'state_affiliated',
+            'org_form_raw',
+            'org_form',
+            'international',
+            'relevant'
+        )
+
+
+class PeopleInOrgsSerializer(serializers.Serializer):
+    """
+    Serializer for model PeopleInOrgs
+    """
+    id = serializers.IntegerField()
+    person = serializers.IntegerField()
+    org = serializers.IntegerField()
+    is_active = serializers.BooleanField(allow_null=True)
+    media_segment = serializers.IntegerField(allow_null=True)
+    notes = serializers.CharField(allow_blank=True, allow_null=True)
+    is_in_control = serializers.BooleanField(allow_null=True)
+    role = serializers.JSONField(allow_null=True)
+    year_started = serializers.IntegerField(allow_null=True)
+    year_ended = serializers.IntegerField(allow_null=True)
+
+    def create(self, validated_data):
+        """
+        We do not manage the creation of the data
+        """
+        pass
+
+    def update(self, instance, validated_data):
+        """
+        We do not manage the update of the data
+        """
+        pass
+
+    class Meta:
+        model = models.PeopleInOrgs
+        fields = (
+            'id',
+            'person',
+            'org',
+            'is_active',
+            'media_segment',
+            'notes',
+            'is_in_control',
+            'role',
+            'year_started',
+            'year_ended'
+        )

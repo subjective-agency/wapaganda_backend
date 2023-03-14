@@ -13,7 +13,8 @@ from core.search import search_model_fulltext
 from supaword import settings
 from core import models
 from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer
-from core.models import PeopleExtended
+from core.serializers import OrganizationSerializer, PeopleInOrgsSerializer
+from core.models import PeopleExtended, Organizations, PeopleInOrgs
 from core.pagination import CustomPostPagination
 
 
@@ -112,8 +113,23 @@ class PeopleExtendedAPIView(generics.CreateAPIView):
         request_data = request.data
         person_id = request_data.get('id')
         people = PeopleExtended.objects.filter(id=person_id)
-        serializer = PeopleExtendedSerializer(people, many=True)
-        return Response(serializer.data)
+        people_serializer = PeopleExtendedSerializer(people, many=True)
+
+        # Get PeopleInOrgs records for person_id
+        people_in_orgs = PeopleInOrgs.objects.filter(person=person_id)
+        people_in_orgs_serializer = PeopleInOrgsSerializer(people_in_orgs, many=True)
+
+        # Get full info about Organizations for org IDs from PeopleInOrgs
+        org_ids = [p['org'] for p in people_in_orgs_serializer.data]
+        organizations = Organizations.objects.filter(id__in=org_ids)
+        organization_serializer = OrganizationSerializer(organizations, many=True)
+
+        response = {
+            'person': people_serializer.data,
+            'organizations': organization_serializer.data
+        }
+
+        return Response(response)
 
     def _post(self, request, *args, **kwargs):
         """
@@ -187,7 +203,7 @@ class PeopleExtendedAPIView(generics.CreateAPIView):
         """
         return []
 
-@staticmethod
+
 def bad_request(request):
     """
     Return 400 Bad Request for GET requests
