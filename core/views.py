@@ -17,6 +17,7 @@ from core.serializers import PeopleInOrgsSerializer, OrganizationSerializer
 from core.models import PeopleExtended, PeopleInOrgs, Organizations
 from core.pagination import CustomPostPagination
 
+
 class SupawordAPIView(generics.CreateAPIView):
 
     def __init__(self, request_handler):
