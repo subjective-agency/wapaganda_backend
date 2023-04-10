@@ -254,12 +254,11 @@ class People3RdprtDetailsRaw(models.Model):
     | Name | Type | Constraint type |
     | --- | --- | --- |
     | person_id | integer | PRIMARY KEY |
-    | person_id | integer | PRIMARY KEY |
     | url | text | PRIMARY KEY |
     | person_id | integer | FOREIGN KEY |
     """
-    id = models.BigAutoField(unique=True)
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    id = models.BigAutoField(unique=True, primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     url = models.TextField()
     text_raw = models.TextField(blank=True, null=True)
 
@@ -294,8 +293,8 @@ class PeopleInBundles(models.Model):
     | person_id | integer | PRIMARY KEY, FOREIGN KEY |
     | bundle_id | bigint | PRIMARY KEY, FOREIGN KEY |
     """
-    id = models.BigAutoField(unique=True)
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    id = models.BigAutoField(primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     bundle = models.ForeignKey(PeopleBundles, models.DO_NOTHING)
 
     class Meta:
@@ -316,8 +315,8 @@ class PeopleInOrgs(models.Model):
     | org_id | bigint | FOREIGN KEY |
     | person_id | integer | FOREIGN KEY |
     """
-    id = models.BigAutoField(unique=True)
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    id = models.BigAutoField(primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     org = models.ForeignKey(Organizations, models.DO_NOTHING)
     is_active = models.BooleanField()
     notes = models.TextField(blank=True, null=True)
@@ -371,9 +370,9 @@ class PeopleOnPhotos(models.Model):
     | person_id | integer | PRIMARY KEY, FOREIGN KEY |
     | photo_id | bigint | PRIMARY KEY, FOREIGN KEY |
     """
-    id = models.BigAutoField(unique=True)
+    id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     photo = models.ForeignKey('Photos', models.DO_NOTHING)
 
     class Meta:
@@ -391,8 +390,8 @@ class PeopleOnSmotrim(models.Model):
     | episode_id | integer | PRIMARY KEY, FOREIGN KEY |
     | media_role_id | bigint | PRIMARY KEY, FOREIGN KEY |
     """
-    id = models.BigAutoField(unique=True)
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    id = models.BigAutoField(primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     episode = models.ForeignKey('SmotrimEpisodes', models.DO_NOTHING)
     media_role = models.ForeignKey(MediaRoles, models.DO_NOTHING)
 
@@ -589,8 +588,8 @@ class TelegramAuthors(models.Model):
     | person_id | integer | PRIMARY KEY, FOREIGN KEY |
     | channel_id | integer | PRIMARY KEY, FOREIGN KEY |
     """
-    id = models.BigAutoField(unique=True)
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    id = models.BigAutoField(primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     channel = models.ForeignKey('TelegramChannels', models.DO_NOTHING)
 
     class Meta:

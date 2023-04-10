@@ -69,6 +69,7 @@ class PeopleExtendedSerializer(serializers.Serializer):
     external_links = serializers.CharField(allow_blank=True, allow_null=True)
     bundles = serializers.JSONField(allow_null=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
+    added_on = serializers.DateTimeField(allow_null=False)
 
     def create(self, validated_data):
         """
@@ -104,7 +105,8 @@ class PeopleExtendedSerializer(serializers.Serializer):
             'dod',
             'cod',
             'known_for',
-            'wiki_ref'
+            'wiki_ref',
+            'added_on',
         )
 
 
