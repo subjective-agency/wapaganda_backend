@@ -121,7 +121,16 @@ DATABASES = {
     # DBMS: PostgreSQL (ver. 14.1)
     # Case sensitivity: plain=lower, delimited=exact
     # Driver: PostgreSQL JDBC Driver (ver. 42.5.0, JDBC4.2)
+    # postgres://postgres:ZvJd63GBhaqB22WrwNa@ec2-52-0-67-255.compute-1.amazonaws.com:5432/postgres
     'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'ZvJd63GBhaqB22WrwNa',
+        'HOST': 'ec2-52-0-67-255.compute-1.amazonaws.com',
+        'PORT': '5432',
+    },
+    'dev': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'postgres',

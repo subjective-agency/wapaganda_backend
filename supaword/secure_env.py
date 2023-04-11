@@ -66,6 +66,5 @@ assert len(POSTGRES_PASSWORD) > 0, "Database password is empty"
 assert len(POSTGRES_ADDRESS) > 0, "Postgres address is empty"
 assert len(DJANGO_KEY) > 0, "Django key is empty"
 
-assert DB_CONNECTION_STRING.startswith(
-    "postgresql://"
-), f"Connection string must start with postgresql://, '{DB_CONNECTION_STRING}' instead"
+assert (DB_CONNECTION_STRING.startswith("postgresql://") or DB_CONNECTION_STRING.startswith("postgres://")), \
+    f"Connection string must start with postgresql://, '{DB_CONNECTION_STRING}' instead"
