@@ -209,7 +209,8 @@ class PeopleExtendedAPIView(SupawordAPIView):
         # Combine the serialized data and return the response
         response_data = person_serializer.data
 
-        response_data['organizations'] = orgs_serializer.data
+        # TODO: Serialize Organizations
+        # response_data['organizations'] = orgs_serializer.data
 
         return Response(response_data)
 
