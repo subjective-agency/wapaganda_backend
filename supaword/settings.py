@@ -121,13 +121,13 @@ DATABASES = {
     # DBMS: PostgreSQL (ver. 14.1)
     # Case sensitivity: plain=lower, delimited=exact
     # Driver: PostgreSQL JDBC Driver (ver. 42.5.0, JDBC4.2)
-    # postgres://postgres:ZvJd63GBhaqB22WrwNa@ec2-52-0-67-255.compute-1.amazonaws.com:5432/postgres
+    # postgres://postgres:ZvJd63GBhaqB22WrwNa@138.68.124.47:5432/postgres
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': 'ZvJd63GBhaqB22WrwNa',
-        'HOST': 'ec2-52-0-67-255.compute-1.amazonaws.com',
+        'HOST': '138.68.124.47',
         'PORT': '5432',
     },
     'dev': {
@@ -220,48 +220,3 @@ REST_FRAMEWORK = {
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'vnd.api+json'
 }
-
-# Configure Django App for serving the frontend
-STATIC_MIME_TYPES = {
-    # JavaScript files
-    ".js": "application/javascript",
-    ".jsx": "application/javascript",
-    ".mjs": "application/javascript",
-
-    # CSS files
-    ".css": "text/css",
-
-    # HTML files
-    ".html": "text/html",
-    ".htm": "text/html",
-
-    # Image files
-    ".png": "image/png",
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".gif": "image/gif",
-    ".bmp": "image/bmp",
-    ".ico": "image/x-icon",
-    ".svg": "image/svg+xml",
-
-    # Font files
-    ".woff": "font/woff",
-    ".woff2": "font/woff2",
-    ".ttf": "font/ttf",
-    ".otf": "font/otf",
-
-    # Video files
-    ".mp4": "video/mp4",
-    ".webm": "video/webm",
-
-    # Audio files
-    ".mp3": "audio/mpeg",
-    ".wav": "audio/wav",
-    ".ogg": "audio/ogg",
-
-    # WebAssembly files
-    ".wasm": "application/wasm",
-}
-
-for ext, mimetype in STATIC_MIME_TYPES.items():
-    mimetypes.add_type(mimetype, ext)
