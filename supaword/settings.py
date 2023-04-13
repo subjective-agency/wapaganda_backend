@@ -118,10 +118,12 @@ WSGI_APPLICATION = 'supaword.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 DATABASES = {
-    # DBMS: PostgreSQL (ver. 14.1)
+    # postgres://postgres:[password]@138.68.124.47:5432/postgres
+    # DBMS: PostgreSQL (ver. 14.7 (Ubuntu 14.7-0ubuntu0.22.10.1))
     # Case sensitivity: plain=lower, delimited=exact
     # Driver: PostgreSQL JDBC Driver (ver. 42.5.0, JDBC4.2)
-    # postgres://postgres:ZvJd63GBhaqB22WrwNa@138.68.124.47:5432/postgres
+    # Ping: 509 ms
+    # SSL: yes
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
