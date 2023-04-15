@@ -113,7 +113,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         """
         Initialize the class
         """
-        super().__init__(request_handler = {
+        super().__init__(request_handler={
             'all': self.return_all_data,
             'page': self.return_page,
             'search': self.return_fulltext_search_result,
@@ -204,7 +204,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
 
         # Serialize the person and organizations data
         person_serializer = PeopleExtendedSerializer(person)
-        orgs_serializer = PeopleInOrgsSerializer(people_in_orgs, many=True)
+        # orgs_serializer = PeopleInOrgsSerializer(people_in_orgs, many=True)
 
         # Combine the serialized data and return the response
         response_data = person_serializer.data
@@ -228,7 +228,7 @@ class OrganizationsAPIView(SupawordAPIView):
         """
         Initialize the class
         """
-        super().__init__(request_handler = {
+        super().__init__(request_handler={
             'all': self.return_all_organizations,
             'person': self.person_organization_data
         })

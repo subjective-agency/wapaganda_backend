@@ -124,7 +124,7 @@ DATABASES = {
     # Driver: PostgreSQL JDBC Driver (ver. 42.5.0, JDBC4.2)
     # Ping: 509 ms
     # SSL: yes
-    'dev': {
+    'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'postgres',
