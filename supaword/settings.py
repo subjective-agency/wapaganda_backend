@@ -124,14 +124,6 @@ DATABASES = {
     # Driver: PostgreSQL JDBC Driver (ver. 42.5.0, JDBC4.2)
     # Ping: 509 ms
     # SSL: yes
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'ZvJd63GBhaqB22WrwNa',
-        'HOST': '138.68.124.47',
-        'PORT': '5432',
-    },
     'dev': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
@@ -139,10 +131,6 @@ DATABASES = {
         'PASSWORD': POSTGRES_PASSWORD,
         'HOST': POSTGRES_ADDRESS,
         'PORT': '5432',
-    },
-    'wapasqlite': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
     },
     'wapamock': {
         'ENGINE': 'django.db.backends.sqlite3',
