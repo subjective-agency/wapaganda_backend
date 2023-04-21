@@ -19,7 +19,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from .secure_env import SERVER_DEBUG, DJANGO_KEY
-from .secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_USER, POSTGRES_DB, POSTGRES_PORT
+from .secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_USER, POSTGRES_DB
 
 
 # Server version
@@ -131,7 +131,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': POSTGRES_PASSWORD,
         'HOST': POSTGRES_ADDRESS,
-        'PORT': POSTGRES_PORT
+        'PORT': 5432
     },
     'wapamock': {
         'ENGINE': 'django.db.backends.sqlite3',
