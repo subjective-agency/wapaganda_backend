@@ -162,28 +162,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-# The BASE_DIR/static directory is where you would put your application-specific static files.
-# These are files that are specific to your application, such as images, CSS, and JavaScript files
-# that are used by your HTML templates.
-
-# On the other hand, the BASE_DIR/staticfiles directory is where you would put
-# your project-wide static files.
-# These are static files that are shared across the entire project, such as the favicon.ico file,
-# robots.txt file, and other files that are not specific to any one application.
-
 # STATIC_URL is the URL prefix that Django will use to serve static files. For example,
 # if you set STATIC_URL to 'static/', and you have a file called 'app.css' in your STATIC_ROOT directory,
 # then you can access that file at the URL 'http://localhost:8000/static/app.css'.
 # The URL prefix can be any string you like, but it should end with a forward slash /.
+STATIC_URL = 'static/'
 
 # STATIC_ROOT is the absolute filesystem path to the directory where Django will collect
 # all your static files into a single location for deployment.
 # This directory will be created automatically when you run the collectstatic command.
-
-# STATICFILES_DIRS is a list of directories where Django will look
-# for additional static files in addition to the STATIC_ROOT directory.
-# This setting is useful when you have static files that are not tied to a specific app.
-STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static', 'build')
 
 # Settings for projects to access DRF features
