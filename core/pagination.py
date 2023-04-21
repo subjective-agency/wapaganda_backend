@@ -38,6 +38,11 @@ class CustomPostPagination(PageNumberPagination):
         return request.data.get('page_size', request.query_params.get('page_size', self.page_size))
 
     def get_paginated_response(self, data):
+        """
+        Return the paginated response, add total number of records and page size
+        Add server version to the response headers
+        :return: Object of type rest_framework.response.Response
+        """
         return Response(data={
             'total': self.page.paginator.count,
             'page_size': CustomPostPagination.page_size,
