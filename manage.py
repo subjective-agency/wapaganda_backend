@@ -7,7 +7,7 @@ from urllib.error import HTTPError
 import zipfile
 import io
 
-FRONTEND_VERSION = '0.2.17'
+FRONTEND_VERSION = '0.9.3'
 URLS = [
     f'https://svfizyfozagyqkkjzqdc.supabase.co/storage/v1/object/public/packages/frontend/',
     f'https://wapaganda-frontend.s3.amazonaws.com/builds/'
