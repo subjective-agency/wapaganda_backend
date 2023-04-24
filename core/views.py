@@ -231,7 +231,13 @@ class OrganizationsAPIView(SupawordAPIView):
 
     @staticmethod
     def return_all_organizations(request):
-        pass
+        """
+        :param request:
+        :return:
+        """
+        organizations = Organizations.objects.all().order_by('id')[:20]
+        serializer = OrganizationSerializer(organizations, many=True)
+        return Response(data=serializer.data, headers={'Server-Version': settings.VERSION})
 
     @staticmethod
     def person_organization_data(request):
