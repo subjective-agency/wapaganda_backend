@@ -130,25 +130,6 @@ class OrganizationSerializer(serializers.Serializer):
     international = serializers.BooleanField(allow_null=True)
     relevant = serializers.BooleanField()
 
-    def to_representation(self, instance):
-        """
-        Convert the organization model instance to a Python dict representation
-        :param instance: The organization model instance
-        :return: A Python dict representation of the organization
-        """
-        ret = super().to_representation(instance)
-        # Get the parent organization instance
-        parent_org_instance = instance.parent_org
-        # Check if there is a parent organization
-        if parent_org_instance:
-            # Serialize the parent organization instance using this serializer recursively
-            parent_org_data = self.__class__(parent_org_instance).data
-            # Remove the 'id' field from the parent organization data (since it's already included in the 'parent_org' field)
-            del parent_org_data['id']
-            # Add the parent organization data to the representation
-            ret['parent_org'] = parent_org_data
-        return ret
-
     def create(self, validated_data):
         """
         We do not manage the creation of the data
