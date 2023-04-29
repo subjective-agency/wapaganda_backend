@@ -80,7 +80,7 @@ class SupawordAPIView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         """
         Handle POST request
-        If debug mode is on, use debug_post
+        If debug mode is on, use _post method, otherwise use _post_protected
         :param request: Object of type rest_framework.request.Request
         :param args: Additional arguments
         :param kwargs: Additional keyword arguments

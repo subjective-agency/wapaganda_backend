@@ -142,6 +142,27 @@ class OrganizationSerializer(serializers.Serializer):
         """
         pass
 
+    def to_representation(self, instance):
+        # create a dictionary with the fields to be serialized
+        representation = {
+            'id': instance.id,
+            'name_en': instance.name_en,
+            'name_ru': instance.name_ru,
+            'name_uk': instance.name_uk,
+            'parent_org': instance.parent_org,
+            'region': instance.region,
+            'source_url': instance.source_url,
+            'org_type': instance.org_type,
+            'coverage_type': instance.coverage_type,
+            'short_name': instance.short_name,
+            'state_affiliated': instance.state_affiliated,
+            'org_form_raw': instance.org_form_raw,
+            'org_form': instance.org_form,
+            'international': instance.international,
+            'relevant': instance.relevant,
+        }
+        return representation
+
     class Meta:
         model = models.Organizations
         fields = (
