@@ -739,10 +739,13 @@ class PeopleExtended(models.Model):
     known_for = models.JSONField(blank=True, null=True)
     wiki_ref = models.JSONField(blank=True, null=True)
     photo = models.TextField(blank=True, null=True)
-    external_links = models.TextField(blank=True, null=True)
-    bundles = models.JSONField(blank=True, null=True)
+    external_links = ArrayField(models.TextField(), blank=True, null=True)
+    bundles = ArrayField(models.JSONField(), blank=True, null=True)
     thumb = models.TextField(blank=True, null=True)
     added_on = models.DateTimeField()
+    sex = models.TextField(blank=True, null=True)
+    orgs = ArrayField(models.JSONField(), blank=True, null=True)
+    telegram_channels = ArrayField(models.JSONField(), blank=True, null=True)
 
     class Meta:
         db_table = 'people_extended'
