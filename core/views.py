@@ -26,6 +26,7 @@ class SupawordAPIView(generics.CreateAPIView):
         """
         super().__init__()
         self.request_handler = request_handler
+        self.http_method_names = ['post']
 
     def get_serializer_context(self):
         """
@@ -90,14 +91,6 @@ class SupawordAPIView(generics.CreateAPIView):
             return self._post(request, *args, **kwargs)
         else:
             return self._post_protected(request, *args, **kwargs)
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Check request type and allow only POST
-        """
-        if request.method != 'POST':
-            return Response({'error': 'Invalid access method'}, status=status.HTTP_400_BAD_REQUEST)
-        return super().dispatch(request, *args, **kwargs)
 
 
 class PeopleExtendedAPIView(SupawordAPIView):
@@ -253,14 +246,6 @@ class OrganizationsAPIView(SupawordAPIView):
         organizations_serializer = OrganizationSerializer(organizations, many=True)
 
         return Response(data=organizations_serializer.data, headers={'Server-Version': settings.VERSION})
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Check request type and allow only POST
-        """
-        if request.method != 'POST':
-            return Response({'error': 'Invalid access method'}, status=status.HTTP_400_BAD_REQUEST)
-        return super().dispatch(request, *args, **kwargs)
 
 
 def bad_request(request):
