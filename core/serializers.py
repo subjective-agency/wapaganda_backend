@@ -72,9 +72,9 @@ class PeopleExtendedSerializer(serializers.Serializer):
     bundles = serializers.JSONField(allow_null=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
     added_on = serializers.DateTimeField(allow_null=False)
-    sex = serializers.CharField(blank=True, null=True)
-    orgs = serializers.JSONField(blank=True, null=True)
-    telegram_channels = serializers.JSONField( blank=True, null=True)
+    sex=serializers.CharField(allow_null=True)
+    orgs = serializers.JSONField(allow_null=True)
+    telegram_channels = serializers.JSONField(allow_null=True)
 
     def create(self, validated_data):
         """
