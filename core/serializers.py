@@ -15,6 +15,7 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
     dob = serializers.DateField(allow_null=True)
     photo = serializers.CharField(allow_blank=True, allow_null=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
+    sex = serializers.CharField(allow_blank=True, allow_null=True)
 
     def create(self, validated_data):
         """
@@ -37,7 +38,8 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
             'fullname_uk',
             'dob',
             'photo',
-            'thumb'
+            'thumb',
+            'sex'
         )
 
 
@@ -70,6 +72,9 @@ class PeopleExtendedSerializer(serializers.Serializer):
     bundles = serializers.JSONField(allow_null=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
     added_on = serializers.DateTimeField(allow_null=False)
+    sex = serializers.CharField(blank=True, null=True)
+    orgs = serializers.JSONField(blank=True, null=True)
+    telegram_channels = serializers.JSONField( blank=True, null=True)
 
     def create(self, validated_data):
         """
@@ -107,6 +112,9 @@ class PeopleExtendedSerializer(serializers.Serializer):
             'known_for',
             'wiki_ref',
             'added_on',
+            "sex",
+            "orgs",
+            "telegram_channels"
         )
 
 
