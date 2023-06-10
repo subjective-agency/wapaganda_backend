@@ -544,6 +544,7 @@ class PeopleExtended(models.Model):
     sex = models.TextField(blank=True, null=True)
     orgs = ArrayField(models.JSONField(), blank=True, null=True)
     telegram_channels = ArrayField(models.JSONField(), blank=True, null=True)
+    youtube_channels = ArrayField(models.JSONField(), blank=True, null=True)
 
     class Meta:
         db_table = 'people_extended'

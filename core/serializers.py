@@ -53,15 +53,15 @@ class PeopleExtendedSerializer(serializers.Serializer):
     fullname_ru = serializers.CharField()
     lastname_en = serializers.CharField(allow_blank=True, allow_null=True)
     lastname_ru = serializers.CharField(allow_blank=True, allow_null=True)
-    social = serializers.CharField(allow_blank=True, allow_null=True)
+    social = serializers.CharField(allow_blank=True, allow_null=True, many=True)
     dob = serializers.DateField(allow_null=True)
     is_ttu = serializers.BooleanField(allow_null=True)
     is_ff = serializers.BooleanField(allow_null=True)
     contact = serializers.JSONField(allow_null=True)
-    address = serializers.JSONField(allow_null=True)
-    associates = serializers.JSONField(allow_null=True)
+    address = serializers.JSONField(allow_null=True, many=True)
+    associates = serializers.JSONField(allow_null=True, many=True)
     additional = serializers.JSONField(allow_null=True)
-    aliases = serializers.JSONField(allow_null=True)
+    aliases = serializers.JSONField(allow_null=True, many=True)
     info = serializers.JSONField(allow_null=True)
     dod = serializers.DateField(allow_null=True)
     cod = serializers.CharField(allow_blank=True, allow_null=True)
@@ -69,12 +69,13 @@ class PeopleExtendedSerializer(serializers.Serializer):
     wiki_ref = serializers.JSONField(allow_null=True)
     photo = serializers.CharField(allow_blank=True, allow_null=True)
     external_links = serializers.CharField(allow_blank=True, allow_null=True)
-    bundles = serializers.JSONField(allow_null=True)
+    bundles = serializers.JSONField(allow_null=True, many=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
     added_on = serializers.DateTimeField(allow_null=False)
     sex=serializers.CharField(allow_null=True)
-    orgs = serializers.JSONField(allow_null=True)
-    telegram_channels = serializers.JSONField(allow_null=True)
+    orgs = serializers.JSONField(allow_null=True, many=True)
+    telegram_channels = serializers.JSONField(allow_null=True, many=True)
+    youtube_channels = serializers.JSONField(allow_null=True, many=True)
 
     def create(self, validated_data):
         """
@@ -114,7 +115,8 @@ class PeopleExtendedSerializer(serializers.Serializer):
             'added_on',
             "sex",
             "orgs",
-            "telegram_channels"
+            "telegram_channels",
+            "youtube_channels"
         )
 
 
