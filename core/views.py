@@ -204,6 +204,117 @@ class PeopleExtendedAPIView(SupawordAPIView):
         return Response(response_data)
 
 
+class TheoryAPIView(SupawordAPIView):
+    """
+    API view to handle Theory table
+    """
+    queryset = models.PeopleExtended.objects.all()
+    serializer_class = PeopleExtendedSerializer
+    parser_classes = [JSONParser]
+    pagination_class = CustomPostPagination
+
+    def __init__(self):
+        """
+        Initialize the class
+        """
+        super().__init__(request_handler={
+            'all': self.return_all_data,
+            'page': self.return_page,
+            'search': self.return_fulltext_search_result,
+            'person': self.return_person_data
+        })
+
+    @staticmethod
+    def return_all_data(_):
+        """
+        Return all data
+        :param _: Object of type rest_framework.request.Request
+        :return: All the data in short JSON format
+        """
+        # In DEBUG mode we return only 20 records for test purposes
+        if settings.DEBUG:
+            people = PeopleExtended.objects.all().order_by('id')[:20]
+        else:
+            people = PeopleExtended.objects.all().order_by('id')
+        serializer = PeopleExtendedBriefSerializer(people, many=True)
+        return Response(data=serializer.data, headers={'Server-Version': settings.VERSION})
+
+    @staticmethod
+    def return_page(request):
+        """
+        Return all data
+        :param request: Object of type rest_framework.request.Request
+        :return: All the data in short JSON format
+        """
+        if request.data.get('type', '') != 'page':
+            return Response({'error': 'Invalid request type, "page" expected'}, status=status.HTTP_400_BAD_REQUEST)
+
+        people = PeopleExtended.objects.all().order_by('id')
+        paginator = CustomPostPagination()
+        result_page = paginator.paginate_queryset(people, request)
+        serializer = PeopleExtendedBriefSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @staticmethod
+    def return_search_result(request):
+        """
+        Return search result
+        :param request: Object of type rest_framework.request.Request
+        :return: JSON response
+        """
+        request_data = request.data
+        values = request_data.get('values', [])
+        print(f'Values: {values}')
+        people = PeopleExtended.objects.filter(reduce(lambda x, y: x | y, [
+            Q(fullname_en=value) | Q(fullname_ru=value) | Q(fullname_uk=value) for value in values]))
+        serializer = PeopleExtendedBriefSerializer(people, many=True)
+        return Response(serializer.data)
+
+    @staticmethod
+    def return_fulltext_search_result(request):
+        """
+        Return fulltext search result
+        :param request: Object of type rest_framework.request.Request
+        :return: JSON response
+        """
+
+        request_data = request.data
+        values = request_data.get('values', [])
+
+        people = search_model_fulltext(model=PeopleExtended,
+                                       fields=['fullname_en', 'fullname_ru', 'fullname_uk'],
+                                       values=values)
+
+        serializer = PeopleExtendedBriefSerializer(people, many=True)
+        return Response(serializer.data)
+
+    @staticmethod
+    def return_person_data(request):
+        """
+        Return person data
+        :param request: Object of type rest_framework.request.Request
+        :return: JSON response full data of the person
+        """
+        request_data = request.data
+        person_id = request_data.get('id')
+
+        try:
+            person = PeopleExtended.objects.get(id=person_id)
+        except PeopleExtended.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # Get all the organizations where the person is registered
+        people_in_orgs = PeopleInOrgs.objects.filter(person=person_id)
+
+        # Serialize the person and organizations data
+        person_serializer = PeopleExtendedSerializer(person)
+        # Combine the serialized data and return the response
+        response_data = person_serializer.data
+        # TODO: Serialize Organizations
+
+        return Response(response_data)
+
+
 class OrganizationsAPIView(SupawordAPIView):
     """
     API view to handle PeopleExtended data
