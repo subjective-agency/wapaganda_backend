@@ -175,7 +175,7 @@ class People(models.Model):
     aliases = models.TextField(blank=True, null=True)  # This field type is a guess.
     info = models.JSONField(blank=True, null=True)
     dod = models.DateField(blank=True, null=True)
-    cod = models.CharField(max_length=-1, blank=True, null=True)
+    cod = models.CharField(max_length=255, blank=True, null=True)
     known_for = models.JSONField(blank=True, null=True)
     wiki_ref = models.JSONField(blank=True, null=True)
     namesake_seq = models.SmallIntegerField(blank=True, null=True)
@@ -190,8 +190,8 @@ class People(models.Model):
 
 
 class People3RdprtDetailsRaw(models.Model):
-    id = models.BigAutoField()
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    id = models.BigAutoField(primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     url = models.TextField()
     text_raw = models.TextField(blank=True, null=True)
 
@@ -214,8 +214,8 @@ class PeopleBundles(models.Model):
 
 
 class PeopleInBundles(models.Model):
-    id = models.BigAutoField()
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    id = models.BigAutoField(primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     bundle = models.ForeignKey(PeopleBundles, models.DO_NOTHING)
 
     class Meta:
@@ -225,8 +225,8 @@ class PeopleInBundles(models.Model):
 
 
 class PeopleInOrgs(models.Model):
-    id = models.BigAutoField(unique=True)
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    id = models.BigAutoField(unique=True, primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     org = models.ForeignKey(Organizations, models.DO_NOTHING)
     is_active = models.BooleanField()
     notes = models.TextField(blank=True, null=True)
@@ -266,9 +266,9 @@ class PeopleInUr(models.Model):
 
 
 class PeopleOnPhotos(models.Model):
-    id = models.BigAutoField()
+    id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     photo = models.ForeignKey('Photos', models.DO_NOTHING)
 
     class Meta:
@@ -278,8 +278,8 @@ class PeopleOnPhotos(models.Model):
 
 
 class PeopleOnSmotrim(models.Model):
-    id = models.BigAutoField(unique=True)
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    id = models.BigAutoField(unique=True, primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     episode = models.ForeignKey('SmotrimEpisodes', models.DO_NOTHING)
     media_role = models.ForeignKey(MediaRoles, models.DO_NOTHING)
 
@@ -406,8 +406,8 @@ class SmotrimEpisodes(models.Model):
 
 
 class TelegramAuthors(models.Model):
-    id = models.BigAutoField()
-    person = models.OneToOneField(People, models.DO_NOTHING, primary_key=True)
+    id = models.BigAutoField(primary_key=True)
+    person = models.OneToOneField(People, models.DO_NOTHING)
     channel = models.ForeignKey('TelegramChannels', models.DO_NOTHING)
 
     class Meta:
