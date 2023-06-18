@@ -43,6 +43,39 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
         )
 
 
+class CacheSerializer(serializers.Serializer):
+    """
+    Serializer to send a response back to user.
+    This one is a brief version of the serializer, returning only the most important fields
+    """
+
+    id = serializers.IntegerField()
+    fullname_en = serializers.CharField()
+    fullname_ru = serializers.CharField()
+    fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
+
+    def create(self, validated_data):
+        """
+        We do not manage the creation of the data
+        """
+        pass
+
+    def update(self, instance, validated_data):
+        """
+        We do not manage the update of the data
+        """
+        pass
+
+    class Meta:
+        model = models.PeopleExtended
+        fields = (
+            'id',
+            'fullname_en',
+            'fullname_ru',
+            'fullname_uk'
+        )
+
+
 class PeopleExtendedSerializer(serializers.Serializer):
     """
     Full serializer to return almost all fields
