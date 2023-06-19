@@ -3,12 +3,14 @@ from django.db import models
 
 
 __doc__ = """This file based on auto-generated Django ORM models from the database.
-You'll have to do the following manually to clean this up:
+You'll have to do the following edits to clean this up manually:
+ * Rearrange models' order
  * Make sure each model has one field with primary_key=True
  * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
- * Ensure every model has `managed = False` line, if you wish to forbid Django to create, 
+ * Ensure every model has `managed = False` line, if you wish to forbid Django to create,
    modify or delete the table
  * `max_length` must be a positive integer everywhere
+ * Feel free to rename the models, but don't rename db_table values or field names
 """
 
 
@@ -116,6 +118,7 @@ class MediaSegments(models.Model):
     latest_episode_date = models.DateTimeField(blank=True, null=True)
     komso_id = models.IntegerField(unique=True, blank=True, null=True)
     rutube_id = models.TextField(unique=True, blank=True, null=True)
+    ntv_id = models.JSONField(unique=True, blank=True, null=True)
 
     class Meta:
         managed = False
