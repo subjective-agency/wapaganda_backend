@@ -108,6 +108,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         """
         super().__init__(request_handler={
             'all': self.return_all_data,
+            'cache': self.return_cache,
             'page': self.return_page,
             'search': self.return_fulltext_search_result,
             'person': self.return_person_data
@@ -125,8 +126,8 @@ class PeopleExtendedAPIView(SupawordAPIView):
             people = PeopleExtended.objects.all().order_by('id')[:20]
         else:
             people = PeopleExtended.objects.all().order_by('id')
-        serializer = PeopleExtendedBriefSerializer(people, many=True)
-        return Response(data=serializer.data, headers={'Server-Version': settings.VERSION})
+        serializer = CacheSerializer(people, many=True)
+        return Response(data=serializer.data)
 
     @staticmethod
     def return_cache(request):
@@ -138,7 +139,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         else:
             people = PeopleExtended.objects.all().order_by('id')
         serializer = CacheSerializer(people, many=True)
-        return Response(data=serializer.data, headers={'Server-Version': settings.VERSION})
+        return Response(data=serializer.data)
 
     @staticmethod
     def return_page(request):
@@ -204,9 +205,6 @@ class PeopleExtendedAPIView(SupawordAPIView):
         except PeopleExtended.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        # Get all the organizations where the person is registered
-        people_in_orgs = PeopleInOrgs.objects.filter(person=person_id)
-
         # Serialize the person and organizations data
         person_serializer = PeopleExtendedSerializer(person)
         # Combine the serialized data and return the response
@@ -249,7 +247,7 @@ class OrganizationsAPIView(SupawordAPIView):
         """
         organizations = Organizations.objects.all().order_by('id')[:20]
         serializer = OrganizationSerializer(organizations, many=True)
-        return Response(data=serializer.data, headers={'Server-Version': settings.VERSION})
+        return Response(data=serializer.data)
 
     @staticmethod
     def person_organization_data(request):
@@ -264,7 +262,7 @@ class OrganizationsAPIView(SupawordAPIView):
         organizations = Organizations.objects.filter(id__in=orgs_ids)
         organizations_serializer = OrganizationSerializer(organizations, many=True)
 
-        return Response(data=organizations_serializer.data, headers={'Server-Version': settings.VERSION})
+        return Response(data=organizations_serializer.data)
 
 
 def bad_request(request):
