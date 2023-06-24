@@ -163,16 +163,16 @@ class People(models.Model):
     lastname_en = models.TextField(blank=True, null=True)
     lastname_ru = models.TextField(blank=True, null=True)
     is_onmap = models.BooleanField(blank=True, null=True)
-    social = models.TextField(blank=True, null=True)  # This field type is a guess.
+    social = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
     dob = models.DateField(blank=True, null=True)
     is_ttu = models.BooleanField(blank=True, null=True)
     is_ff = models.BooleanField(blank=True, null=True)
     relevant = models.BooleanField()
     contact = models.JSONField(blank=True, null=True)
-    address = models.TextField(blank=True, null=True)  # This field type is a guess.
-    associates = models.TextField(blank=True, null=True)  # This field type is a guess.
-    additional = models.JSONField(blank=True, null=True)
-    aliases = models.TextField(blank=True, null=True)  # This field type is a guess.
+    address = ArrayField(models.TextField(), blank=True, null=True)
+    associates = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
+    additional = ArrayField(models.JSONField(), blank=True, null=True)
+    aliases = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
     info = models.JSONField(blank=True, null=True)
     dod = models.DateField(blank=True, null=True)
     cod = models.CharField(max_length=255, blank=True, null=True)
@@ -446,9 +446,9 @@ class Theory(models.Model):
     title = models.JSONField()
     type = models.TextField(blank=True, null=True)
     excerpt = models.JSONField(blank=True, null=True)
-    images = models.TextField(blank=True, null=True)  # This field type is a guess.
+    images = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
     content = models.JSONField(blank=True, null=True)
-    original_content_metadata = models.TextField(blank=True, null=True)  # This field type is a guess.
+    original_content_metadata = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
     added_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
