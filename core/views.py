@@ -1,3 +1,4 @@
+from datetime import timezone, datetime
 from functools import reduce
 
 from django.db.models import Q
@@ -134,10 +135,17 @@ class PeopleExtendedAPIView(SupawordAPIView):
         """
         Return data for caching
         """
+        if request.data.get('type', '') != 'cache':
+            return Response({'error': 'Invalid request type, "cache" expected'}, status=status.HTTP_400_BAD_REQUEST)
+        request_data = request.data
+        created_after = request_data.get('timestamp', 0)
+        created_after_datetime = datetime.fromtimestamp(created_after, tz=timezone.utc)
+
+        # All records created after the specified timestamp
         if settings.DEBUG:
-            people = PeopleExtended.objects.all().order_by('id')[:20]
+            people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')[:20]
         else:
-            people = PeopleExtended.objects.all().order_by('id')
+            people = PeopleExtended.objects.filter(added_on__gt=created_after).order_by('id')
         serializer = CacheSerializer(people, many=True)
         return Response(data=serializer.data)
 
@@ -166,7 +174,6 @@ class PeopleExtendedAPIView(SupawordAPIView):
         """
         request_data = request.data
         values = request_data.get('values', [])
-        print(f'Values: {values}')
         people = PeopleExtended.objects.filter(reduce(lambda x, y: x | y, [
             Q(fullname_en=value) | Q(fullname_ru=value) | Q(fullname_uk=value) for value in values]))
         serializer = PeopleExtendedBriefSerializer(people, many=True)

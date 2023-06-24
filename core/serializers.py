@@ -53,6 +53,7 @@ class CacheSerializer(serializers.Serializer):
     fullname_en = serializers.CharField()
     fullname_ru = serializers.CharField()
     fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
+    added_on = serializers.DateTimeField()
 
     def create(self, validated_data):
         """
