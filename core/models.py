@@ -641,7 +641,7 @@ class TelegramChannels(models.Model):
     is_fake = models.BooleanField(blank=True, null=True)
     is_scam = models.BooleanField(blank=True, null=True)
     no_forward = models.BooleanField(blank=True, null=True)
-    restrictions = models.TextField(blank=True, null=True)  # This field type is a guess.
+    restrictions = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
     linked_chat_id = models.BigIntegerField(blank=True, null=True)
     history_count = models.BigIntegerField(blank=True, null=True)
 
