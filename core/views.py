@@ -230,7 +230,7 @@ class TheoryAPIView(SupawordAPIView):
 
 class OrganizationsAPIView(SupawordAPIView):
     """
-    API view to handle PeopleExtended data
+    API view to handle Organizations
     """
     queryset = models.Organizations.objects.all()
     serializer_class = OrganizationSerializer
