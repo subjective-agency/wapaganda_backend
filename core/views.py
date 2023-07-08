@@ -152,14 +152,25 @@ class PeopleExtendedAPIView(SupawordAPIView):
     @staticmethod
     def return_page(request):
         """
-        Return all data
+        Return paginated and filtered data
         :param request: Object of type rest_framework.request.Request
-        :return: All the data in short JSON format
+        :return: Paginated and filtered data in short JSON format
         """
         if request.data.get('type', '') != 'page':
             return Response({'error': 'Invalid request type, "page" expected'}, status=status.HTTP_400_BAD_REQUEST)
 
-        people = PeopleExtended.objects.all().order_by('id')
+        people = PeopleExtended.objects.all()
+
+        # Apply filtering
+        filter_value = request.data.get('filter', '')
+        people = people.filter(Q(name__icontains=filter_value) | Q(email__icontains=filter_value))
+
+        # Apply sorting
+        sort_by = request.data.get('sort_by', 'id')
+        sort_direction = request.data.get('sort_direction', 'asc')
+        sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
+        people = people.order_by(sort_by)
+
         paginator = CustomPostPagination()
         result_page = paginator.paginate_queryset(people, request)
         serializer = PeopleExtendedBriefSerializer(result_page, many=True)
