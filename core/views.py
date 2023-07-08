@@ -163,7 +163,11 @@ class PeopleExtendedAPIView(SupawordAPIView):
 
         # Apply filtering
         filter_value = request.data.get('filter', '')
-        people = people.filter(Q(name__icontains=filter_value) | Q(email__icontains=filter_value))
+        people = people.filter(
+            Q(fullname_en__icontains=filter_value) |
+            Q(fullname_ru__icontains=filter_value) |
+            Q(fullname_uk__icontains=filter_value)
+        )
 
         # Apply sorting
         sort_by = request.data.get('sort_by', 'id')
