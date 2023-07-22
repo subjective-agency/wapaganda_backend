@@ -177,9 +177,9 @@ class PeopleExtendedAPIView(SupawordAPIView):
             )
 
         # Apply the 'alive' filter condition if provided
-        if alive_filter in ['true', 'false']:
+        if alive_filter is not None and alive_filter.tolower() in ['true', 'false']:
             print(f'Case 1 alive_filter = {alive_filter}')
-            people = people.filter(dod__isnull=ast.literal_eval(alive_filter))
+            people = people.filter(dod__isnull=(alive_filter.tolower() == 'true'))
         elif alive_filter in [True, False]:
             print(f'Case 2 alive_filter = {alive_filter}')
             people = people.filter(dod__isnull=alive_filter)
