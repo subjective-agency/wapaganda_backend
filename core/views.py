@@ -146,6 +146,11 @@ class PeopleExtendedAPIView(SupawordAPIView):
             people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')[:20]
         else:
             people = PeopleExtended.objects.filter(added_on__gt=created_after).order_by('id')
+
+        # Convert added_on field to Unix timestamp
+        for person in people:
+            person.added_on = int(person.added_on.timestamp())
+
         serializer = CacheSerializer(people, many=True)
         return Response(data=serializer.data)
 
