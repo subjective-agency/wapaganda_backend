@@ -191,7 +191,9 @@ class PeopleExtendedAPIView(SupawordAPIView):
         request_data = request.data
         values = request_data.get('values', [])
         people = PeopleExtended.objects.filter(reduce(lambda x, y: x | y, [
-            Q(fullname_en=value) | Q(fullname_ru=value) | Q(fullname_uk=value) for value in values]))
+            Q(fullname_en=value) |
+            Q(fullname_ru=value) |
+            Q(fullname_uk=value) for value in values]))
         serializer = PeopleExtendedBriefSerializer(people, many=True)
         return Response(serializer.data)
 
