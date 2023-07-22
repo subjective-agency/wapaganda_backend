@@ -1,3 +1,4 @@
+import ast
 from datetime import timezone, datetime
 from functools import reduce
 
@@ -108,7 +109,6 @@ class PeopleExtendedAPIView(SupawordAPIView):
         Initialize the class
         """
         super().__init__(request_handler={
-            'all': self.return_all_data,
             'cache': self.return_cache,
             'page': self.return_page,
             'search': self.return_fulltext_search_result,
@@ -164,12 +164,27 @@ class PeopleExtendedAPIView(SupawordAPIView):
 
         # Apply filtering
         filter_value = request.data.get('filter', '')
+
+        # Can be 'true', 'false', or None (for all)
+        alive_filter = request.data.get('alive', None)
+        print(f'alive_filter = {alive_filter}')
+
         if filter_value != '':
             people = people.filter(
                 Q(fullname_en__icontains=filter_value) |
                 Q(fullname_ru__icontains=filter_value) |
                 Q(fullname_uk__icontains=filter_value)
             )
+
+        # Apply the 'alive' filter condition if provided
+        if alive_filter in ['true', 'false']:
+            print(f'Case 1 alive_filter = {alive_filter}')
+            people = people.filter(dod__isnull=ast.literal_eval(alive_filter))
+        elif alive_filter in [True, False]:
+            print(f'Case 2 alive_filter = {alive_filter}')
+            people = people.filter(dod__isnull=alive_filter)
+        else:
+            print(f'Should not be here alive_filter = {alive_filter}')
 
         # Apply sorting
         sort_by = request.data.get('sort_by', 'id')

@@ -14,6 +14,7 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
     fullname_ru = serializers.CharField()
     fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
     dob = serializers.DateField(allow_null=True)
+    dod = serializers.DateField(allow_null=True)
     photo = serializers.CharField(allow_blank=True, allow_null=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
     sex = serializers.CharField(allow_blank=True, allow_null=True)
@@ -38,6 +39,7 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
             'fullname_ru',
             'fullname_uk',
             'dob',
+            'dod',
             'photo',
             'thumb',
             'sex'
