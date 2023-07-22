@@ -1,5 +1,21 @@
+from abc import ABC
+
 from . import models
 from rest_framework import serializers
+
+
+class UnixTimestampField(serializers.Field, ABC):
+    """
+    Serializer field to convert datetime to Unix timestamp
+    """
+
+    def to_representation(self, value):
+        """
+        Convert the datetime to Unix timestamp for serialization
+        """
+        if value:
+            return int(value.timestamp())
+        return None
 
 
 class PeopleExtendedBriefSerializer(serializers.Serializer):
@@ -48,12 +64,11 @@ class CacheSerializer(serializers.Serializer):
     Serializer to send a response back to user.
     This one is a brief version of the serializer, returning only the most important fields
     """
-
     id = serializers.IntegerField()
     fullname_en = serializers.CharField()
     fullname_ru = serializers.CharField()
     fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
-    added_on = serializers.DateTimeField()
+    added_on = UnixTimestampField()
 
     def create(self, validated_data):
         """
@@ -249,13 +264,6 @@ class PeopleInOrgsSerializer(serializers.Serializer):
     role = serializers.JSONField(allow_null=True)
     year_started = serializers.IntegerField(allow_null=True)
     year_ended = serializers.IntegerField(allow_null=True)
-
-    def get_org(self, obj):
-        """
-        Custom serializer method for the org field.
-        """
-        org_serializer = OrganizationSerializer(obj.org)
-        return org_serializer.data
 
     def create(self, validated_data):
         """
