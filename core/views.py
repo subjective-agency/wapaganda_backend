@@ -1,4 +1,3 @@
-import ast
 from datetime import timezone, datetime
 from functools import reduce
 
@@ -21,6 +20,9 @@ from core.pagination import CustomPostPagination
 
 
 class SupawordAPIView(generics.CreateAPIView):
+    """
+    Base class for all API views
+    """
 
     def __init__(self, request_handler):
         """
@@ -29,6 +31,17 @@ class SupawordAPIView(generics.CreateAPIView):
         super().__init__()
         self.request_handler = request_handler
         self.http_method_names = ['post']
+
+    @staticmethod
+    def boolean_param(param):
+        """
+        Convert a parameter to boolean
+        """
+        if isinstance(param, bool):
+            return param
+        if isinstance(param, str) and param.lower() in ['true', 'false']:
+            return param.lower() == 'true'
+        return None
 
     def get_serializer_context(self):
         """
@@ -164,10 +177,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
 
         # Apply filtering
         filter_value = request.data.get('filter', '')
-
-        # Can be 'true', 'false', or None (for all)
-        alive_filter = request.data.get('alive', None)
-        print(f'alive_filter = {alive_filter}')
+        alive_filter = SupawordAPIView.boolean_param(request.data.get('alive', None))
 
         if filter_value != '':
             people = people.filter(
@@ -175,16 +185,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
                 Q(fullname_ru__icontains=filter_value) |
                 Q(fullname_uk__icontains=filter_value)
             )
-
-        # Apply the 'alive' filter condition if provided
-        if alive_filter is not None and alive_filter.lower() in ['true', 'false']:
-            print(f'Case 1 alive_filter = {alive_filter}')
-            people = people.filter(dod__isnull=(alive_filter.lower() == 'true'))
-        elif alive_filter in [True, False]:
-            print(f'Case 2 alive_filter = {alive_filter}')
-            people = people.filter(dod__isnull=alive_filter)
-        else:
-            print(f'Should not be here alive_filter = {alive_filter}')
+        people = people.filter(dod__isnull=alive_filter) if alive_filter is not None else people
 
         # Apply sorting
         sort_by = request.data.get('sort_by', 'id')
