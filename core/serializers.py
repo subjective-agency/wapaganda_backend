@@ -342,7 +342,7 @@ class PagingRequestSerializer(CommonRequestSerializer):
                                       default='id')
     sort_direction = serializers.ChoiceField(choices=['asc', 'desc'], required=False, default='asc')
     filter = serializers.CharField(required=False, allow_blank=True, allow_null=True, max_length=100)
-    alive = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    alive = serializers.BooleanField(required=False, allow_null=True)
 
     def validate_type(self, value):
         if value.lower() != 'page':
