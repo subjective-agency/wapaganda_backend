@@ -9,12 +9,14 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 from core.search import search_model_fulltext
 from supaword import settings
 from core import models
 from core.serializers import PeopleExtendedBriefSerializer, CacheSerializer, PeopleExtendedSerializer
 from core.serializers import OrganizationSerializer
+from core.serializers import PagingRequestSerializer
 from core.models import PeopleExtended, PeopleInOrgs, Organizations
 from core.pagination import CustomPostPagination
 
@@ -172,8 +174,11 @@ class PeopleExtendedAPIView(SupawordAPIView):
         :param request: Object of type rest_framework.request.Request
         :return: Paginated and filtered data in short JSON format
         """
-        if request.data.get('type', '') != 'page':
-            return Response({'error': 'Invalid request type, "page" expected'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = PagingRequestSerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
         people = PeopleExtended.objects.all()
 
