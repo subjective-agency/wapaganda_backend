@@ -1,5 +1,5 @@
 import re
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 from . import models
 from . import fields
@@ -283,7 +283,7 @@ class PeopleInOrgsSerializer(serializers.Serializer):
         )
 
 
-class AbstractCommonRequestSerializer(ABC):
+class CommonRequestSerializer(serializers.Serializer):
 
     @abstractmethod
     def validate_type(self, value):
@@ -292,9 +292,6 @@ class AbstractCommonRequestSerializer(ABC):
         Each concrete subclass must implement this method
         """
         raise NotImplementedError('You must implement `validate_type()` in a subclass')
-
-
-class CommonRequestSerializer(serializers.Serializer, AbstractCommonRequestSerializer):
 
     def update(self, instance, validated_data):
         """
@@ -307,9 +304,6 @@ class CommonRequestSerializer(serializers.Serializer, AbstractCommonRequestSeria
         We do not manage the creation of the data
         """
         pass
-
-    def validate_type(self, value):
-        raise NotImplementedError('You must implement `validate_type()` in a subclass')
 
     @staticmethod
     def tristate_param(param):
