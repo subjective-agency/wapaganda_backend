@@ -33,15 +33,17 @@ class SupawordAPIView(generics.CreateAPIView):
         self.http_method_names = ['post']
 
     @staticmethod
-    def boolean_param(param):
+    def tristate_param(param):
         """
-        Convert a parameter to boolean
+        Convert a parameter to tristate value (True, False, None)
         """
+        if param is None:
+            return None
         if isinstance(param, bool):
             return param
         if isinstance(param, str) and param.lower() in ['true', 'false']:
             return param.lower() == 'true'
-        return None
+        raise ValueError(f'Invalid tristate value [{param}]')
 
     def get_serializer_context(self):
         """
@@ -177,7 +179,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
 
         # Apply filtering
         filter_value = request.data.get('filter', '')
-        alive_filter = SupawordAPIView.boolean_param(request.data.get('alive', None))
+        alive_filter = SupawordAPIView.tristate_param(request.data.get('alive', None))
 
         if filter_value != '':
             people = people.filter(
