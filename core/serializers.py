@@ -1,12 +1,10 @@
 import re
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from . import models
 from . import fields
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
-
 
 
 class PeopleExtendedBriefSerializer(serializers.Serializer):
@@ -285,7 +283,33 @@ class PeopleInOrgsSerializer(serializers.Serializer):
         )
 
 
-class CommonRequestSerializer(serializers.Serializer, ABC):
+class AbstractCommonRequestSerializer(ABC):
+
+    @abstractmethod
+    def validate_type(self, value):
+        """
+        Abstract method for validating the "type" field
+        Each concrete subclass must implement this method
+        """
+        raise NotImplementedError('You must implement `validate_type()` in a subclass')
+
+
+class CommonRequestSerializer(serializers.Serializer, AbstractCommonRequestSerializer):
+
+    def update(self, instance, validated_data):
+        """
+        We do not manage the update of the data
+        """
+        pass
+
+    def create(self, validated_data):
+        """
+        We do not manage the creation of the data
+        """
+        pass
+
+    def validate_type(self, value):
+        raise NotImplementedError('You must implement `validate_type()` in a subclass')
 
     @staticmethod
     def tristate_param(param):
