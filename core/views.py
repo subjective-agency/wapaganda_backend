@@ -131,22 +131,6 @@ class PeopleExtendedAPIView(SupawordAPIView):
             'search': self.return_fulltext_search_result,
             'person': self.return_person_data
         })
-
-    @staticmethod
-    def return_all_data(_):
-        """
-        Return all data
-        :param _: Object of type rest_framework.request.Request
-        :return: All the data in short JSON format
-        """
-        # In DEBUG mode we return only 20 records for test purposes
-        if settings.DEBUG:
-            people = PeopleExtended.objects.all().order_by('id')[:20]
-        else:
-            people = PeopleExtended.objects.all().order_by('id')
-        serializer = CacheSerializer(people, many=True)
-        return Response(data=serializer.data)
-
     @staticmethod
     def return_cache(request):
         """

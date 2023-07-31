@@ -335,8 +335,8 @@ class PagingRequestSerializer(CommonRequestSerializer):
         pass
 
     type = serializers.CharField(required=True)
-    page = serializers.IntegerField(required=True, min_value=1)
-    page_size = serializers.IntegerField(required=True, min_value=10, max_value=100)
+    page = serializers.IntegerField(required=True, min_value=0)
+    page_size = serializers.IntegerField(required=True, min_value=9, max_value=100)
     sort_by = serializers.ChoiceField(choices=['id', 'fullname_en', 'fullname_ru', 'fullname_uk', 'dob', 'dod', 'sex'],
                                       required=False,
                                       default='id')
