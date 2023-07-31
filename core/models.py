@@ -15,6 +15,12 @@ You'll have to do the following edits to clean this up manually:
 
 
 class DaysOfWar(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | day_date | date | UNIQUE |
+    """
     id = models.BigAutoField(primary_key=True)
     day_date = models.DateField(unique=True, blank=True, null=True)
 
@@ -24,6 +30,16 @@ class DaysOfWar(models.Model):
 
 
 class KomsoEpisodes(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    | direct_url | text | UNIQUE |
+    | komso_id | integer | UNIQUE |
+    | komso_url | text | UNIQUE |
+    | segment_id | integer | FOREIGN KEY |
+    """
+    id = models.BigAutoField(primary_key=True)
     komso_id = models.IntegerField(unique=True)
     komso_seq = models.SmallIntegerField(blank=True, null=True)
     title = models.TextField(blank=True, null=True)
@@ -44,6 +60,12 @@ class KomsoEpisodes(models.Model):
 
 
 class MediaCoverageType(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | type_name | text | UNIQUE |
+    """
     id = models.BigAutoField(primary_key=True)
     type_name = models.TextField(unique=True)
 
@@ -53,6 +75,12 @@ class MediaCoverageType(models.Model):
 
 
 class MediaRoles(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | role | text | UNIQUE |
+    """
     id = models.BigAutoField(primary_key=True)
     role = models.TextField(unique=True)
     notes = models.TextField(blank=True, null=True)
@@ -63,6 +91,16 @@ class MediaRoles(models.Model):
 
 
 class MediaSegments(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | UNIQUE, PRIMARY KEY |
+    | komso_id | integer | UNIQUE |
+    | rutube_id | text | UNIQUE |
+    | smotrim_id | integer | UNIQUE |
+    | parent_org_id | bigint | FOREIGN KEY |
+    """
+    id = models.BigAutoField(primary_key=True)
     name_ru = models.TextField(blank=True, null=True)
     parent_org = models.ForeignKey('Organizations', models.DO_NOTHING, blank=True, null=True)
     avg_guest_time = models.SmallIntegerField(blank=True, null=True)
@@ -85,6 +123,13 @@ class MediaSegments(models.Model):
 
 
 class MsegmentsToRchannelsMapping(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | media_segment_id | bigint | FOREIGN KEY |
+    | rutube_channel_id | integer | FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     rutube_channel = models.ForeignKey('RutubeChannels', models.DO_NOTHING, blank=True, null=True)
     media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
@@ -95,6 +140,13 @@ class MsegmentsToRchannelsMapping(models.Model):
 
 
 class MsegmentsToYchannelsMapping(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | media_segment_id | bigint | FOREIGN KEY |
+    | youtube_channel_id | bigint | FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     youtube_channel = models.ForeignKey('YoutubeChannels', models.DO_NOTHING, blank=True, null=True)
     media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
@@ -125,6 +177,13 @@ class NtvEpisodes(models.Model):
 
 
 class OrganizationType(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | org_type | text | UNIQUE |
+    | parent_type | bigint | FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     org_type = models.TextField(unique=True, blank=True, null=True)
     parent_type = models.ForeignKey('self', models.DO_NOTHING, db_column='parent_type', blank=True, null=True)
@@ -136,6 +195,16 @@ class OrganizationType(models.Model):
 
 
 class Organizations(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | UNIQUE PRIMARY KEY |
+    | source_url | text | UNIQUE |
+    | coverage_type_id | bigint | FOREIGN KEY |
+    | org_type_id | bigint | FOREIGN KEY |
+    | parent_org_id | bigint | FOREIGN KEY |
+    | region | bigint | FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     name_en = models.TextField(blank=True, null=True)
     name_ru = models.TextField(blank=True, null=True)
@@ -158,21 +227,31 @@ class Organizations(models.Model):
 
 
 class People(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    | fullname_en | text | UNIQUE |
+    | fullname_en | text | UNIQUE |
+    | namesake_seq | smallint | UNIQUE |
+    | namesake_seq | smallint | UNIQUE |
+    """
+    id = models.BigAutoField(primary_key=True)
     fullname_en = models.TextField()
     fullname_ru = models.TextField()
     lastname_en = models.TextField(blank=True, null=True)
     lastname_ru = models.TextField(blank=True, null=True)
     is_onmap = models.BooleanField(blank=True, null=True)
-    social = models.TextField(blank=True, null=True)  # This field type is a guess.
+    social = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
     dob = models.DateField(blank=True, null=True)
     is_ttu = models.BooleanField(blank=True, null=True)
     is_ff = models.BooleanField(blank=True, null=True)
     relevant = models.BooleanField()
     contact = models.JSONField(blank=True, null=True)
-    address = models.TextField(blank=True, null=True)  # This field type is a guess.
-    associates = models.TextField(blank=True, null=True)  # This field type is a guess.
-    additional = models.JSONField(blank=True, null=True)
-    aliases = models.TextField(blank=True, null=True)  # This field type is a guess.
+    address = ArrayField(models.TextField(), blank=True, null=True)
+    associates = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
+    additional = ArrayField(models.JSONField(), blank=True, null=True)
+    aliases = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
     info = models.JSONField(blank=True, null=True)
     dod = models.DateField(blank=True, null=True)
     cod = models.CharField(max_length=255, blank=True, null=True)
@@ -184,13 +263,21 @@ class People(models.Model):
     sex = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people'
         unique_together = (('fullname_en', 'namesake_seq'),)
+        verbose_name_plural = "Person"
 
 
 class People3RdprtDetailsRaw(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | person_id | integer | PRIMARY KEY |
+    | url | text | PRIMARY KEY |
+    | person_id | integer | FOREIGN KEY |
+    """
+    id = models.BigAutoField(unique=True, primary_key=True)
     person = models.OneToOneField(People, models.DO_NOTHING)
     url = models.TextField()
     text_raw = models.TextField(blank=True, null=True)
@@ -202,6 +289,12 @@ class People3RdprtDetailsRaw(models.Model):
 
 
 class PeopleBundles(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | parent_bundle_id | bigint | FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     bundle_name = models.JSONField(blank=True, null=True)
     bundle_type = models.TextField(blank=True, null=True)
@@ -214,6 +307,12 @@ class PeopleBundles(models.Model):
 
 
 class PeopleInBundles(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | person_id | integer | PRIMARY KEY, FOREIGN KEY |
+    | bundle_id | bigint | PRIMARY KEY, FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     person = models.OneToOneField(People, models.DO_NOTHING)
     bundle = models.ForeignKey(PeopleBundles, models.DO_NOTHING)
@@ -225,7 +324,18 @@ class PeopleInBundles(models.Model):
 
 
 class PeopleInOrgs(models.Model):
-    id = models.BigAutoField(unique=True, primary_key=True)
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | UNIQUE |
+    | person_id | integer | PRIMARY KEY |
+    | org_id | bigint | PRIMARY KEY |
+    | is_active | boolean | PRIMARY KEY |
+    | role | jsonb | PRIMARY KEY |
+    | org_id | bigint | FOREIGN KEY |
+    | person_id | integer | FOREIGN KEY |
+    """
+    id = models.BigAutoField(primary_key=True)
     person = models.OneToOneField(People, models.DO_NOTHING)
     org = models.ForeignKey(Organizations, models.DO_NOTHING)
     is_active = models.BooleanField()
@@ -242,6 +352,14 @@ class PeopleInOrgs(models.Model):
 
 
 class PeopleInUr(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    | url | text | UNIQUE |
+    | person_id | integer | FOREIGN KEY |
+    """
+    id = models.BigAutoField(primary_key=True)
     in_higher_council = models.BooleanField(blank=True, null=True)
     in_higher_council_bureau = models.BooleanField(blank=True, null=True)
     in_general_council = models.BooleanField(blank=True, null=True)
@@ -266,6 +384,12 @@ class PeopleInUr(models.Model):
 
 
 class PeopleOnPhotos(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | person_id | integer | PRIMARY KEY, FOREIGN KEY |
+    | photo_id | bigint | PRIMARY KEY, FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     person = models.OneToOneField(People, models.DO_NOTHING)
@@ -278,7 +402,15 @@ class PeopleOnPhotos(models.Model):
 
 
 class PeopleOnSmotrim(models.Model):
-    id = models.BigAutoField(unique=True, primary_key=True)
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | UNIQUE |
+    | person_id | integer | PRIMARY KEY, FOREIGN KEY |
+    | episode_id | integer | PRIMARY KEY, FOREIGN KEY |
+    | media_role_id | bigint | PRIMARY KEY, FOREIGN KEY |
+    """
+    id = models.BigAutoField(primary_key=True)
     person = models.OneToOneField(People, models.DO_NOTHING)
     episode = models.ForeignKey('SmotrimEpisodes', models.DO_NOTHING)
     media_role = models.ForeignKey(MediaRoles, models.DO_NOTHING)
@@ -290,6 +422,14 @@ class PeopleOnSmotrim(models.Model):
 
 
 class PeopleOnYoutube(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | episode_id | integer | FOREIGN KEY |
+    | media_role_id | bigint | FOREIGN KEY |
+    | person_id | integer | FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     person = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
     episode = models.ForeignKey('YoutubeVids', models.DO_NOTHING, blank=True, null=True)
@@ -301,6 +441,13 @@ class PeopleOnYoutube(models.Model):
 
 
 class PeopleToMsegmentsMapping(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | media_segment_id | integer | FOREIGN KEY |
+    | person_id | integer | FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     person = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
     media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
@@ -311,6 +458,11 @@ class PeopleToMsegmentsMapping(models.Model):
 
 
 class Photos(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     url = models.TextField(blank=True, null=True)
@@ -318,11 +470,18 @@ class Photos(models.Model):
     type = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'photos'
+        verbose_name_plural = "Photos"
 
 
 class Printed(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | storage_ref | uuid | UNIQUE |
+    """
     id = models.BigAutoField(primary_key=True)
     title_ru = models.TextField(blank=True, null=True)
     title_en = models.TextField(blank=True, null=True)
@@ -343,6 +502,14 @@ class Printed(models.Model):
 
 
 class PrintedToPeopleMapping(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | person_id | integer | FOREIGN KEY |
+    | printed_id | bigint | FOREIGN KEY |
+    | printed_piece_id | bigint | FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     person = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
     person_raw = models.TextField(blank=True, null=True)
@@ -355,6 +522,13 @@ class PrintedToPeopleMapping(models.Model):
 
 
 class Quotes(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | UNIQUE PRIMARY KEY |
+    | person_id | integer | FOREIGN KEY |
+    | source_id | bigint | FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     person = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
     content = models.JSONField()
@@ -368,6 +542,13 @@ class Quotes(models.Model):
 
 
 class RutubeChannels(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    | rutube_channel_id | text | UNIQUE |
+    """
+    id = models.BigAutoField(primary_key=True)
     name = models.TextField(blank=True, null=True)
     rutube_channel_id = models.TextField(unique=True, blank=True, null=True)
     rutube_channel_alias = models.TextField(blank=True, null=True)
@@ -378,6 +559,13 @@ class RutubeChannels(models.Model):
 
 
 class RutubeVids(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | media_segment_id | integer | FOREIGN KEY |
+    | rutube_channel_id | integer | FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     title = models.TextField(blank=True, null=True)
     rutube_id = models.TextField(blank=True, null=True)
@@ -390,6 +578,14 @@ class RutubeVids(models.Model):
 
 
 class SmotrimEpisodes(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    | smotrim_id | text | UNIQUE |
+    | segment_id | integer | FOREIGN KEY |
+    """
+    id = models.BigAutoField(primary_key=True)
     title = models.TextField(blank=True, null=True)
     timestamp_aired = models.DateTimeField(blank=True, null=True)
     smotrim_id = models.TextField(unique=True, blank=True, null=True)
@@ -406,6 +602,12 @@ class SmotrimEpisodes(models.Model):
 
 
 class TelegramAuthors(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | person_id | integer | PRIMARY KEY, FOREIGN KEY |
+    | channel_id | integer | PRIMARY KEY, FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     person = models.OneToOneField(People, models.DO_NOTHING)
     channel = models.ForeignKey('TelegramChannels', models.DO_NOTHING)
@@ -417,6 +619,13 @@ class TelegramAuthors(models.Model):
 
 
 class TelegramChannels(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    | telemetr_id | text | UNIQUE |
+    """
+    id = models.BigAutoField(primary_key=True)
     title = models.TextField(blank=True, null=True)
     telemetr_id = models.TextField(unique=True, blank=True, null=True)
     telemetr_url = models.TextField(blank=True, null=True)
@@ -432,7 +641,7 @@ class TelegramChannels(models.Model):
     is_fake = models.BooleanField(blank=True, null=True)
     is_scam = models.BooleanField(blank=True, null=True)
     no_forward = models.BooleanField(blank=True, null=True)
-    restrictions = models.TextField(blank=True, null=True)  # This field type is a guess.
+    restrictions = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
     linked_chat_id = models.BigIntegerField(blank=True, null=True)
     history_count = models.BigIntegerField(blank=True, null=True)
 
@@ -446,9 +655,9 @@ class Theory(models.Model):
     title = models.JSONField()
     type = models.TextField(blank=True, null=True)
     excerpt = models.JSONField(blank=True, null=True)
-    images = models.TextField(blank=True, null=True)  # This field type is a guess.
+    images = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
     content = models.JSONField(blank=True, null=True)
-    original_content_metadata = models.TextField(blank=True, null=True)  # This field type is a guess.
+    original_content_metadata = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
     added_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -457,6 +666,12 @@ class Theory(models.Model):
 
 
 class Websites(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | url | text | UNIQUE |
+    """
     id = models.BigAutoField(primary_key=True)
     url = models.TextField(unique=True)
 
@@ -466,6 +681,13 @@ class Websites(models.Model):
 
 
 class YoutubeAuthors(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | channel_id | bigint | FOREIGN KEY |
+    | person_id | integer | FOREIGN KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     channel = models.ForeignKey('YoutubeChannels', models.DO_NOTHING, blank=True, null=True)
     person = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
@@ -476,6 +698,12 @@ class YoutubeAuthors(models.Model):
 
 
 class YoutubeChannels(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | youtube_id | text | UNIQUE |
+    """
     id = models.BigAutoField(primary_key=True)
     title = models.TextField(blank=True, null=True)
     youtube_id = models.TextField(unique=True, blank=True, null=True)
@@ -494,6 +722,15 @@ class YoutubeChannels(models.Model):
 
 
 class YoutubeVids(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    | youtube_id | text | UNIQUE |
+    | segment_id | integer | FOREIGN KEY |
+    | youtube_channel_id | bigint | FOREIGN KEY |
+    """
+    id = models.BigAutoField(primary_key=True)
     title = models.TextField(blank=True, null=True)
     youtube_id = models.TextField(unique=True, blank=True, null=True)
     segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)

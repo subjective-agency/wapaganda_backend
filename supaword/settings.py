@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = DJANGO_KEY
-DEBUG = True
+DEBUG = SERVER_DEBUG
 ALLOWED_HOSTS = [
     "*",
     "supaword-service-production.up.railway.app",
@@ -86,11 +86,6 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOWED_ORIGINS = [
-    "https://supaword-service-production.up.railway.app",
-    "https://supaword-service-development.up.railway.app",
-    "https://wapaganda.subjective.agency/"
-]
 CORS_ALLOW_METHODS = ['POST', 'GET', 'OPTIONS']
 
 ROOT_URLCONF = 'supaword.urls'
