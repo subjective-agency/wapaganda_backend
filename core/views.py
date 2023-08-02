@@ -17,7 +17,7 @@ from core import models
 from core.serializers import PeopleExtendedBriefSerializer, CacheSerializer, PeopleExtendedSerializer
 from core.serializers import OrganizationSerializer
 from core.serializers import TheorySerializer
-from core.serializers import PagingRequestSerializer
+from core.requests import PagingRequestSerializer
 from core.models import PeopleExtended, PeopleInOrgs, Organizations, Theory
 from core.pagination import CustomPostPagination
 
