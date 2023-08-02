@@ -7,6 +7,46 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 
+class TheorySerializer(serializers.Serializer):
+    """
+    Serializer for Theory table, containing relatively large articles
+    title = models.JSONField()
+    type = models.TextField(blank=True, null=True)
+    excerpt = models.JSONField(blank=True, null=True)
+    images = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
+    content = models.JSONField(blank=True, null=True)
+    original_content_metadata = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
+    added_at = models.DateTimeField(blank=True, null=True)
+    """
+    id = serializers.IntegerField()
+    title = serializers.JSONField(allow_null=True)
+    type = serializers.CharField(allow_blank=True, allow_null=True)
+    excerpt = serializers.JSONField(allow_null=True)
+    content = serializers.JSONField(allow_null=True)
+
+    def create(self, validated_data):
+        """
+        We do not manage the creation of the data
+        """
+        pass
+
+    def update(self, instance, validated_data):
+        """
+        We do not manage the update of the data
+        """
+        pass
+
+    class Meta:
+        model = models.Theory
+        fields = (
+            'id',
+            'title',
+            'type',
+            'excerpt',
+            'content'
+        )
+
+
 class PeopleExtendedBriefSerializer(serializers.Serializer):
     """
     Serializer to send a response back to user.
@@ -94,18 +134,14 @@ class PeopleExtendedSerializer(serializers.Serializer):
     lastname_en = serializers.CharField(allow_blank=True, allow_null=True)
     lastname_ru = serializers.CharField(allow_blank=True, allow_null=True)
     social = serializers.CharField(allow_blank=True, allow_null=True)
-    # social = serializers.ListField(child=serializers.CharField(allow_blank=True, allow_null=True))
     dob = serializers.DateField(allow_null=True)
     is_ttu = serializers.BooleanField(allow_null=True)
     is_ff = serializers.BooleanField(allow_null=True)
     contact = serializers.JSONField(allow_null=True)
     address = serializers.CharField(allow_blank=True, allow_null=True)
-    # address = serializers.ListField(child=serializers.CharField(allow_blank=True, allow_null=True))
     associates = serializers.JSONField(allow_null=True)
-    # associates = serializers.ListField(child=serializers.JSONField(allow_blank=True, allow_null=True))
     additional = serializers.JSONField(allow_null=True)
     aliases = serializers.JSONField(allow_null=True)
-    # aliases = serializers.ListField(child=serializers.JSONField(allow_blank=True, allow_null=True))
     info = serializers.JSONField(allow_null=True)
     dod = serializers.DateField(allow_null=True)
     cod = serializers.CharField(allow_blank=True, allow_null=True)
@@ -114,16 +150,12 @@ class PeopleExtendedSerializer(serializers.Serializer):
     photo = serializers.CharField(allow_blank=True, allow_null=True)
     external_links = serializers.CharField(allow_blank=True, allow_null=True)
     bundles = serializers.JSONField(allow_null=True)
-    # bundles = serializers.ListField(child=serializers.JSONField(allow_blank=True, allow_null=True))
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
     added_on = serializers.DateTimeField(allow_null=False)
     sex = serializers.CharField(allow_null=True)
     orgs = serializers.JSONField(allow_null=True)
-    # orgs = serializers.ListField(child=serializers.JSONField(allow_blank=True, allow_null=True))
     telegram_channels = serializers.JSONField(allow_null=True)
-    # telegram_channels = serializers.ListField(child=serializers.JSONField(allow_blank=True, allow_null=True))
     youtube_channels = serializers.JSONField(allow_null=True)
-    # youtube_channels = serializers.ListField(child=serializers.JSONField(allow_blank=True, allow_null=True))
 
     def create(self, validated_data):
         """

@@ -655,9 +655,9 @@ class Theory(models.Model):
     title = models.JSONField()
     type = models.TextField(blank=True, null=True)
     excerpt = models.JSONField(blank=True, null=True)
-    images = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
+    images = ArrayField(models.TextField(), blank=True, null=True)
     content = models.JSONField(blank=True, null=True)
-    original_content_metadata = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
+    original_content_metadata = ArrayField(models.JSONField(), blank=True, null=True)
     added_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:

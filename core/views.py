@@ -16,8 +16,9 @@ from supaword import settings
 from core import models
 from core.serializers import PeopleExtendedBriefSerializer, CacheSerializer, PeopleExtendedSerializer
 from core.serializers import OrganizationSerializer
+from core.serializers import TheorySerializer
 from core.serializers import PagingRequestSerializer
-from core.models import PeopleExtended, PeopleInOrgs, Organizations
+from core.models import PeopleExtended, PeopleInOrgs, Organizations, Theory
 from core.pagination import CustomPostPagination
 
 
@@ -131,6 +132,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
             'search': self.return_fulltext_search_result,
             'person': self.return_person_data
         })
+
     @staticmethod
     def return_cache(request):
         """
@@ -179,7 +181,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         people = people.filter(dod__isnull=alive_filter) if alive_filter is not None else people
 
         # Apply sorting
-        sort_by = request.data.get('sort_by', 'id')
+        sort_by = request.data.get('sort_by', 'fullname_en')
         sort_direction = request.data.get('sort_direction', 'asc')
         sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
         people = people.order_by(sort_by)
@@ -251,7 +253,32 @@ class TheoryAPIView(SupawordAPIView):
     """
     API view to handle Theory table
     """
-    pass
+    queryset = models.Theory.objects.all()
+    serializer_class = TheorySerializer
+    parser_classes = [JSONParser]
+
+    def __init__(self):
+        """
+        Initialize the class
+        """
+        super().__init__(request_handler={
+            'all': self.return_all
+        })
+
+    @staticmethod
+    def return_all(request):
+        """
+        Return all publications
+        """
+        if request.data.get('type', '') != 'cache':
+            return Response({'error': 'Invalid request type, "cache" expected'}, status=status.HTTP_400_BAD_REQUEST)
+        theory = Theory.objects.all()
+        sort_by = request.data.get('sort_by', 'title')
+        sort_direction = request.data.get('sort_direction', 'asc')
+        sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
+        theory = theory.order_by(sort_by)
+        serializer = TheorySerializer(theory, many=True)
+        return Response(data=serializer.data)
 
 
 class OrganizationsAPIView(SupawordAPIView):
