@@ -19,10 +19,10 @@ class TheorySerializer(serializers.Serializer):
     added_at = models.DateTimeField(blank=True, null=True)
     """
     id = serializers.IntegerField()
-    title = serializers.JSONField(allow_blank=True, allow_null=True)
+    title = serializers.JSONField(allow_null=True)
     type = serializers.CharField(allow_blank=True, allow_null=True)
-    excerpt = serializers.JSONField(allow_blank=True, allow_null=True)
-    content = serializers.JSONField(allow_blank=True, allow_null=True)
+    excerpt = serializers.JSONField(allow_null=True)
+    content = serializers.JSONField(allow_null=True)
 
     def create(self, validated_data):
         """
