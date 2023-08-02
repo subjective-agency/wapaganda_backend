@@ -14,7 +14,7 @@ from rest_framework.exceptions import ValidationError
 from core.search import search_model_fulltext
 from supaword import settings
 from core import models
-from core.serializers import PeopleExtendedBriefSerializer, CacheSerializer, PeopleExtendedSerializer
+from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer
 from core.serializers import OrganizationSerializer
 from core.serializers import TheorySerializer
 from core.requests import PagingRequestSerializer
