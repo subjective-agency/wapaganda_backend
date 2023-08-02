@@ -271,7 +271,7 @@ class TheoryAPIView(SupawordAPIView):
         Return all publications
         """
         if request.data.get('type', '') != 'all':
-            return Response({'error': 'Invalid request type, "cache" expected'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid request type, "all" expected'}, status=status.HTTP_400_BAD_REQUEST)
         theory = Theory.objects.all()
         serializer = TheorySerializer(theory, many=True)
         return Response(data=serializer.data)
