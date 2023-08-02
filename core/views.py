@@ -273,10 +273,6 @@ class TheoryAPIView(SupawordAPIView):
         if request.data.get('type', '') != 'all':
             return Response({'error': 'Invalid request type, "cache" expected'}, status=status.HTTP_400_BAD_REQUEST)
         theory = Theory.objects.all()
-        sort_by = request.data.get('sort_by', 'title')
-        sort_direction = request.data.get('sort_direction', 'asc')
-        sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
-        theory = theory.order_by(sort_by)
         serializer = TheorySerializer(theory, many=True)
         return Response(data=serializer.data)
 

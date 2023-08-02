@@ -10,13 +10,6 @@ from rest_framework.exceptions import ValidationError
 class TheorySerializer(serializers.Serializer):
     """
     Serializer for Theory table, containing relatively large articles
-    title = models.JSONField()
-    type = models.TextField(blank=True, null=True)
-    excerpt = models.JSONField(blank=True, null=True)
-    images = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
-    content = models.JSONField(blank=True, null=True)
-    original_content_metadata = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
-    added_at = models.DateTimeField(blank=True, null=True)
     """
     id = serializers.IntegerField()
     title = serializers.JSONField(allow_null=True)
