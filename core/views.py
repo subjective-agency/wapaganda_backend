@@ -33,7 +33,7 @@ class SupawordAPIView(generics.CreateAPIView):
         """
         super().__init__()
         self.request_handler = request_handler
-        self.http_method_names = ['post', 'get']
+        self.http_method_names = ['post']
 
     @staticmethod
     def tristate_param(param):

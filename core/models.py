@@ -652,7 +652,7 @@ class TelegramChannels(models.Model):
 
 class Theory(models.Model):
     id = models.BigAutoField(primary_key=True)
-    title = models.JSONField()
+    title = models.JSONField(blank=True, null=True)
     type = models.TextField(blank=True, null=True)
     excerpt = models.JSONField(blank=True, null=True)
     images = ArrayField(models.TextField(), blank=True, null=True)
