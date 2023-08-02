@@ -270,7 +270,7 @@ class TheoryAPIView(SupawordAPIView):
         """
         Return all publications
         """
-        if request.data.get('type', '') != 'cache':
+        if request.data.get('type', '') != 'all':
             return Response({'error': 'Invalid request type, "cache" expected'}, status=status.HTTP_400_BAD_REQUEST)
         theory = Theory.objects.all()
         sort_by = request.data.get('sort_by', 'title')
