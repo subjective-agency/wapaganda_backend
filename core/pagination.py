@@ -45,9 +45,9 @@ class CustomPostPagination(PageNumberPagination):
         if page_size < 1:
             raise ValueError(f"Invalid page_size {page_size} size; must be a positive integer")
         elif page_size < self.min_page_size:
-            page_size = self.min_page_size
+            raise ValueError(f"Invalid page_size {page_size}; must above {self.min_page_size}")
         elif page_size > self.max_page_size:
-            page_size = self.max_page_size
+            raise ValueError(f"Invalid page_size {page_size}; must below {self.max_page_size}")
         return page_size
 
     def get_paginated_response(self, data):
