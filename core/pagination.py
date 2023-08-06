@@ -41,7 +41,7 @@ class CustomPostPagination(PageNumberPagination):
         """
         page_size = request.data.get('page_size', request.query_params.get('page_size', self.page_size))
         if not isinstance(page_size, int):
-            raise ValueError(f"Invalid page_size {page_size} type; must be an integer")
+            raise ValueError(f"Invalid page_size type {type(page_size)}; must be an integer")
         if page_size < 1:
             raise ValueError(f"Invalid page_size {page_size} size; must be a positive integer")
         elif page_size < self.min_page_size:
