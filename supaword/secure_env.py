@@ -57,7 +57,7 @@ DJANGO_KEY = CREDENTIALS.get('DJANGO_KEY', '') or environment_value('DJANGO_KEY'
 # Debug
 SERVER_DEBUG = CREDENTIALS.get('DEBUG', '0') or environment_value('DEBUG')
 assert SERVER_DEBUG in (0, 1, "0", "1"), f"DEBUG must be 1 or 0, instead of '{SERVER_DEBUG}'"
-SERVER_DEBUG = bool(int(SERVER_DEBUG))
+SERVER_DEBUG = True if SERVER_DEBUG in (1, "1") else False
 
 assert len(DB_CONNECTION_STRING) > 0, "Connection string is empty"
 assert len(POSTGRES_USER) > 0, "Database username is empty"
