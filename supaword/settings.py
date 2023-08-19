@@ -7,6 +7,7 @@ from django.core.management import templates
 from pathlib import Path
 from .secure_env import SERVER_DEBUG, DJANGO_KEY
 from .secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_USER, POSTGRES_DB
+from .log_helper import logger
 
 __doc__ = """
 Django settings for supaword project.
@@ -189,3 +190,9 @@ REST_FRAMEWORK = {
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'vnd.api+json'
 }
+
+logger.info(f"DEBUG: {DEBUG}")
+logger.info(f"POSTGRES_ADDRESS: {POSTGRES_ADDRESS}")
+logger.info(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+logger.info(f"STATIC_URL: {STATIC_URL}")
+logger.info(f"CORS_ALLOW_METHODS: {CORS_ALLOW_METHODS}")
