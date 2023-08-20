@@ -152,7 +152,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         serializer = CacheSerializer(people, many=True)
 
         # Find the maximum value of added_on across all people
-        max_added_on = people.aggregate(max_added_on=Max('added_on'))['max_added_on'].timestamp()
+        max_added_on = int(people.aggregate(max_added_on=Max('added_on'))['max_added_on'].timestamp())
         response_data = {
             'data': serializer.data,
             'timestamp': max_added_on
