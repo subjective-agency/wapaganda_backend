@@ -1,7 +1,7 @@
 from datetime import timezone, datetime
 from functools import reduce
 
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.http import HttpResponseBadRequest
 from django.conf import settings
 
@@ -149,9 +149,15 @@ class PeopleExtendedAPIView(SupawordAPIView):
             people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')[:20]
         else:
             people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')
-
         serializer = CacheSerializer(people, many=True)
-        return Response(data=serializer.data)
+
+        # Find the maximum value of added_on across all people
+        max_added_on = people.aggregate(max_added_on=Max('added_on'))['max_added_on']
+        response_data = {
+            'data': serializer.data,
+            'timestamp': max_added_on
+        }
+        return Response(response_data)
 
     @staticmethod
     def return_page(request):
@@ -245,7 +251,6 @@ class PeopleExtendedAPIView(SupawordAPIView):
         # Combine the serialized data and return the response
         response_data = person_serializer.data
         # TODO: Serialize Organizations
-
         return Response(response_data)
 
 

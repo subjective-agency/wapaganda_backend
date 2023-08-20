@@ -56,12 +56,11 @@ class PagingRequestSerializer(CommonRequestSerializer):
         """
         pass
 
+    fields = ['id', 'fullname_en', 'fullname_ru', 'fullname_uk', 'dob', 'dod', 'sex']
     type = serializers.CharField(required=True)
     page = serializers.IntegerField(required=True, min_value=0)
     page_size = serializers.IntegerField(required=True, min_value=8, max_value=100)
-    sort_by = serializers.ChoiceField(choices=['id', 'fullname_en', 'fullname_ru', 'fullname_uk', 'dob', 'dod', 'sex'],
-                                      required=False,
-                                      default='id')
+    sort_by = serializers.ChoiceField(choices=fields, required=False, default='id')
     sort_direction = serializers.ChoiceField(choices=['asc', 'desc'], required=False, default='asc')
     filter = serializers.CharField(required=False, allow_blank=True, allow_null=True, max_length=100)
     alive = serializers.BooleanField(required=False, allow_null=True)
