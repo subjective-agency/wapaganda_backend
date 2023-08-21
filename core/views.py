@@ -142,7 +142,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
             return Response({'error': 'Invalid request type, "cache" expected'}, status=status.HTTP_400_BAD_REQUEST)
         request_data = request.data
         created_after = request_data.get('timestamp', 0)
-        created_after_datetime = datetime.fromtimestamp(created_after, tz=timezone.utc)
+        created_after_datetime = datetime.fromtimestamp(created_after, tz=timezone.utc) + 1
 
         # All records created after the specified timestamp
         people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')
