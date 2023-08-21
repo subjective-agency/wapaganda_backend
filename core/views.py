@@ -146,7 +146,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
 
         # All records created after the specified timestamp
         if settings.DEBUG:
-            people = PeopleExtended.objects[:20].filter(added_on__gt=created_after_datetime).order_by('id')
+            people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')[:20]
         else:
             people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')
         serializer = CacheSerializer(people, many=True)
