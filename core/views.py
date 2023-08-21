@@ -146,6 +146,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
 
         # All records created after the specified timestamp
         people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime,).exclude(added_on=created_after_datetime).order_by('id')
+        serializer = CacheSerializer(people, many=True)
 
         # Find the maximum value of added_on across all people
         max_added_on_result = people.aggregate(max_added_on=Max('added_on'))
