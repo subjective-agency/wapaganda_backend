@@ -145,11 +145,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         created_after_datetime = datetime.fromtimestamp(created_after, tz=timezone.utc)
 
         # All records created after the specified timestamp
-        if settings.DEBUG:
-            people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')[:20]
-        else:
-            people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')
-        serializer = CacheSerializer(people, many=True)
+        people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime, added_on__ne=created_after_datetime).order_by('id')
 
         # Find the maximum value of added_on across all people
         max_added_on_result = people.aggregate(max_added_on=Max('added_on'))
