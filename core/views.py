@@ -145,11 +145,8 @@ class PeopleExtendedAPIView(SupawordAPIView):
         created_after_datetime = datetime.fromtimestamp(created_after, tz=timezone.utc)
 
         # All records created after the specified timestamp
-        people = PeopleExtended.objects.filter(
-            added_on__gt=created_after_datetime
-        ).exclude(
-            added_on=created_after_datetime
-        ).order_by('id')
+        people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')
+        people = [person for person in people if person.added_on != created_after_datetime]
 
         serializer = CacheSerializer(people, many=True)
 
