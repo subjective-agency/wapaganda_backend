@@ -43,7 +43,6 @@ class CommonRequestSerializer(serializers.Serializer):
 
 # noinspection PyMethodMayBeStatic
 class PagingRequestSerializer(CommonRequestSerializer):
-
     def update(self, instance, validated_data):
         """
         We do not manage the update of the data
@@ -52,7 +51,7 @@ class PagingRequestSerializer(CommonRequestSerializer):
 
     def create(self, validated_data):
         """
-        We do not manage the creation of the data
+        We do not manage the update of the data
         """
         pass
 
@@ -64,6 +63,11 @@ class PagingRequestSerializer(CommonRequestSerializer):
     sort_direction = serializers.ChoiceField(choices=['asc', 'desc'], required=False, default='asc')
     filter = serializers.CharField(required=False, allow_blank=True, allow_null=True, max_length=100)
     alive = serializers.BooleanField(required=False, allow_null=True)
+    sex = serializers.ChoiceField(choices=[('M', 'M'), ('F', 'F')], required=False)
+    age = serializers.IntegerField(required=False, min_value=1)
+    age_direction = serializers.ChoiceField(choices=[('below', 'below'), ('above', 'above')], required=False)
+    is_ttu = serializers.BooleanField(required=False)
+    is_ff = serializers.BooleanField(required=False)
 
     def validate_type(self, value):
         if value.lower() != 'page':
@@ -71,15 +75,9 @@ class PagingRequestSerializer(CommonRequestSerializer):
         return value
 
     def validate_filter(self, value):
-        """
-        Validate the filter field
-        """
-        # Allow empty or null value
         if value is None or value.strip() == '':
             return value
 
-        # Use a regular expression to check if the filter is a valid wildcard mask
-        # (e.g., "john*", "*smith", "j?hn", etc.)
         valid_wildcard_mask = re.compile(r'^[\w\s*?]+$')
 
         if not valid_wildcard_mask.match(value):
@@ -88,7 +86,4 @@ class PagingRequestSerializer(CommonRequestSerializer):
         return value
 
     def validate_alive(self, value):
-        """
-        Validate the alive field
-        """
         return self.tristate_param(value)

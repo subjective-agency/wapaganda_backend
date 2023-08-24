@@ -1,4 +1,4 @@
-from datetime import timezone, datetime
+from datetime import timezone, datetime, timedelta
 from functools import reduce
 
 from django.db.models import Q, Max
@@ -177,6 +177,11 @@ class PeopleExtendedAPIView(SupawordAPIView):
         # Apply filtering
         filter_value = request.data.get('filter', '')
         alive_filter = SupawordAPIView.tristate_param(request.data.get('alive', None))
+        sex_filter = request.data.get('sex', None)
+        age_filter = request.data.get('age', None)
+        age_direction = request.data.get('age_direction', None)
+        traitors_filter = request.data.get('is_ttu', None)
+        foreign_friends_filter = request.data.get('is_ff', None)
 
         if filter_value != '':
             people = people.filter(
@@ -185,6 +190,30 @@ class PeopleExtendedAPIView(SupawordAPIView):
                 Q(fullname_uk__icontains=filter_value)
             )
         people = people.filter(dod__isnull=alive_filter) if alive_filter is not None else people
+
+        if sex_filter is not None:
+            people = people.filter(sex=sex_filter)
+
+        if age_filter is not None and age_direction == 'below':
+            today = datetime.now().date()
+            birth_date_limit = today - timedelta(days=int(age_filter) * 365)
+            people = people.filter(dob__gte=birth_date_limit)
+        elif age_filter is not None and age_direction == 'above':
+            today = datetime.now().date()
+            birth_date_limit = today - timedelta(days=(int(age_filter) + 1) * 365)
+            people = people.filter(dob__lt=birth_date_limit)
+        elif age_filter is not None and age_direction is None:
+            today = datetime.now().date()
+            birth_date_limit = today - timedelta(days=int(age_filter) * 365)
+            people = people.filter(dob__gte=birth_date_limit)
+        elif age_filter is None and age_direction is not None:
+            return Response({'error': 'Invalid age filter'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if traitors_filter is not None:
+            people = people.filter(is_ttu=traitors_filter)
+
+        if foreign_friends_filter is not None:
+            people = people.filter(is_ff=foreign_friends_filter)
 
         # Apply sorting
         sort_by = request.data.get('sort_by', 'fullname_en')

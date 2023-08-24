@@ -55,6 +55,8 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
     photo = serializers.CharField(allow_blank=True, allow_null=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
     sex = serializers.CharField(allow_blank=True, allow_null=True)
+    is_ttu = serializers.BooleanField(allow_null=True)
+    is_ff = serializers.BooleanField(allow_null=True)
 
     def create(self, validated_data):
         """
