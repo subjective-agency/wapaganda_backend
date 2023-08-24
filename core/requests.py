@@ -43,6 +43,30 @@ class CommonRequestSerializer(serializers.Serializer):
 
 # noinspection PyMethodMayBeStatic
 class PagingRequestSerializer(CommonRequestSerializer):
+    """
+    Filters:
+    * Alive: If the value `alive: true` or `alive: false` is defined, we perform the respective query.
+      In other words, if we define `alive: true`, we return only alive people, if `alive: false`,
+      we return only dead people, if we don't define `alive`, we return everyone.
+    * Traitor to Ukraine: If the value `is_ttu: true` or `is_ttu: false` is defined, we perform the respective query.
+      If undefined, we return everyone
+    * Foreign Friend: If the value `is_ff: true` or `is_ff: false` is defined, we perform the respective query.
+      If undefined, we return everyone
+    * Sex (gender): If the value `sex: "M"` or `sex: "F"` is defined, we perform the respective query.
+      If undefined, we return both men and women
+    * Full name: If the filter value in wildcard format is defined, we perform the respective query.
+      E.g. `"filter": "Ivan*"` will return all people whose full name starts with "Ivan"
+      If undefined, we return everyone
+    * Age: If the value `age: N` is defined, we perform the respective query.
+      Age direction Should be also defined: `age_direction: "below"` or `age_direction: "above"`
+      Default direction is "below"
+      If undefined, we return everyone
+
+    In the end we apply the sorting condition, then requests paginated data from a sorted dataset
+    E.g. 11th page with page size 20 returns records 200-220.
+    Default sort_by value is "fullname_en", sort_direction is "asc" order
+    """
+
     def update(self, instance, validated_data):
         """
         We do not manage the update of the data
@@ -86,4 +110,10 @@ class PagingRequestSerializer(CommonRequestSerializer):
         return value
 
     def validate_alive(self, value):
+        return self.tristate_param(value)
+
+    def validate_is_ttu(self, value):
+        return self.tristate_param(value)
+
+    def validate_is_ff(self, value):
         return self.tristate_param(value)
