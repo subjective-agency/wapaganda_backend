@@ -94,11 +94,17 @@ class PagingRequestSerializer(CommonRequestSerializer):
     is_ff = serializers.BooleanField(required=False)
 
     def validate_type(self, value):
+        """
+        Validate the "type" field
+        """
         if value.lower() != 'page':
             raise ValidationError('Invalid request type, "page" expected')
         return value
 
     def validate_filter(self, value):
+        """
+        Validate the "filter" value to match wildcard mask
+        """
         if value is None or value.strip() == '':
             return value
 
