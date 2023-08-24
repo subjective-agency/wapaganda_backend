@@ -110,18 +110,30 @@ class PagingRequestSerializer(CommonRequestSerializer):
         return value
 
     def validate_alive(self, value):
+        """
+        Convert a parameter to tristate value (True, False, None)
+        """
         return self.tristate_param(value)
 
     def validate_is_ttu(self, value):
+        """
+        Convert a parameter to tristate value (True, False, None)
+        """
         return self.tristate_param(value)
 
     def validate_is_ff(self, value):
+        """
+        Convert a parameter to tristate value (True, False, None)
+        """
         return self.tristate_param(value)
 
     def to_internal_value(self, data):
         """
-        Convert the "sex" value to lowercase before validation
+        Convert the "sex" and "age_direction" value to lowercase before validation
+        ("m" or "f", "below" or "above", respectively)
         """
         if 'sex' in data:
             data['sex'] = data['sex'].lower()
+        if 'age_direction' in data:
+            data['age_direction'] = data['age_direction'].lower()
         return super().to_internal_value(data)
