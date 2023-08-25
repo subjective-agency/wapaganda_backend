@@ -119,8 +119,8 @@ DATABASES = {
     # postgresql://postgres:[password]@db.kvbsgqfhjpdovrinmmrs.supabase.co:5432/postgres
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
+        'NAME': POSTGRES_DB,
+        'USER': POSTGRES_USER,
         'PASSWORD': POSTGRES_PASSWORD,
         'HOST': POSTGRES_ADDRESS,
         'PORT': POSTGRES_PORT
@@ -194,6 +194,8 @@ REST_FRAMEWORK = {
 logger.info(f"DEBUG: {DEBUG}")
 logger.info(f"POSTGRES_ADDRESS: {POSTGRES_ADDRESS}")
 logger.info(f"POSTGRES_PORT: {POSTGRES_PORT}")
+logger.info(f"POSTGRES_DB: {POSTGRES_DB}")
+logger.info(f"POSTGRES_USER: {POSTGRES_USER}")
 logger.info(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 logger.info(f"STATIC_URL: {STATIC_URL}")
 logger.info(f"CORS_ALLOW_METHODS: {CORS_ALLOW_METHODS}")
