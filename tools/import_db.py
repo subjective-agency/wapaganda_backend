@@ -47,11 +47,7 @@ TABLE_NAMES = [
 class PostgresDbExport:
     def __init__(self, dbname: str, user: str, password: str, host: str, port: int):
         """
-        :param dbname:
-        :param user:
-        :param password:
-        :param host:
-        :param port:
+        Initialize database connection and do basic validation
         """
         assert len(dbname) > 0, "Database name is empty"
         assert len(user) > 0, "Database username is empty"
