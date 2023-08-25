@@ -123,7 +123,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': POSTGRES_PASSWORD,
         'HOST': POSTGRES_ADDRESS,
-        'PORT': 5432
+        'PORT': POSTGRES_PORT
     },
     'wapamock': {
         'ENGINE': 'django.db.backends.sqlite3',
