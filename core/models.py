@@ -7,7 +7,7 @@ You'll have to do the following edits to clean this up manually:
  * Rearrange models' order
  * Make sure each model has one field with primary_key=True
  * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
- * Ensure every model has `managed = False` line, if you wish to forbid Django to create,
+ * Ensure every model has `managed = True` line, if you wish to forbid Django to create,
    modify or delete the table
  * `max_length` must be a positive integer everywhere
  * Feel free to rename the models, but don't rename db_table values or field names
@@ -25,7 +25,7 @@ class DaysOfWar(models.Model):
     day_date = models.DateField(unique=True, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'days_of_war'
 
 
@@ -55,7 +55,7 @@ class KomsoEpisodes(models.Model):
     direct_url = models.TextField(unique=True, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'komso_episodes'
 
 
@@ -70,7 +70,7 @@ class MediaCoverageType(models.Model):
     type_name = models.TextField(unique=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'media_coverage_type'
 
 
@@ -86,7 +86,7 @@ class MediaRoles(models.Model):
     notes = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'media_roles'
 
 
@@ -118,7 +118,7 @@ class MediaSegments(models.Model):
     ntv_id = models.JSONField(unique=True, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'media_segments'
 
 
@@ -135,7 +135,7 @@ class MsegmentsToRchannelsMapping(models.Model):
     media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'msegments_to_rchannels_mapping'
 
 
@@ -152,7 +152,7 @@ class MsegmentsToYchannelsMapping(models.Model):
     media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'msegments_to_ychannels_mapping'
 
 
@@ -172,7 +172,7 @@ class NtvEpisodes(models.Model):
     duration = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'ntv_episodes'
 
 
@@ -190,7 +190,7 @@ class OrganizationType(models.Model):
     note = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'organization_type'
 
 
@@ -222,7 +222,7 @@ class Organizations(models.Model):
     relevant = models.BooleanField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'organizations'
 
 
@@ -283,7 +283,7 @@ class People3RdprtDetailsRaw(models.Model):
     text_raw = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_3rdprt_details_raw'
         unique_together = (('person', 'url'),)
 
@@ -302,7 +302,7 @@ class PeopleBundles(models.Model):
     description = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_bundles'
 
 
@@ -318,7 +318,7 @@ class PeopleInBundles(models.Model):
     bundle = models.ForeignKey(PeopleBundles, models.DO_NOTHING)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_in_bundles'
         unique_together = (('person', 'bundle'),)
 
@@ -346,7 +346,7 @@ class PeopleInOrgs(models.Model):
     year_ended = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_in_orgs'
         unique_together = (('person', 'org', 'is_active', 'role'),)
 
@@ -379,7 +379,7 @@ class PeopleInUr(models.Model):
     person = models.ForeignKey(People, models.DO_NOTHING)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_in_ur'
 
 
@@ -396,7 +396,7 @@ class PeopleOnPhotos(models.Model):
     photo = models.ForeignKey('Photos', models.DO_NOTHING)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_on_photos'
         unique_together = (('person', 'photo'),)
 
@@ -416,7 +416,7 @@ class PeopleOnSmotrim(models.Model):
     media_role = models.ForeignKey(MediaRoles, models.DO_NOTHING)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_on_smotrim'
         unique_together = (('person', 'episode', 'media_role'),)
 
@@ -436,7 +436,7 @@ class PeopleOnYoutube(models.Model):
     media_role = models.ForeignKey(MediaRoles, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_on_youtube'
 
 
@@ -453,7 +453,7 @@ class PeopleToMsegmentsMapping(models.Model):
     media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_to_msegments_mapping'
 
 
@@ -497,7 +497,7 @@ class Printed(models.Model):
     int_review = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'printed'
 
 
@@ -517,7 +517,7 @@ class PrintedToPeopleMapping(models.Model):
     printed_piece_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'printed_to_people_mapping'
 
 
@@ -537,7 +537,7 @@ class Quotes(models.Model):
     date = models.DateField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'quotes'
 
 
@@ -554,7 +554,7 @@ class RutubeChannels(models.Model):
     rutube_channel_alias = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'rutube_channels'
 
 
@@ -573,7 +573,7 @@ class RutubeVids(models.Model):
     media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'rutube_vids'
 
 
@@ -597,7 +597,7 @@ class SmotrimEpisodes(models.Model):
     need = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'smotrim_episodes'
 
 
@@ -613,7 +613,7 @@ class TelegramAuthors(models.Model):
     channel = models.ForeignKey('TelegramChannels', models.DO_NOTHING)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'telegram_authors'
         unique_together = (('person', 'channel'),)
 
@@ -646,7 +646,7 @@ class TelegramChannels(models.Model):
     history_count = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'telegram_channels'
 
 
@@ -661,7 +661,7 @@ class Theory(models.Model):
     added_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'theory'
 
 
@@ -676,7 +676,7 @@ class Websites(models.Model):
     url = models.TextField(unique=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'websites'
 
 
@@ -693,7 +693,7 @@ class YoutubeAuthors(models.Model):
     person = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'youtube_authors'
 
 
@@ -717,7 +717,7 @@ class YoutubeChannels(models.Model):
     status = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'youtube_channels'
 
 
@@ -745,7 +745,7 @@ class YoutubeVids(models.Model):
     need = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'youtube_vids'
 
 
@@ -785,4 +785,4 @@ class PeopleExtended(models.Model):
 
     class Meta:
         db_table = 'people_extended'
-        managed = False
+        managed = True
