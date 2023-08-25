@@ -1,3 +1,5 @@
+import os.path
+
 import psycopg2
 import json
 from supaword.log_helper import logger
@@ -61,9 +63,12 @@ class PostgresDbExport:
         self.password = password
         self.host = host
         self.port = port
+        self.export_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "export")
+        if not os.path.exists(self.export_dir):
+            logger.info(f"Creating export directory {self.export_dir}")
+            os.makedirs(self.export_dir)
 
-    @staticmethod
-    def _export_table(connection, table_name):
+    def _export_table(self, connection, table_name):
         cursor = connection.cursor()
         query = f"SELECT * FROM {table_name}"
 
@@ -71,10 +76,10 @@ class PostgresDbExport:
             cursor.execute(query)
             rows = cursor.fetchall()
 
-            json_filename = f"{table_name}.json"
+            json_filename = os.path.join(self.export_dir, f"{table_name}.json")
             with open(json_filename, "w") as json_file:
+                logger.info(f"Exporting table {table_name} to {json_filename}")
                 json.dump(rows, json_file)
-
             logger.info(f"Table {table_name} exported to {json_filename}")
         except Exception as e:
             logger.error(f"Error exporting table {table_name}: {e}")
