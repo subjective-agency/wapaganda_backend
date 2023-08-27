@@ -101,14 +101,14 @@ class MediaSegments(models.Model):
     | parent_org_id | bigint | FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
+    name_en = models.TextField(blank=True, null=True)
     name_ru = models.TextField(blank=True, null=True)
+    name_uk = models.TextField(blank=True, null=True)
     parent_org = models.ForeignKey('Organizations', models.DO_NOTHING, blank=True, null=True)
     avg_guest_time = models.SmallIntegerField(blank=True, null=True)
-    name_en = models.TextField(blank=True, null=True)
     smotrim_id = models.IntegerField(unique=True, blank=True, null=True)
     cluster = models.TextField(blank=True, null=True)
     relevant = models.BooleanField(blank=True, null=True)
-    name_uk = models.TextField(blank=True, null=True)
     is_defunct = models.BooleanField()
     segment_type = models.TextField(blank=True, null=True)
     duration_threshold = models.IntegerField(blank=True, null=True)
@@ -277,7 +277,7 @@ class People3RdprtDetailsRaw(models.Model):
     | url | text | PRIMARY KEY |
     | person_id | integer | FOREIGN KEY |
     """
-    id = models.BigAutoField(unique=True, primary_key=True)
+    id = models.BigAutoField(primary_key=True)
     person = models.OneToOneField(People, models.DO_NOTHING)
     url = models.TextField()
     text_raw = models.TextField(blank=True, null=True)
