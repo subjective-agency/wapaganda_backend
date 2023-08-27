@@ -86,12 +86,12 @@ class PagingRequestSerializer(CommonRequestSerializer):
     sort_by = serializers.ChoiceField(choices=allowed_fields, required=False, default='id')
     sort_direction = serializers.ChoiceField(choices=['asc', 'desc'], required=False, default='asc')
     filter = serializers.CharField(required=False, allow_blank=True, allow_null=True, max_length=100)
-    alive = serializers.BooleanField(required=False, allow_null=True)
-    sex = serializers.ChoiceField(choices=[('m', 'm'), ('f', 'f')], required=False)
+    sex = serializers.ChoiceField(choices=[('m', 'm'), ('f', 'f')], required=False, allow_null=True)
     age = serializers.IntegerField(required=False, min_value=1)
     age_direction = serializers.ChoiceField(choices=[('below', 'below'), ('above', 'above')], required=False)
-    is_ttu = serializers.BooleanField(required=False)
-    is_ff = serializers.BooleanField(required=False)
+    alive = serializers.BooleanField(required=False, allow_null=True)
+    is_ttu = serializers.BooleanField(required=False, allow_null=True)
+    is_ff = serializers.BooleanField(required=False, allow_null=True)
 
     def validate_type(self, value):
         """
