@@ -138,8 +138,8 @@ class PagingRequestSerializer(CommonRequestSerializer):
         Convert the "sex" and "age_direction" value to lowercase before validation
         ("m" or "f", "below" or "above", respectively)
         """
-        if 'sex' in data:
+        if 'sex' in data and data['sex'] is not None:
             data['sex'] = data['sex'].lower()
-        if 'age_direction' in data:
+        if 'age_direction' in data and data['age_direction'] is not None:
             data['age_direction'] = data['age_direction'].lower()
         return super().to_internal_value(data)
