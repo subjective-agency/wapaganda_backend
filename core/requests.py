@@ -86,12 +86,12 @@ class PagingRequestSerializer(CommonRequestSerializer):
     sort_by = serializers.ChoiceField(choices=allowed_fields, required=False, default='id')
     sort_direction = serializers.ChoiceField(choices=['asc', 'desc'], required=False, default='asc')
     filter = serializers.CharField(required=False, allow_blank=True, allow_null=True, max_length=100)
-    alive = serializers.BooleanField(required=False, allow_null=True)
-    sex = serializers.ChoiceField(choices=[('m', 'm'), ('f', 'f')], required=False)
+    sex = serializers.ChoiceField(choices=[('m', 'm'), ('f', 'f')], required=False, allow_null=True)
     age = serializers.IntegerField(required=False, min_value=1)
     age_direction = serializers.ChoiceField(choices=[('below', 'below'), ('above', 'above')], required=False)
-    is_ttu = serializers.BooleanField(required=False)
-    is_ff = serializers.BooleanField(required=False)
+    alive = serializers.BooleanField(required=False, allow_null=True)
+    is_ttu = serializers.BooleanField(required=False, allow_null=True)
+    is_ff = serializers.BooleanField(required=False, allow_null=True)
 
     def validate_type(self, value):
         """
@@ -138,8 +138,8 @@ class PagingRequestSerializer(CommonRequestSerializer):
         Convert the "sex" and "age_direction" value to lowercase before validation
         ("m" or "f", "below" or "above", respectively)
         """
-        if 'sex' in data:
+        if 'sex' in data and data['sex'] is not None:
             data['sex'] = data['sex'].lower()
-        if 'age_direction' in data:
+        if 'age_direction' in data and data['age_direction'] is not None:
             data['age_direction'] = data['age_direction'].lower()
         return super().to_internal_value(data)
