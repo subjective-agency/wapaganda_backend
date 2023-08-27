@@ -208,13 +208,13 @@ class Organizations(models.Model):
     id = models.BigAutoField(primary_key=True)
     name_en = models.TextField(blank=True, null=True)
     name_ru = models.TextField(blank=True, null=True)
+    name_uk = models.TextField(blank=True, null=True)
     parent_org = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
     region = models.BigIntegerField(blank=True, null=True)
     source_url = models.TextField(unique=True, blank=True, null=True)
     org_type = models.ForeignKey(OrganizationType, models.DO_NOTHING, blank=True, null=True)
     coverage_type = models.ForeignKey(MediaCoverageType, models.DO_NOTHING, blank=True, null=True)
     short_name = models.JSONField(blank=True, null=True)
-    name_uk = models.TextField(blank=True, null=True)
     state_affiliated = models.BooleanField(blank=True, null=True)
     org_form_raw = models.TextField(blank=True, null=True)
     org_form = models.JSONField(blank=True, null=True)
@@ -239,9 +239,11 @@ class People(models.Model):
     id = models.BigAutoField(primary_key=True)
     fullname_en = models.TextField()
     fullname_ru = models.TextField()
+    fullname_uk = models.TextField(blank=True, null=True)
     lastname_en = models.TextField(blank=True, null=True)
     lastname_ru = models.TextField(blank=True, null=True)
     is_onmap = models.BooleanField(blank=True, null=True)
+    sex = models.TextField(blank=True, null=True)
     social = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
     dob = models.DateField(blank=True, null=True)
     is_ttu = models.BooleanField(blank=True, null=True)
@@ -258,9 +260,7 @@ class People(models.Model):
     known_for = models.JSONField(blank=True, null=True)
     wiki_ref = models.JSONField(blank=True, null=True)
     namesake_seq = models.SmallIntegerField(blank=True, null=True)
-    fullname_uk = models.TextField(blank=True, null=True)
     added_on = models.DateTimeField()
-    sex = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = True
@@ -759,6 +759,7 @@ class PeopleExtended(models.Model):
     fullname_ru = models.TextField()
     lastname_en = models.TextField(blank=True, null=True)
     lastname_ru = models.TextField(blank=True, null=True)
+    sex = models.TextField(blank=True, null=True)
     social = ArrayField(models.TextField(), blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     is_ttu = models.BooleanField(blank=True, null=True)
@@ -777,11 +778,10 @@ class PeopleExtended(models.Model):
     external_links = ArrayField(models.TextField(), blank=True, null=True)
     bundles = ArrayField(models.JSONField(), blank=True, null=True)
     thumb = models.TextField(blank=True, null=True)
-    added_on = models.DateTimeField()
-    sex = models.TextField(blank=True, null=True)
     orgs = ArrayField(models.JSONField(), blank=True, null=True)
     telegram_channels = ArrayField(models.JSONField(), blank=True, null=True)
     youtube_channels = ArrayField(models.JSONField(), blank=True, null=True)
+    added_on = models.DateTimeField()
 
     class Meta:
         db_table = 'people_extended'
