@@ -5,7 +5,8 @@ import sys
 import urllib.request
 from urllib.error import HTTPError
 from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
-from tools.import_db import PostgresDbExport, TABLE_NAMES
+from tools.export_db import PostgresDbExport, TABLE_NAMES
+from tools.import_db import PostgresDbImport
 from supaword.log_helper import logger
 import zipfile
 import io
@@ -45,6 +46,17 @@ def fetch_static(version):
             continue
 
 
+def read_table_names(table_names_file):
+    """
+    Read table names from file
+    """
+    table_names = []
+    if table_names_file is not None:
+        with open(table_names_file, "r") as file:
+            [table_names.append(line.strip()) for line in file.readlines() if line.strip() in TABLE_NAMES]
+    return table_names
+
+
 def export_data(table_names_file=None):
     """
     Export data from Postgres database to JSON files
@@ -57,13 +69,26 @@ def export_data(table_names_file=None):
         port=POSTGRES_PORT
     )
     # Read table names from file
-    table_names = []
-    if table_names_file is not None:
-        with open(table_names_file, "r") as file:
-            [table_names.append(line.strip()) for line in file.readlines() if line.strip() in TABLE_NAMES]
-    if len(table_names) == 0:
-        table_names = TABLE_NAMES
+    table_names = read_table_names(table_names_file)
     db_export.export_to_json(table_names=table_names)
+
+
+def import_data(table_names_file=None):
+    """
+    Import data from JSON files to Postgres database
+    """
+    db_import = PostgresDbImport(
+        dbname=POSTGRES_DB,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD,
+        host=POSTGRES_ADDRESS,
+        port=POSTGRES_PORT
+    )
+    data_dir = os.path.abspath("tools/data")
+    # Read table names from file
+    table_names = read_table_names(table_names_file)
+    json_files = [os.path.join(data_dir, f"{table_name}.json") for table_name in table_names]
+    db_import.import_tables(json_files=json_files)
 
 
 def main():
@@ -75,8 +100,12 @@ def main():
             "handle": fetch_static,
             "params": 1
         },
-        "exportdata": {
+        "export_data": {
             "handle": export_data,
+            "params": 1
+        },
+        "import_data": {
+            "handle": import_data,
             "params": 1
         }
     }
