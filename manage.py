@@ -68,7 +68,6 @@ def export_data(table_names_file=None):
         host=POSTGRES_ADDRESS,
         port=POSTGRES_PORT
     )
-    # Read table names from file
     table_names = read_table_names(table_names_file)
     db_export.export_to_json(table_names=table_names)
 
@@ -85,9 +84,24 @@ def import_data(table_names_file=None):
         port=POSTGRES_PORT
     )
     data_dir = os.path.abspath("tools/data")
-    # Read table names from file
+    logger.info(f"Importing data from {data_dir}")
+    contain_files = [
+        f for f in os.listdir(data_dir) if os.path.isfile(os.path.join(data_dir, f)) and f.endswith(".json")
+    ]
+    if len(contain_files) == 0:
+        logger.warning(f"No JSON files found in {data_dir}")
+        return
+
+    logger.info(f"Found files: {contain_files}")
     table_names = read_table_names(table_names_file)
     json_files = [os.path.join(data_dir, f"{table_name}.json") for table_name in table_names]
+
+    # check all files exist
+    for json_file in json_files:
+        if not os.path.isfile(json_file):
+            logger.error(f"File {json_file} does not exist")
+            return
+
     db_import.import_tables(json_files=json_files)
 
 
@@ -98,15 +112,15 @@ def main():
     command_handlers = {
         "fetchstatic": {
             "handle": fetch_static,
-            "params": 1
+            "params": ["version"]
         },
         "export_data": {
             "handle": export_data,
-            "params": 1
+            "params": ["table_names_file"]
         },
         "import_data": {
             "handle": import_data,
-            "params": 1
+            "params": ["table_names_file"]
         }
     }
 
@@ -114,9 +128,12 @@ def main():
     command = sys.argv[1] if len(sys.argv) > 1 else None
     if command in command_handlers:
         params_num = len(sys.argv) - 2
-        if params_num == command_handlers[command]["params"]:
+        expected_params_num = len(command_handlers[command]["params"])
+        if params_num == expected_params_num:
             logger.info(f"Executing command '{command}'")
-            command_handlers[command]["handle"](*sys.argv[2:])
+            params_pack = {command_handlers[command]["params"][i]: sys.argv[i + 2] for i in range(params_num)}
+            logger.info(f"Parameters: {params_pack}")
+            command_handlers[command]["handle"](**params_pack)
             return 0
         else:
             logger.error(f"Invalid number of parameters {params_num} for command '{command}'")
