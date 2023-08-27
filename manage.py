@@ -5,7 +5,8 @@ import sys
 import urllib.request
 from urllib.error import HTTPError
 from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
-from tools.export_db import PostgresDbExport, TABLE_NAMES
+from tools.defaults import TABLE_NAMES, read_table_names
+from tools.export_db import PostgresDbExport
 from tools.import_db import PostgresDbImport
 from supaword.log_helper import logger
 import zipfile
@@ -44,17 +45,6 @@ def fetch_static(version):
         except HTTPError as e:
             logger.info(f"Failed to fetch static files, trying the next. Return code {e.code}")
             continue
-
-
-def read_table_names(table_names_file):
-    """
-    Read table names from file
-    """
-    table_names = []
-    if table_names_file is not None:
-        with open(table_names_file, "r") as file:
-            [table_names.append(line.strip()) for line in file.readlines() if line.strip() in TABLE_NAMES]
-    return table_names
 
 
 def export_data(table_names_file=None):

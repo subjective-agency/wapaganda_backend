@@ -4,7 +4,8 @@ import json
 from supaword.log_helper import logger
 from datetime import datetime, date
 
-__doc__ = """
+__doc__ = """Import data from JSON files to Postgres database
+We utilize the class from standard Django manage.py script
 """
 
 
@@ -15,13 +16,19 @@ class PostgresDbImport:
         self.password = password
         self.host = host
         self.port = port
+        self.connection = None
 
-    def _import_table_data(self, connection, table_name, json_filename):
+    @staticmethod
+    def _import_table_data(json_filename):
+        """
+        Import data from JSON file to Postgres table
+        """
+        table_name = os.path.splitext(os.path.basename(json_filename))[0]
         try:
             with open(json_filename, "r") as json_file:
                 data = json.load(json_file)
 
-            cursor = connection.cursor()
+            cursor = self.connection.cursor()
 
             for record in data:
                 placeholders = ', '.join(['%s'] * len(record))
@@ -30,18 +37,19 @@ class PostgresDbImport:
                 values = list(record.values())
 
                 cursor.execute(query, values)
-                connection.commit()
+                self.connection.commit()
 
             logger.info(f"Data imported from {json_filename} to {table_name}")
         except Exception as e:
             logger.error(f"Error importing data from {json_filename} to {table_name}: {e}")
-            connection.rollback()
+            self.connection.rollback()
 
     def import_tables(self, json_files):
-        connection = None
-
+        """
+        Import data from JSON files to Postgres database
+        """
         try:
-            connection = psycopg2.connect(
+            self.connection = psycopg2.connect(
                 dbname=self.dbname,
                 user=self.user,
                 password=self.password,
@@ -50,10 +58,9 @@ class PostgresDbImport:
             )
 
             for json_filename in json_files:
-                table_name = os.path.splitext(os.path.basename(json_filename))[0]
-                self._import_table_data(connection, table_name, json_filename)
+                self._import_table_data(json_filename)
         except Exception as e:
             logger.error(f"Error: {e}")
         finally:
-            if connection:
-                connection.close()
+            if self.connection:
+                self.connection.close()
