@@ -45,7 +45,7 @@ def fetch_static(version):
             continue
 
 
-def export_data():
+def export_data(table_names_file=None):
     """
     Export data from Postgres database to JSON files
     """
@@ -56,7 +56,14 @@ def export_data():
         host=POSTGRES_ADDRESS,
         port=POSTGRES_PORT
     )
-    db_export.export_to_json(TABLE_NAMES)
+    # Read table names from file
+    table_names = []
+    if table_names_file is not None:
+        with open(table_names_file, "r") as file:
+            [table_names.append(line.strip()) for line in file.readlines() if line.strip() in TABLE_NAMES]
+    if len(table_names) == 0:
+        table_names = TABLE_NAMES
+    db_export.export_to_json(table_names=table_names)
 
 
 def main():
@@ -66,7 +73,7 @@ def main():
     command_handlers = {
         "fetchstatic": {
             "handle": fetch_static,
-            "params": 2
+            "params": 1
         },
         "exportdata": {
             "handle": export_data,
@@ -75,6 +82,17 @@ def main():
     }
 
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'supaword.settings')
+    command = sys.argv[1] if len(sys.argv) > 1 else None
+    if command in command_handlers:
+        params_num = len(sys.argv) - 2
+        if params_num == command_handlers[command]["params"]:
+            logger.info(f"Executing command '{command}'")
+            command_handlers[command]["handle"](*sys.argv[2:])
+            return 0
+        else:
+            logger.error(f"Invalid number of parameters {params_num} for command '{command}'")
+            return 1
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -83,13 +101,6 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-
-    command = sys.argv[1] if len(sys.argv) > 1 else None
-    if command in command_handlers:
-        if len(sys.argv) - 2 == command_handlers[command]["params"]:
-            command_handlers[command]["handle"](*sys.argv[2:])
-        else:
-            logger.error(f"Invalid number of parameters for command '{command}'")
 
     execute_from_command_line(sys.argv)
 
