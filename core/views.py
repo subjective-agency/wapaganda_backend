@@ -178,10 +178,10 @@ class PeopleExtendedAPIView(SupawordAPIView):
         filter_value = request.data.get('filter', '')
         age_filter = request.data.get('age', None)
         age_direction = request.data.get('age_direction', None)
+        sex_filter = request.data.get('sex', None)
 
         # Tristate filters: True, False, None
         alive_filter = SupawordAPIView.tristate_param(request.data.get('alive', None))
-        sex_filter = SupawordAPIView.tristate_param(request.data.get('sex', None))
         traitors_filter = SupawordAPIView.tristate_param(request.data.get('is_ttu', None))
         foreign_friends_filter = SupawordAPIView.tristate_param(request.data.get('is_ff', None))
 
