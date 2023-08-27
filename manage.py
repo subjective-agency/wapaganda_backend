@@ -73,7 +73,7 @@ def import_data(table_names_file=None):
         host=POSTGRES_ADDRESS,
         port=POSTGRES_PORT
     )
-    data_dir = os.path.abspath("tools/data")
+    data_dir = os.path.abspath("tools/import")
     logger.info(f"Importing data from {data_dir}")
     contain_files = [
         f for f in os.listdir(data_dir) if os.path.isfile(os.path.join(data_dir, f)) and f.endswith(".json")
