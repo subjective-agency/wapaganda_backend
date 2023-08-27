@@ -1,9 +1,12 @@
 import os.path
-
 import psycopg2
 import json
 from supaword.log_helper import logger
 from datetime import datetime, date
+
+__doc__ = """Export data from Postgres database to JSON files
+We utilize the class from standard Django manage.py script
+"""
 
 TABLE_NAMES = [
     "days_of_war",
@@ -45,7 +48,14 @@ TABLE_NAMES = [
 
 
 class CustomJSONEncoder(json.JSONEncoder):
+    """
+    Custom JSON encoder to serialize objects to ISO format
+    """
+
     def default(self, obj):
+        """
+        Serialize datetime and date objects to ISO format
+        """
         if isinstance(obj, (datetime, date)):
             return obj.isoformat()
         if isinstance(obj, bytes):
@@ -54,6 +64,7 @@ class CustomJSONEncoder(json.JSONEncoder):
 
 
 class PostgresDbExport:
+
     def __init__(self, dbname: str, user: str, password: str, host: str, port: int):
         """
         Initialize database connection and do basic validation
@@ -84,7 +95,12 @@ class PostgresDbExport:
             return obj.isoformat()
         return str(obj)
 
-    def _get_column_data_types(self, table_name):
+    def _get_column_data_types(self, table_name) -> dict:
+        """
+        Get column names and data types for a given table
+        :param table_name:
+        :return: dict of column names and data types
+        """
         query = f"""
             SELECT column_name, data_type
             FROM information_schema.columns
@@ -97,7 +113,8 @@ class PostgresDbExport:
         logger.info(f"Column data types for table {table_name}: {column_data_types}")
         return column_data_types
 
-    def _serialize_record(self, cursor, record, column_data_types):
+    @staticmethod
+    def _serialize_record(cursor, record, column_data_types):
         description = [desc[0] for desc in cursor.description]
         serialized_record = {}
 
@@ -169,15 +186,3 @@ class PostgresDbExport:
         finally:
             if self.connection:
                 self.connection.close()
-
-
-def export_table_names_to_text_file(table_names, file_path):
-    with open(file_path, "w") as file:
-        for table_name in table_names:
-            file.write(table_name + "\n")
-
-
-if __name__ == "__main__":
-    text_file_path = "table_names.txt"
-    export_table_names_to_text_file(TABLE_NAMES, text_file_path)
-    print(f"Table names exported to {text_file_path}")
