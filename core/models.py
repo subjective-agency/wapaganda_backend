@@ -111,7 +111,7 @@ class MediaSegments(models.Model):
     name_uk = models.TextField(blank=True, null=True)
     is_defunct = models.BooleanField()
     segment_type = models.TextField(blank=True, null=True)
-    duration_threashold = models.IntegerField(blank=True, null=True)
+    duration_threshold = models.IntegerField(blank=True, null=True)
     latest_episode_date = models.DateTimeField(blank=True, null=True)
     komso_id = models.IntegerField(unique=True, blank=True, null=True)
     rutube_id = models.TextField(unique=True, blank=True, null=True)
