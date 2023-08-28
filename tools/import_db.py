@@ -18,9 +18,13 @@ class PostgresDbImport:
         self.port = port
         self.connection = None
 
-    def _serialize_value(self, value):
+    @staticmethod
+    def _serialize_value(value):
+        """
+        Convert dict or list to string representation
+        """
         if isinstance(value, (dict, list)):
-            return json.dumps(value)  # Convert dict or list to string representation
+            return json.dumps(value)
         return value
 
     def _import_table_data(self, json_filename):
@@ -73,3 +77,56 @@ class PostgresDbImport:
         finally:
             if self.connection:
                 self.connection.close()
+
+    def drop_tables(self, table_names):
+        try:
+            self.connection = psycopg2.connect(
+                dbname=self.dbname,
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port
+            )
+
+            cursor = self.connection.cursor()
+            drop_command = f"DROP TABLE IF EXISTS {', '.join(table_names)} CASCADE"
+            cursor.execute(drop_command)
+            self.connection.commit()
+
+            for table_name in table_names:
+                logger.info(f"Table {table_name} dropped")
+        except Exception as e:
+            logger.error(f"Error: {e}")
+        finally:
+            if self.connection:
+                self.connection.close()
+
+    def _truncate_table(self, table_name):
+        try:
+            cursor = self.connection.cursor()
+            truncate_command = f"TRUNCATE TABLE {table_name} CASCADE"
+            cursor.execute(truncate_command)
+            self.connection.commit()
+            logger.info(f"Table {table_name} truncated")
+        except Exception as e:
+            logger.error(f"Error truncating table {table_name}: {e}")
+            self.connection.rollback()
+
+    def truncate_tables(self, table_names):
+        try:
+            self.connection = psycopg2.connect(
+                dbname=self.dbname,
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port
+            )
+
+            for table_name in table_names:
+                self._truncate_table(table_name)
+        except Exception as e:
+            logger.error(f"Error: {e}")
+        finally:
+            if self.connection:
+                self.connection.close()
+

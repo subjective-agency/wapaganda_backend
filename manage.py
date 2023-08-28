@@ -95,6 +95,21 @@ def import_data(table_names_file=None):
     db_import.import_tables(json_files=json_files)
 
 
+def drop_data(table_names_file=None):
+    """
+    Drop data from Postgres database
+    """
+    db_import = PostgresDbImport(
+        dbname=POSTGRES_DB,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD,
+        host=POSTGRES_ADDRESS,
+        port=POSTGRES_PORT
+    )
+    table_names = read_table_names(table_names_file)
+    db_import.drop_tables(table_names=table_names)
+
+
 def main():
     """
     Run administrative tasks
@@ -110,6 +125,10 @@ def main():
         },
         "import_data": {
             "handle": import_data,
+            "params": ["table_names_file"]
+        },
+        "drop_data": {
+            "handle": drop_data,
             "params": ["table_names_file"]
         }
     }
