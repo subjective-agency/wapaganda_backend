@@ -60,6 +60,7 @@ def export_data(table_names_file=None):
         port=POSTGRES_PORT
     )
     table_names = read_table_names(table_names_file)
+    logger.into(f"Exporting data from tables: {table_names}")
     db_export.export_to_json(table_names=table_names)
 
 
@@ -85,6 +86,7 @@ def import_data(table_names_file=None):
 
     logger.info(f"Found files: {contain_files}")
     table_names = read_table_names(table_names_file)
+    logger.info(f"Importing data from tables: {table_names}")
     json_files = [os.path.join(data_dir, f"{table_name}.json") for table_name in table_names]
 
     # check all files exist
@@ -108,6 +110,7 @@ def drop_data(table_names_file=None):
         port=POSTGRES_PORT
     )
     table_names = read_table_names(table_names_file)
+    logger.info(f"Dropping data from tables: {table_names}")
     db_cleanup.drop_tables(table_names=table_names)
 
 
@@ -123,6 +126,7 @@ def truncate_data(table_names_file=None):
         port=POSTGRES_PORT
     )
     table_names = read_table_names(table_names_file)
+    logger.info(f"Truncating data from tables: {table_names}")
     db_cleanup.truncate_tables(table_names=table_names)
 
 
