@@ -110,6 +110,21 @@ def drop_data(table_names_file=None):
     db_import.drop_tables(table_names=table_names)
 
 
+def truncate_data(table_names_file=None):
+    """
+    Truncate data from Postgres database
+    """
+    db_import = PostgresDbImport(
+        dbname=POSTGRES_DB,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD,
+        host=POSTGRES_ADDRESS,
+        port=POSTGRES_PORT
+    )
+    table_names = read_table_names(table_names_file)
+    db_import.truncate_tables(table_names=table_names)
+
+
 def main():
     """
     Run administrative tasks
@@ -129,6 +144,10 @@ def main():
         },
         "drop_data": {
             "handle": drop_data,
+            "params": ["table_names_file"]
+        },
+        "truncate_data": {
+            "handle": truncate_data,
             "params": ["table_names_file"]
         }
     }

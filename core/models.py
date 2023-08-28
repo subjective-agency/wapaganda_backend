@@ -736,13 +736,14 @@ class YoutubeVids(models.Model):
     segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
     duration = models.BigIntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    youtube_stats = models.JSONField(blank=True, null=True)
-    youtube_stats_updated_on = models.DateField(blank=True, null=True)
     youtube_channel = models.ForeignKey(YoutubeChannels, models.DO_NOTHING)
-    timestamp_aired = models.DateTimeField(blank=True, null=True)
     url_is_alive = models.BooleanField()
     have = models.BooleanField()
     need = models.BooleanField(blank=True, null=True)
+    private = models.BooleanField()
+    timestamp_aired = models.DateTimeField(blank=True, null=True)
+    youtube_stats = models.JSONField(blank=True, null=True)
+    youtube_stats_updated_on = models.DateField(blank=True, null=True)
 
     class Meta:
         managed = True
