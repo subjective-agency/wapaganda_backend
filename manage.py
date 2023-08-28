@@ -87,15 +87,7 @@ def import_data(table_names_file=None):
     logger.info(f"Found files: {contain_files}")
     table_names = read_table_names(table_names_file)
     logger.info(f"Importing data from tables: {table_names}")
-    json_files = [os.path.join(data_dir, f"{table_name}.json") for table_name in table_names]
-
-    # check all files exist
-    for json_file in json_files:
-        if not os.path.isfile(json_file):
-            logger.error(f"File {json_file} does not exist")
-            return
-
-    db_import.import_tables(json_files=json_files)
+    db_import.import_tables(table_names=table_names)
 
 
 def drop_data(table_names_file=None):
