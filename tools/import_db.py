@@ -38,6 +38,7 @@ class PostgresDbImport:
 
             cursor = self.connection.cursor()
 
+            logger.info(f"Importing data from {json_filename} to {table_name}")
             for index, record in enumerate(data, start=1):
                 placeholders = ', '.join(['%s'] * len(record))
                 columns = ', '.join(record.keys())
@@ -47,7 +48,7 @@ class PostgresDbImport:
                 try:
                     cursor.execute(query, values)
                     self.connection.commit()
-                    logger.info(f"Record {index} imported from {json_filename} to {table_name}")
+                    logger.debug(f"Record {index} imported from {json_filename} to {table_name}")
                 except Exception as e:
                     logger.error(f"Error importing record {index} from {json_filename} to {table_name}: {e}")
                     self.connection.rollback()
