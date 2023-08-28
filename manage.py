@@ -8,6 +8,7 @@ from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PO
 from tools.defaults import TABLE_NAMES, read_table_names
 from tools.export_db import PostgresDbExport
 from tools.import_db import PostgresDbImport
+from tools.cleanup_db import PostgresDbCleanup
 from supaword.log_helper import logger
 import zipfile
 import io
@@ -99,7 +100,7 @@ def drop_data(table_names_file=None):
     """
     Drop data from Postgres database
     """
-    db_import = PostgresDbImport(
+    db_cleanup = PostgresDbCleanup(
         dbname=POSTGRES_DB,
         user=POSTGRES_USER,
         password=POSTGRES_PASSWORD,
@@ -107,14 +108,14 @@ def drop_data(table_names_file=None):
         port=POSTGRES_PORT
     )
     table_names = read_table_names(table_names_file)
-    db_import.drop_tables(table_names=table_names)
+    db_cleanup.drop_tables(table_names=table_names)
 
 
 def truncate_data(table_names_file=None):
     """
     Truncate data from Postgres database
     """
-    db_import = PostgresDbImport(
+    db_cleanup = PostgresDbCleanup(
         dbname=POSTGRES_DB,
         user=POSTGRES_USER,
         password=POSTGRES_PASSWORD,
@@ -122,7 +123,7 @@ def truncate_data(table_names_file=None):
         port=POSTGRES_PORT
     )
     table_names = read_table_names(table_names_file)
-    db_import.truncate_tables(table_names=table_names)
+    db_cleanup.truncate_tables(table_names=table_names)
 
 
 def main():
