@@ -152,7 +152,7 @@ def main():
             "params": ["table_names_file"]
         }
     }
-
+    logger.setLevel("INFO")
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'supaword.settings')
     command = sys.argv[1] if len(sys.argv) > 1 else None
     if command in command_handlers:
