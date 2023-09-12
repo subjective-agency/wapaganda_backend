@@ -60,7 +60,7 @@ def export_data(table_names_file=None):
         port=POSTGRES_PORT
     )
     table_names = read_table_names(table_names_file)
-    logger.into(f"Exporting data from tables: {table_names}")
+    logger.info(f"Exporting data from tables: {table_names}")
     db_export.export_to_json(table_names=table_names)
 
 
