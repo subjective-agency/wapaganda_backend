@@ -1,3 +1,4 @@
+drop table if exists days_of_war;
 drop table if exists msegments_to_rchannels_mapping;
 drop table if exists msegments_to_ychannels_mapping;
 drop table if exists people_3rdprt_details_raw;

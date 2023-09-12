@@ -33,3 +33,4 @@ people_in_bundles
 people_3rdprt_details_raw
 msegments_to_ychannels_mapping
 msegments_to_rchannels_mapping
+days_of_war
