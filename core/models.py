@@ -740,7 +740,7 @@ class YoutubeVids(models.Model):
     url_is_alive = models.BooleanField()
     have = models.BooleanField()
     need = models.BooleanField(blank=True, null=True)
-    private = models.BooleanField()
+    private = models.BooleanField(default=False)
     timestamp_aired = models.DateTimeField(blank=True, null=True)
     youtube_stats = models.JSONField(blank=True, null=True)
     youtube_stats_updated_on = models.DateField(blank=True, null=True)
