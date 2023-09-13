@@ -87,6 +87,7 @@ def import_data(table_names_file=None):
     logger.info(f"Found files: {contain_files}")
     table_names = read_table_names(table_names_file)
     logger.info(f"Importing data from tables: {table_names}")
+    return
     db_import.import_tables(table_names=table_names)
 
 
