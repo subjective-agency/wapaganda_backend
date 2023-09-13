@@ -38,6 +38,8 @@ class PostgresDbImport:
             cursor = self.connection.cursor()
 
             logger.info(f"Importing data from {json_filename} to {table_name}")
+
+            # First pass: Import all records without resolving parent references
             for index, record in enumerate(data, start=1):
                 placeholders = ', '.join(['%s'] * len(record))
                 columns = ', '.join(record.keys())
@@ -46,12 +48,25 @@ class PostgresDbImport:
 
                 try:
                     cursor.execute(query, values)
-                    self.connection.commit()
                     logger.debug(f"Record {index} imported from {json_filename} to {table_name}")
                 except Exception as e:
                     logger.error(f"Error importing record {index} from {json_filename} to {table_name}: {e}")
                     self.connection.rollback()
                     raise e
+
+            # Second pass: Resolve parent references and update the records
+            for index, record in enumerate(data, start=1):
+                if 'parent_organization' in record:
+                    parent_org_name = record['parent_organization']
+                    query = f"UPDATE {table_name} SET parent_organization_id = (SELECT id FROM {table_name} WHERE name = %s) WHERE name = %s"
+                    try:
+                        cursor.execute(query, (parent_org_name, record['name']))
+                        self.connection.commit()
+                        logger.debug(f"Resolved parent reference for record {index} in {table_name}")
+                    except Exception as e:
+                        logger.error(f"Error resolving parent reference for record {index} in {table_name}: {e}")
+                        self.connection.rollback()
+                        raise e
 
         except Exception as e:
             logger.error(f"Error loading data from {json_filename}: {e}")
