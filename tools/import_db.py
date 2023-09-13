@@ -2,7 +2,6 @@ import os.path
 import psycopg2
 import json
 from supaword.log_helper import logger
-from datetime import datetime, date
 
 __doc__ = """Import data from JSON files to Postgres database
 We utilize the class from standard Django manage.py script
@@ -66,7 +65,6 @@ class PostgresDbImport:
             os.path.join(os.path.abspath("tools/import"), f"{table_name}.json") for table_name in table_names
         ]
         logger.info(f"Importing data from JSON files: {json_files}")
-        return
         try:
             self.connection = psycopg2.connect(
                 dbname=self.dbname,
