@@ -66,6 +66,7 @@ class PostgresDbImport:
             os.path.join(os.path.abspath("tools/import"), f"{table_name}.json") for table_name in table_names
         ]
         logger.info(f"Importing data from JSON files: {json_files}")
+        return
         try:
             self.connection = psycopg2.connect(
                 dbname=self.dbname,
