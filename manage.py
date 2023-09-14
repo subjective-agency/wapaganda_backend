@@ -5,7 +5,7 @@ import sys
 import urllib.request
 from urllib.error import HTTPError
 from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
-from tools.defaults import TABLE_NAMES, read_table_names
+from tools.defaults import read_table_names
 from tools.export_db import PostgresDbExport
 from tools.import_db import PostgresDbImport
 from tools.cleanup_db import PostgresDbCleanup
@@ -153,7 +153,7 @@ def main():
 
     def str_to_bool(s):
         return s.lower() in ("true", "yes", "1")
-    
+
     if command in command_handlers:
         params_num = len(sys.argv) - 2
         expected_params_num = len(command_handlers[command]["params"])
