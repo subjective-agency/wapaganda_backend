@@ -48,7 +48,7 @@ def fetch_static(version):
             continue
 
 
-def export_data(table_names_file=None):
+def export_data(table_names_file=None, rewrite=True):
     """
     Export data from Postgres database to JSON files
     """
@@ -61,7 +61,7 @@ def export_data(table_names_file=None):
     )
     table_names = read_table_names(table_names_file)
     logger.info(f"Exporting data from tables: {table_names}")
-    db_export.export_to_json(table_names=table_names)
+    db_export.export_to_json(table_names=table_names, rewrite=rewrite)
 
 
 def import_data(table_names_file=None):
@@ -133,7 +133,7 @@ def main():
         },
         "export_data": {
             "handle": export_data,
-            "params": ["table_names_file"]
+            "params": ["table_names_file", "rewrite"]
         },
         "import_data": {
             "handle": import_data,
@@ -156,6 +156,11 @@ def main():
         if params_num == expected_params_num:
             logger.info(f"Executing command '{command}'")
             params_pack = {command_handlers[command]["params"][i]: sys.argv[i + 2] for i in range(params_num)}
+            # Check for boolean flags
+            if "--rewrite" in sys.argv:
+                params_pack["rewrite"] = True
+            else:
+                params_pack["rewrite"] = False
             logger.info(f"Parameters: {params_pack}")
             command_handlers[command]["handle"](**params_pack)
             return 0
