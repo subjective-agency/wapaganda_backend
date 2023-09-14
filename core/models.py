@@ -14,6 +14,82 @@ You'll have to do the following edits to clean this up manually:
 """
 
 
+class EnumsISCOTaxonomy(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    term = models.TextField(blank=True, null=True)
+    isco_code = models.TextField(blank=True, null=True)
+    definition = models.TextField(blank=True, null=True)
+    tasks_include = models.TextField(blank=True, null=True)
+    included_occupations = models.TextField(blank=True, null=True)
+    excluded_occupations = models.TextField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    skill_level = models.SmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'enums.isco08_taxonomy'  # TODO: is this how you indicate a schema?
+
+
+class EnumsISCOIndex(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    isco08 = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
+    name_en = models.TextField(blank=True, null=True)
+    name_ru = models.TextField(blank=True, null=True)
+    name_uk = models.TextField(blank=True, null=True)
+    appended = models.BooleanField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'enums.isco08_index'  # TODO: is this how you indicate a schema?
+
+
+class EnumsISCOClosure(models.Model):
+    ancestor = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
+    descendant = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'enums.isco08_taxonomy_closure'  # TODO: is this how you indicate a schema?
+        unique_together = (('ancestor', 'descendant'),)
+
+
+class EnumsOrgsTaxonomy(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    term = models.TextField(blank=True, null=True)
+    code = models.TextField(blank=True, null=True)
+    definition = models.TextField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'enums.orgs_taxonomy'  # TODO: is this how you indicate a schema?
+
+
+class EnumsOrgsClosure(models.Model):
+    ancestor = models.ForeignKey(EnumsOrgsTaxonomy, models.DO_NOTHING, blank=True, null=True)
+    descendant = models.ForeignKey(EnumsOrgsTaxonomy, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'enums.orgs_taxonomy_closure'  # TODO: is this how you indicate a schema?
+        unique_together = (('ancestor', 'descendant'),)
+
+
+class TheoryTypes(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    term = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'enums.theory_types'  # TODO: is this how you indicate a schema?
+
+
 class DaysOfWar(models.Model):
     """
     | Name | Type | Constraint type |
@@ -47,7 +123,7 @@ class KomsoEpisodes(models.Model):
     timestamp_aired = models.DateTimeField(blank=True, null=True)
     additional_data = models.JSONField(blank=True, null=True)
     duration = models.BigIntegerField(blank=True, null=True)
-    segment = models.ForeignKey('MediaSegments', models.DO_NOTHING, blank=True, null=True)
+    segment_id = models.ForeignKey('MediaSegments', models.DO_NOTHING, blank=True, null=True)
     have = models.BooleanField(blank=True, null=True)
     need = models.BooleanField(blank=True, null=True)
     url_is_alive = models.BooleanField(blank=True, null=True)
@@ -59,19 +135,36 @@ class KomsoEpisodes(models.Model):
         db_table = 'komso_episodes'
 
 
-class MediaCoverageType(models.Model):
+class DenTVEpisodes(models.Model):
     """
     | Name | Type | Constraint type |
     | --- | --- | --- |
-    | id | bigint | PRIMARY KEY |
-    | type_name | text | UNIQUE |
+    | id | integer | PRIMARY KEY |
+    | direct_url | text | UNIQUE |
+    | komso_id | integer | UNIQUE |
+    | komso_url | text | UNIQUE |
+    | segment_id | integer | FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    type_name = models.TextField(unique=True)
+    title = models.TextField(blank=True, null=True)
+    date_aired = models.DateTimeField(blank=True, null=True)
+    dentv_url = models.TextField(blank=True, null=True)
+    direct_url = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    duration = models.JSONField(blank=True, null=True)
+    segment_id = models.ForeignKey('MediaSegments', models.DO_NOTHING, blank=True, null=True)
+    stats = models.JSONField(blank=True, null=True)
+    comments = models.JSONField(blank=True, null=True)
+    need = models.BooleanField(blank=True, null=True)
+    have = models.BooleanField(blank=True, null=True)
+    url_is_alive = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    youtube_rec_id = models.ForeignKey('YoutubeVids', models.DO_NOTHING, blank=True, null=True)
+    premium = models.BooleanField(blank=True, null=True)
 
     class Meta:
         managed = True
-        db_table = 'media_coverage_type'
+        db_table = 'dentv_episodes'
 
 
 class MediaRoles(models.Model):
@@ -104,7 +197,7 @@ class MediaSegments(models.Model):
     name_en = models.TextField(blank=True, null=True)
     name_ru = models.TextField(blank=True, null=True)
     name_uk = models.TextField(blank=True, null=True)
-    parent_org = models.ForeignKey('Organizations', models.DO_NOTHING, blank=True, null=True)
+    parent_org_id = models.ForeignKey('Organizations', models.DO_NOTHING, blank=True, null=True)
     avg_guest_time = models.SmallIntegerField(blank=True, null=True)
     smotrim_id = models.IntegerField(unique=True, blank=True, null=True)
     cluster = models.TextField(blank=True, null=True)
@@ -148,8 +241,8 @@ class MsegmentsToYchannelsMapping(models.Model):
     | youtube_channel_id | bigint | FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    youtube_channel = models.ForeignKey('YoutubeChannels', models.DO_NOTHING, blank=True, null=True)
-    media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
+    youtube_channel_id = models.ForeignKey('YoutubeChannels', models.DO_NOTHING, blank=True, null=True)
+    media_segment_id = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = True
@@ -161,7 +254,7 @@ class NtvEpisodes(models.Model):
     created_at = models.DateTimeField(blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
+    segment_id = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
     timestamp_aired = models.DateTimeField(blank=True, null=True)
     views = models.IntegerField(blank=True, null=True)
     timeline = models.JSONField(blank=True, null=True)
@@ -174,24 +267,6 @@ class NtvEpisodes(models.Model):
     class Meta:
         managed = True
         db_table = 'ntv_episodes'
-
-
-class OrganizationType(models.Model):
-    """
-    | Name | Type | Constraint type |
-    | --- | --- | --- |
-    | id | bigint | PRIMARY KEY |
-    | org_type | text | UNIQUE |
-    | parent_type | bigint | FOREIGN KEY |
-    """
-    id = models.BigAutoField(primary_key=True)
-    org_type = models.TextField(unique=True, blank=True, null=True)
-    parent_type = models.ForeignKey('self', models.DO_NOTHING, db_column='parent_type', blank=True, null=True)
-    note = models.TextField(blank=True, null=True)
-
-    class Meta:
-        managed = True
-        db_table = 'organization_type'
 
 
 class Organizations(models.Model):
@@ -209,11 +284,10 @@ class Organizations(models.Model):
     name_en = models.TextField(blank=True, null=True)
     name_ru = models.TextField(blank=True, null=True)
     name_uk = models.TextField(blank=True, null=True)
-    parent_org = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
+    parent_org_id = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
     region = models.BigIntegerField(blank=True, null=True)
     source_url = models.TextField(unique=True, blank=True, null=True)
-    org_type = models.ForeignKey(OrganizationType, models.DO_NOTHING, blank=True, null=True)
-    coverage_type = models.ForeignKey(MediaCoverageType, models.DO_NOTHING, blank=True, null=True)
+    org_type = models.ForeignKey(EnumsOrgsTaxonomy, models.DO_NOTHING, blank=True, null=True)
     short_name = models.JSONField(blank=True, null=True)
     state_affiliated = models.BooleanField(blank=True, null=True)
     org_form_raw = models.TextField(blank=True, null=True)
@@ -298,7 +372,7 @@ class PeopleBundles(models.Model):
     id = models.BigAutoField(primary_key=True)
     bundle_name = models.JSONField(blank=True, null=True)
     bundle_type = models.TextField(blank=True, null=True)
-    parent_bundle = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
+    parent_bundle_id = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -336,8 +410,8 @@ class PeopleInOrgs(models.Model):
     | person_id | integer | FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    person = models.OneToOneField(People, models.DO_NOTHING)
-    org = models.ForeignKey(Organizations, models.DO_NOTHING)
+    person_id = models.OneToOneField(People, models.DO_NOTHING)
+    org_id = models.ForeignKey(Organizations, models.DO_NOTHING)
     is_active = models.BooleanField()
     notes = models.TextField(blank=True, null=True)
     is_in_control = models.BooleanField(blank=True, null=True)
@@ -349,38 +423,6 @@ class PeopleInOrgs(models.Model):
         managed = True
         db_table = 'people_in_orgs'
         unique_together = (('person', 'org', 'is_active', 'role'),)
-
-
-class PeopleInUr(models.Model):
-    """
-    | Name | Type | Constraint type |
-    | --- | --- | --- |
-    | id | integer | PRIMARY KEY |
-    | url | text | UNIQUE |
-    | person_id | integer | FOREIGN KEY |
-    """
-    id = models.BigAutoField(primary_key=True)
-    in_higher_council = models.BooleanField(blank=True, null=True)
-    in_higher_council_bureau = models.BooleanField(blank=True, null=True)
-    in_general_council = models.BooleanField(blank=True, null=True)
-    in_general_council_presidium = models.BooleanField(blank=True, null=True)
-    in_general_council_presidium_commission = models.BooleanField(blank=True, null=True)
-    in_central_executive_committee = models.BooleanField(blank=True, null=True)
-    is_gosduma_deputy = models.BooleanField(blank=True, null=True)
-    is_senator = models.BooleanField(blank=True, null=True)
-    in_ethics_commission = models.BooleanField(blank=True, null=True)
-    in_coordination_councils_leadership = models.BooleanField(blank=True, null=True)
-    in_central_fans_council = models.BooleanField(blank=True, null=True)
-    in_central_control_commission = models.BooleanField(blank=True, null=True)
-    in_international_aff_commission = models.BooleanField(blank=True, null=True)
-    url = models.TextField(unique=True, blank=True, null=True)
-    ur_text = models.TextField(blank=True, null=True)
-    is_secretary = models.BooleanField(blank=True, null=True)
-    person = models.ForeignKey(People, models.DO_NOTHING)
-
-    class Meta:
-        managed = True
-        db_table = 'people_in_ur'
 
 
 class PeopleOnPhotos(models.Model):
@@ -650,6 +692,24 @@ class TelegramChannels(models.Model):
         db_table = 'telegram_channels'
 
 
+class TextMedia(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    title = models.TextField(blank=True, null=True)
+    url = models.TextField(blank=True, null=True)
+    published = models.DateTimeField(blank=True, null=True)
+    relevant = models.BooleanField(blank=True, null=True)
+    excerpt = models.TextField(blank=True, null=True)
+    content = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    first_img_data = models.JSONField(blank=True, null=True)
+    source_id = models.ForeignKey('Websites', models.DO_NOTHING)
+    additional_data = models.JSONField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'text_media'
+
+
 class Theory(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.JSONField(blank=True, null=True)
@@ -689,8 +749,8 @@ class YoutubeAuthors(models.Model):
     | person_id | integer | FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    channel = models.ForeignKey('YoutubeChannels', models.DO_NOTHING, blank=True, null=True)
-    person = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
+    channel_id = models.ForeignKey('YoutubeChannels', models.DO_NOTHING, blank=True, null=True)
+    person_id = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = True
@@ -736,14 +796,14 @@ class YoutubeVids(models.Model):
     segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
     duration = models.BigIntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    youtube_stats = models.JSONField(blank=True, null=True)
+    youtube_stats_updated_on = models.DateField(blank=True, null=True)
     youtube_channel = models.ForeignKey(YoutubeChannels, models.DO_NOTHING)
+    timestamp_aired = models.DateTimeField(blank=True, null=True)
     url_is_alive = models.BooleanField()
     have = models.BooleanField()
     need = models.BooleanField(blank=True, null=True)
-    private = models.BooleanField(default=False)
-    timestamp_aired = models.DateTimeField(blank=True, null=True)
-    youtube_stats = models.JSONField(blank=True, null=True)
-    youtube_stats_updated_on = models.DateField(blank=True, null=True)
+    private = models.BooleanField()
 
     class Meta:
         managed = True
@@ -787,3 +847,100 @@ class PeopleExtended(models.Model):
     class Meta:
         db_table = 'people_extended'
         managed = True
+
+
+class PrintedContent(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    printed_id = models.ForeignKey(Printed, models.DO_NOTHING, blank=True, null=True)
+    int_sequence = models.IntegerField(blank=True, null=True)
+    int_id = models.IntegerField(blank=True, null=True)
+    int_name = models.TextField(blank=True, null=True)
+    raw_content = models.TextField(blank=True, null=True)
+    parsed_content = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'data_printed_content'
+        unique_together = (('printed_id', 'int_sequence'),)
+
+
+class TelegramChannelsStats(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    day_date = models.DateField()
+    channel_id = models.ForeignKey(TelegramChannels, models.DO_NOTHING, blank=True, null=True)
+    stats = models.JSONField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'data_telegram_channels_stats'
+        unique_together = (('day_date', 'channel_id'),)
+
+
+class TelegramMessages(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    origin_id = models.IntegerField(blank=True, null=True)
+    channel_id = models.ForeignKey(TelegramChannels, models.DO_NOTHING, blank=True, null=True)
+    added_at = models.DateTimeField(blank=True, null=True)
+    date_published = models.DateTimeField(blank=True, null=True)
+    date_edit = models.DateTimeField(blank=True, null=True)
+    message_type = models.TextField(blank=True, null=True)
+    message_subtype = models.TextField(blank=True, null=True)
+    content = models.JSONField(blank=True, null=True)
+    stats = models.JSONField(blank=True, null=True)
+    forwarding = models.JSONField(blank=True, null=True)
+    no_forwarding = models.BooleanField(blank=True, null=True)
+    misc = models.JSONField(blank=True, null=True)
+    signature = models.JSONField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'data_telegram_messages'
+
+
+class Transcripts(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    smotrim_id = models.ForeignKey(SmotrimEpisodes, models.DO_NOTHING, blank=True, null=True)
+    komso_id = models.ForeignKey(KomsoEpisodes, models.DO_NOTHING, blank=True, null=True)
+    youtube_id = models.ForeignKey(YoutubeVids, models.DO_NOTHING, blank=True, null=True)
+    started_at = models.DateTimeField(blank=True, null=True)
+    completed_at = models.DateTimeField(blank=True, null=True)
+    lang = models.TextField(blank=True, null=True)
+    model = models.TextField(blank=True, null=True)
+    filename = models.TextField(blank=True, null=True)
+    segment_id = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
+    duration = models.BigIntegerField(blank=True, null=True)
+    ntv_id = models.ForeignKey(NtvEpisodes, models.DO_NOTHING, blank=True, null=True)
+    dentv_id = models.ForeignKey(DenTVEpisodes, models.DO_NOTHING, blank=True, null=True)
+    partial_last_second = models.IntegerField(blank=True, null=True)
+    partial_en_last_second = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'data_transcripts'
+
+
+class TranscribedContent(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    transcript_id = models.ForeignKey(Transcripts, models.DO_NOTHING, blank=True, null=True)
+    int_sequence = models.IntegerField(blank=True, null=True)
+    start_time = models.FloatField(blank=True, null=True)
+    end_time = models.FloatField(blank=True, null=True)
+    content = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'data_transcribed_content'
+
+
+class TranscribedContentEn(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    transcript_id = models.ForeignKey(Transcripts, models.DO_NOTHING, blank=True, null=True)
+    int_sequence = models.IntegerField(blank=True, null=True)
+    start_time = models.FloatField(blank=True, null=True)
+    end_time = models.FloatField(blank=True, null=True)
+    content = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'data_transcribed_content_translation_en'
