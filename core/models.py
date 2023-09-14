@@ -28,7 +28,7 @@ class EnumsISCOTaxonomy(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'enums.isco08_taxonomy'  # TODO: is this how you indicate a schema?
+        db_table = 'enums_isco08_taxonomy'  # TODO: is this how you indicate a schema?
 
 
 class EnumsISCOIndex(models.Model):
@@ -42,7 +42,7 @@ class EnumsISCOIndex(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'enums.isco08_index'  # TODO: is this how you indicate a schema?
+        db_table = 'enums_isco08_index'  # TODO: is this how you indicate a schema?
 
 
 class EnumsISCOClosure(models.Model):
@@ -65,7 +65,7 @@ class EnumsOrgsTaxonomy(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'enums.orgs_taxonomy'  # TODO: is this how you indicate a schema?
+        db_table = 'enums_orgs_taxonomy'  # TODO: is this how you indicate a schema?
 
 
 class EnumsOrgsClosure(models.Model):
@@ -87,7 +87,7 @@ class TheoryTypes(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'enums.theory_types'  # TODO: is this how you indicate a schema?
+        db_table = 'enums_theory_types'  # TODO: is this how you indicate a schema?
 
 
 class DaysOfWar(models.Model):
