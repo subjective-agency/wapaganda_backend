@@ -17,6 +17,8 @@ You'll have to do the following edits to clean this up manually:
 class EnumsISCOTaxonomy(models.Model):
     """
     | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
     """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -35,6 +37,11 @@ class EnumsISCOTaxonomy(models.Model):
 
 
 class EnumsISCOIndex(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     isco08 = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
@@ -49,16 +56,27 @@ class EnumsISCOIndex(models.Model):
 
 
 class EnumsISCOClosure(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | ancestor | integer | FOREIGN KEY |
+    | descendant | integer | FOREIGN KEY |
+    """
     ancestor = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
     descendant = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = True
-        db_table = 'enums.isco08_taxonomy_closure'  # TODO: is this how you indicate a schema?
+        db_table = 'enums_isco08_taxonomy_closure'
         unique_together = (('ancestor', 'descendant'),)
 
 
 class EnumsOrgsTaxonomy(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     term = models.TextField(blank=True, null=True)
@@ -72,6 +90,12 @@ class EnumsOrgsTaxonomy(models.Model):
 
 
 class EnumsOrgsClosure(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | ancestor | integer | FOREIGN KEY |
+    | descendant | integer | FOREIGN KEY |
+    """
     ancestor = models.ForeignKey(EnumsOrgsTaxonomy, models.DO_NOTHING, blank=True, null=True)
     descendant = models.ForeignKey(EnumsOrgsTaxonomy, models.DO_NOTHING, blank=True, null=True)
 
@@ -82,6 +106,11 @@ class EnumsOrgsClosure(models.Model):
 
 
 class TheoryTypes(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     term = models.TextField(blank=True, null=True)
