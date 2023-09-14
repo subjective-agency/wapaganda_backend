@@ -105,7 +105,7 @@ class PostgresDbExport:
 
     def _export_table(self, table_name):
         """
-        Export a single table to JSON file
+        Export a single table to a JSON file
         """
         cursor = self.connection.cursor()
         query = f"SELECT * FROM {table_name}"
@@ -118,6 +118,11 @@ class PostgresDbExport:
             serialized_records = [self._serialize_record(cursor, record, column_data_types) for record in rows]
 
             json_filename = os.path.join(self.export_dir, f"{table_name}.json")
+
+            # Check if the JSON file already exists
+            if os.path.exists(json_filename):
+                logger.warning(f"Warning: JSON file {json_filename} already exists and will be overwritten")
+
             with open(json_filename, "w", encoding="utf-8") as json_file:
                 logger.info(f"Exporting table {table_name} to {json_filename}")
                 json.dump(serialized_records, json_file, cls=CustomJSONEncoder, ensure_ascii=False, indent=2)
