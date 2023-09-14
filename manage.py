@@ -127,7 +127,7 @@ def main():
     Run administrative tasks
     """
     command_handlers = {
-        "fetchstatic": {
+        "fetch_static": {
             "handle": fetch_static,
             "params": ["version"]
         },

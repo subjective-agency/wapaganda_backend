@@ -6,6 +6,7 @@ from supaword.log_helper import logger
 __doc__ = """Import data from JSON files to Postgres database
 We utilize the class from standard Django manage.py script
 """
+SUPABASE_CO = "db.svfizyfozagyqkkjzqdc.supabase.co"
 
 
 class PostgresDbImport:
@@ -80,6 +81,12 @@ class PostgresDbImport:
             os.path.join(os.path.abspath("tools/import"), f"{table_name}.json") for table_name in table_names
         ]
         logger.info(f"Importing data from JSON files: {json_files}")
+
+        # Define the production Postgres host name
+        if self.host == SUPABASE_CO:
+            logger.error("Error: Import into the production database is not allowed.")
+            return
+
         try:
             self.connection = psycopg2.connect(
                 dbname=self.dbname,
