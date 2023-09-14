@@ -15,6 +15,9 @@ You'll have to do the following edits to clean this up manually:
 
 
 class EnumsISCOTaxonomy(models.Model):
+    """
+    | Name | Type | Constraint type |
+    """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     term = models.TextField(blank=True, null=True)

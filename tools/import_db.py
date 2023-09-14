@@ -55,23 +55,28 @@ class PostgresDbImport:
                     self.connection.rollback()
                     raise e
 
-            # Second pass: Resolve parent references and update the records
-            for index, record in enumerate(data, start=1):
-                if 'parent_organization' in record:
-                    parent_org_name = record['parent_organization']
-                    query = f"UPDATE {table_name} SET parent_organization_id = (SELECT id FROM {table_name} WHERE name = %s) WHERE name = %s"
-                    try:
-                        cursor.execute(query, (parent_org_name, record['name']))
-                        self.connection.commit()
-                        logger.debug(f"Resolved parent reference for record {index} in {table_name}")
-                    except Exception as e:
-                        logger.error(f"Error resolving parent reference for record {index} in {table_name}: {e}")
-                        self.connection.rollback()
-                        raise e
+            self._organizations_update(cursor, data, table_name)
 
         except Exception as e:
             logger.error(f"Error loading data from {json_filename}: {e}")
             return
+
+    def _organizations_update(self, cursor, data, table_name):
+        """
+        Second pass: Resolve parent references and update the records
+        """
+        for index, record in enumerate(data, start=1):
+            if 'parent_organization' in record:
+                parent_org_name = record['parent_organization']
+                query = f"UPDATE {table_name} SET parent_organization_id = (SELECT id FROM {table_name} WHERE name = %s) WHERE name = %s"
+                try:
+                    cursor.execute(query, (parent_org_name, record['name']))
+                    self.connection.commit()
+                    logger.debug(f"Resolved parent reference for record {index} in {table_name}")
+                except Exception as e:
+                    logger.error(f"Error resolving parent reference for record {index} in {table_name}: {e}")
+                    self.connection.rollback()
+                    raise e
 
     def import_tables(self, table_names):
         """
