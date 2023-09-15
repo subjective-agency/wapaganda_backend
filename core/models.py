@@ -466,7 +466,7 @@ class PeopleInOrgs(models.Model):
     class Meta:
         managed = True
         db_table = 'people_in_orgs'
-        unique_together = (('person', 'org', 'is_active', 'role'),)
+        unique_together = (('person_id', 'org_id', 'is_active', 'role'),)
 
 
 class PeopleOnPhotos(models.Model):
