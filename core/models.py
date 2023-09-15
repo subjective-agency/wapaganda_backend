@@ -56,14 +56,20 @@ class EnumsISCOIndex(models.Model):
 
 
 class EnumsISCOClosure(models.Model):
-    """
-    | Name | Type | Constraint type |
-    | --- | --- | --- |
-    | ancestor | integer | FOREIGN KEY |
-    | descendant | integer | FOREIGN KEY |
-    """
-    ancestor = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
-    descendant = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
+    ancestor = models.ForeignKey(
+        'EnumsISCOTaxonomy',
+        models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name='descendants'  # Unique related name for ancestor's descendants
+    )
+    descendant = models.ForeignKey(
+        'EnumsISCOTaxonomy',
+        models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name='ancestors'  # Unique related name for descendant's ancestors
+    )
 
     class Meta:
         managed = True
@@ -90,18 +96,24 @@ class EnumsOrgsTaxonomy(models.Model):
 
 
 class EnumsOrgsClosure(models.Model):
-    """
-    | Name | Type | Constraint type |
-    | --- | --- | --- |
-    | ancestor | integer | FOREIGN KEY |
-    | descendant | integer | FOREIGN KEY |
-    """
-    ancestor = models.ForeignKey(EnumsOrgsTaxonomy, models.DO_NOTHING, blank=True, null=True)
-    descendant = models.ForeignKey(EnumsOrgsTaxonomy, models.DO_NOTHING, blank=True, null=True)
+    ancestor = models.ForeignKey(
+        'EnumsOrgsTaxonomy',
+        models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name='descendants'  # Unique related name for ancestor's descendants
+    )
+    descendant = models.ForeignKey(
+        'EnumsOrgsTaxonomy',
+        models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name='ancestors'  # Unique related name for descendant's ancestors
+    )
 
     class Meta:
         managed = True
-        db_table = 'enums.orgs_taxonomy_closure'  # TODO: is this how you indicate a schema?
+        db_table = 'enums_orgs_taxonomy_closure'
         unique_together = (('ancestor', 'descendant'),)
 
 
