@@ -33,7 +33,8 @@ class EnumsISCOTaxonomy(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'enums_isco08_taxonomy'  # TODO: is this how you indicate a schema?
+        # enums.isco08_taxonomy
+        db_table = 'enums_isco08_taxonomy'
 
 
 class EnumsISCOIndex(models.Model):
@@ -52,7 +53,8 @@ class EnumsISCOIndex(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'enums_isco08_index'  # TODO: is this how you indicate a schema?
+        # enums.isco08_index
+        db_table = 'enums_isco08_index'
 
 
 class EnumsISCOClosure(models.Model):
@@ -73,6 +75,7 @@ class EnumsISCOClosure(models.Model):
 
     class Meta:
         managed = True
+        # enums.isco08_taxonomy_closure
         db_table = 'enums_isco08_taxonomy_closure'
         unique_together = (('ancestor', 'descendant'),)
 
@@ -92,7 +95,8 @@ class EnumsOrgsTaxonomy(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'enums_orgs_taxonomy'  # TODO: is this how you indicate a schema?
+        # enums.orgs_taxonomy
+        db_table = 'enums_orgs_taxonomy'
 
 
 class EnumsOrgsClosure(models.Model):
@@ -113,6 +117,7 @@ class EnumsOrgsClosure(models.Model):
 
     class Meta:
         managed = True
+        # enums.orgs_taxonomy_closure
         db_table = 'enums_orgs_taxonomy_closure'
         unique_together = (('ancestor', 'descendant'),)
 
@@ -131,7 +136,8 @@ class TheoryTypes(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'enums_theory_types'  # TODO: is this how you indicate a schema?
+        # enums.theory_types
+        db_table = 'enums_theory_types'
 
 
 class DaysOfWar(models.Model):
@@ -938,6 +944,7 @@ class TelegramMessages(models.Model):
 
     class Meta:
         managed = True
+        # data.telegram_messages
         db_table = 'data_telegram_messages'
 
 
