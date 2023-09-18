@@ -126,7 +126,7 @@ class PostgresTable:
         """
         try:
             logger.info(f"Table {self.table_name} has {self.get_count()} records")
-            if self.get_count() <= self.batch_size:
+            if self.get_count() > self.batch_size:
                 logger.info("Export in batches")
                 self._export_batches()
             else:
