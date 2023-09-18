@@ -21,11 +21,11 @@ def rename_json_files(export_dir):
         print(f"No directory {export_dir} found")
         return
 
-    json_files = [file for file in os.listdir(export_dir) if file.endswith("_batch_0.json")]
-
+    json_files = [file for file in os.listdir(directory) if "_batch_" in file and file.endswith(".json")]
     if not json_files:
         print("No matching JSON files found")
         return
+    print(f"Found following batches: {json_files}")
 
     max_batch_index = -1
 
@@ -40,7 +40,7 @@ def rename_json_files(export_dir):
                 pass
 
     if max_batch_index == -1:
-        print("No valid batch indexes found in JSON filenames.")
+        print("No valid batch indexes found in JSON filenames")
         return
 
     # Determine the number of leading zeros required
