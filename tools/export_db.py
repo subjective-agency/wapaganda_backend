@@ -45,7 +45,7 @@ class PostgresDbExport:
                 host=self.host,
                 port=self.port
             )
-            return PostgresTable(self.connection, table_name, self.export_dir)
+            return PostgresTable(self.connection, table_name, self.export_dir, 50000)
         except Exception as e:
             logger.error(f"Error: {e}")
 

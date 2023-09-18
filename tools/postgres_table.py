@@ -24,7 +24,7 @@ class PostgresTable:
                 return obj.decode('utf-8')
             return super().default(obj)
 
-    def __init__(self, connection, table_name, export_dir, batch_size=50000):
+    def __init__(self, connection, table_name, export_dir, batch_size):
         """
         Initialize a PostgresTable instance.
         :param connection: An existing PostgresSQL database connection.
@@ -127,8 +127,10 @@ class PostgresTable:
         try:
             logger.info(f"Table {self.table_name} has {self.get_count()} records")
             if self.get_count() <= self.batch_size:
+                logger.info("Export in batches")
                 self._export_batches()
             else:
+                logger.info("Export as a single table")
                 self._export_table()
         except Exception as e:
             logger.error(f"Error: {e}")
