@@ -3,7 +3,7 @@
 import os
 import sys
 from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
-from tools.defaults import read_table_names
+from tools.utils import read_table_names
 from tools.export_db import PostgresDbExport
 from tools.import_db import PostgresDbImport
 from tools.cleanup_db import PostgresDbCleanup

@@ -13,10 +13,8 @@ media_roles
 ntv_episodes
 komso_episodes
 smotrim_episodes
-
 youtube_vids
 rutube_vids
-
 people
 websites
 theory
@@ -33,13 +31,14 @@ people_to_msegments_mapping
 people_on_youtube
 people_on_smotrim
 people_on_photos
-people_in_ur
 people_in_orgs
 people_in_bundles
 people_3rdprt_details_raw
 msegments_to_ychannels_mapping
 msegments_to_rchannels_mapping
+
 text_media
+
 data.telegram_channels_stats
 data.telegram_messages
 data.transcripts
