@@ -37,11 +37,9 @@ people_3rdprt_details_raw
 msegments_to_ychannels_mapping
 msegments_to_rchannels_mapping
 data.transcripts
-
 data.transcribed_content
 data.transcribed_content_translation_en
-
 text_media
 data.telegram_channels_stats
-data.telegram_messages
 
+data.telegram_messages

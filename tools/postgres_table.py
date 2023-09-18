@@ -182,18 +182,24 @@ class PostgresTable:
             column_data_types = self._get_column_data_types()
             json_filename_base = os.path.join(self.export_dir, f"{self.table_name}_batch_")
 
+            # Calculate the number of leading zeros needed based on the total number of batches
+            max_batch_num = len(batch_ranges) - 1
+            num_leading_zeros = len(str(max_batch_num))
+
             for batch_num, (limit, offset) in enumerate(batch_ranges):
                 batch_query = f"SELECT * FROM {self.table_name} LIMIT %s OFFSET %s"
                 cursor.execute(batch_query, (limit, offset))
                 rows = cursor.fetchall()
                 serialized_records = [self._serialize_record(cursor, record, column_data_types) for record in rows]
 
-                batch_filename = f"{json_filename_base}{batch_num}.json"
+                # Add leading zeros to the batch index
+                batch_index_str = str(batch_num).zfill(num_leading_zeros)
+                batch_filename = f"{json_filename_base}{batch_index_str}.json"
 
                 with open(batch_filename, "w", encoding="utf-8") as json_file:
-                    logger.info(f"Exporting table {self.table_name} (Batch {batch_num}) to {batch_filename}")
+                    logger.info(f"Exporting table {self.table_name} (Batch {batch_index_str}) to {batch_filename}")
                     json.dump(serialized_records, json_file, cls=self.CustomJSONEncoder, ensure_ascii=False, indent=2)
-                logger.info(f"Table {self.table_name} (Batch {batch_num}) exported to {batch_filename}")
+                logger.info(f"Table {self.table_name} (Batch {batch_index_str}) exported to {batch_filename}")
         except Exception as e:
             logger.error(f"Error exporting table {self.table_name}: {e}")
         finally:
