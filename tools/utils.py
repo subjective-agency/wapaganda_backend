@@ -1,4 +1,5 @@
 import os
+import sys
 
 
 def read_table_names(table_names_file):
@@ -12,14 +13,18 @@ def read_table_names(table_names_file):
     return table_names
 
 
-def rename_json_files(directory):
+def rename_json_files(export_dir):
     """
     List all JSON files with names matching *_batch_0.json and rename to add leading zeros
     """
-    json_files = [file for file in os.listdir(directory) if file.endswith("_batch_0.json")]
+    if not os.path.isdir(export_dir):
+        print(f"No directory {export_dir} found")
+        return
+
+    json_files = [file for file in os.listdir(export_dir) if file.endswith("_batch_0.json")]
 
     if not json_files:
-        print("No matching JSON files found.")
+        print("No matching JSON files found")
         return
 
     max_batch_index = -1
@@ -49,12 +54,15 @@ def rename_json_files(directory):
                 batch_index = int(parts[1].split(".json")[0])
                 new_batch_index = str(batch_index).zfill(num_leading_zeros)
                 new_file_name = f"{parts[0]}_batch_{new_batch_index}.json"
-                os.rename(os.path.join(directory, json_file), os.path.join(directory, new_file_name))
+                os.rename(os.path.join(export_dir, json_file), os.path.join(export_dir, new_file_name))
                 print(f"Renamed {json_file} to {new_file_name}")
             except ValueError:
                 pass
 
 
 if __name__ == "__main__":
-    directory = os.cwd()
+    if len(sys.argv) != 2:
+        print("Must be 2 cmd line params")
+        sys.exit(1)
+    directory = sys.argv[1]
     rename_json_files(directory)
