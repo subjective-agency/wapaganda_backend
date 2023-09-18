@@ -21,7 +21,7 @@ def rename_json_files(export_dir):
         print(f"No directory {export_dir} found")
         return
 
-    json_files = [file for file in os.listdir(directory) if "_batch_" in file and file.endswith(".json")]
+    json_files = [file for file in os.listdir(export_dir) if "_batch_" in file and file.endswith(".json")]
     if not json_files:
         print("No matching JSON files found")
         return
@@ -55,7 +55,7 @@ def rename_json_files(export_dir):
                 new_batch_index = str(batch_index).zfill(num_leading_zeros)
                 new_file_name = f"{parts[0]}_batch_{new_batch_index}.json"
                 os.rename(os.path.join(export_dir, json_file), os.path.join(export_dir, new_file_name))
-                print(f"Renamed {json_file} to {new_file_name}")
+                print(f"{json_file} -> {new_file_name}")
             except ValueError:
                 pass
 
