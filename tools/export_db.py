@@ -1,7 +1,7 @@
 import os.path
 import psycopg2
 from supaword.log_helper import logger
-from postgres_table import PostgresTable
+from tools.postgres_table import PostgresTable
 
 __doc__ = """Export data from Postgres database to JSON files
 We utilize the class from standard Django manage.py script
