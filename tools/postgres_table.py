@@ -46,6 +46,10 @@ class PostgresTable:
         self.restore = restore  # Add restore flag
         logger.info(f"Create PostgresTable {self.schema_name}.{self.table_name} with batch_size {batch_size}")
 
+        # DEBUG
+        tab = self._list_tables_in_schema()
+        logger.info(f"Tables in current schema: {tab}")
+
     # noinspection SqlResolve
     def _get_column_data_types(self) -> dict:
         """
@@ -141,6 +145,21 @@ class PostgresTable:
                 self._export_table()
         except Exception as e:
             logger.error(f"Error export_table(): {e}")
+
+    # noinspection SqlResolve
+    def _list_tables_in_schema(self):
+        """
+        List all tables in the specified schema.
+        """
+        query = """
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = %s
+        """
+        with self.connection.cursor() as cursor:
+            cursor.execute(query, (self.schema_name,))
+            table_names = [row[0] for row in cursor.fetchall()]
+        return table_names
 
     # noinspection SqlResolve
     def _export_table(self):
