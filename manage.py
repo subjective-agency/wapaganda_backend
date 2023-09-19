@@ -25,7 +25,6 @@ def export_data(table_names_file, restore):
     logger.info(f"Exporting data from tables: {table_names}")
     db_export.export_to_json(table_names=table_names, restore=restore)
 
-
 def import_data(table_names_file):
     """
     Import data from JSON files to Postgres database

@@ -154,9 +154,9 @@ class PostgresTable:
 
             column_data_types = self._get_column_data_types()
             serialized_records = [self._serialize_record(cursor, record, column_data_types) for record in rows]
+            logger.info(f"Got {len(serialized_records)} records from table {self.table_name}")
 
             json_filename = os.path.join(self.export_dir, f"{self.full_name}.json")
-
             with open(json_filename, "w", encoding="utf-8") as json_file:
                 logger.info(f"Exporting table {self.full_name} to {json_filename}")
                 json.dump(serialized_records, json_file, cls=self.CustomJSONEncoder, ensure_ascii=False, indent=2)
