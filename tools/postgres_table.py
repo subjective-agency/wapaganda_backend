@@ -43,7 +43,7 @@ class PostgresTable:
         self.export_dir = os.path.abspath(export_dir)
         self.batch_size = batch_size
         self.total_rows = None
-        self.restore = restore  # Add restore flag
+        self.restore = restore
         logger.info(f"Create PostgresTable {self.schema_name}.{self.table_name} with batch_size {batch_size}")
 
         # DEBUG
@@ -62,6 +62,7 @@ class PostgresTable:
             WHERE table_name = %s
             AND table_schema = %s
         """
+        logger.info(f"Query {query}")
         with self.connection.cursor() as cursor:
             cursor.execute(query, (self.table_name, self.schema_name))
             column_data_types = {row[0]: row[1] for row in cursor.fetchall()}
