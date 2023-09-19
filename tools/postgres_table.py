@@ -83,16 +83,11 @@ class PostgresTable:
         else:
             schema, table_name = 'public', self.table_name
 
-        query = """
-            SELECT COUNT(*) FROM information_schema.tables
-            WHERE table_name = %s
-            AND table_schema = %s
-        """
-
+        query = """SELECT pg_total_relation_size(%s) / pg_relation_size(%s) AS row_count"""
         with self.connection.cursor() as cursor:
-            cursor.execute(query, (table_name, schema))
-            count = cursor.fetchone()[0]
-        return count
+            cursor.execute(query, (f"{schema}.{table_name}", f"{schema}.{table_name}"))
+            row_count = cursor.fetchone()[0]
+        return row_count
 
     @staticmethod
     def _serialize_record(cursor, record, column_data_types):
