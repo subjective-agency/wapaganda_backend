@@ -52,13 +52,18 @@ class PostgresTable:
     # noinspection SqlResolve
     def _get_column_data_types(self) -> dict:
         """
-        Get column names and data types for a given table
+        Get column names and data types for a given table.
         :return: dict of column names and data types
         """
-        query = f"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = %s"
+        schema, table_name = self.table_name.split('.')
+        query = """SELECT column_name, data_type
+            FROM information_schema.columns
+            WHERE table_name = %s
+            AND table_schema = %s
+        """
         logger.info(f"Query {query}")
         with self.connection.cursor() as cursor:
-            cursor.execute(query, (self.table_name,))
+            cursor.execute(query, (table_name, schema))
             column_data_types = {row[0]: row[1] for row in cursor.fetchall()}
         logger.info(f"Column data types for table {self.table_name}: {column_data_types}")
         return column_data_types
