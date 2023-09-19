@@ -55,17 +55,44 @@ class PostgresTable:
         Get column names and data types for a given table.
         :return: dict of column names and data types
         """
-        schema, table_name = self.table_name.split('.')
-        query = """SELECT column_name, data_type
+        if '.' in self.table_name:
+            schema, table_name = self.table_name.split('.')
+        else:
+            schema, table_name = 'public', self.table_name
+
+        query = """
+            SELECT column_name, data_type
             FROM information_schema.columns
             WHERE table_name = %s
             AND table_schema = %s
         """
+        logger.info(f"Query {query}")
         with self.connection.cursor() as cursor:
             cursor.execute(query, (table_name, schema))
             column_data_types = {row[0]: row[1] for row in cursor.fetchall()}
         logger.info(f"Column data types for table {self.table_name}: {column_data_types}")
         return column_data_types
+
+    # noinspection SqlResolve
+    def _count_rows(self):
+        """
+        Count the number of rows in the table.
+        """
+        if '.' in self.table_name:
+            schema, table_name = self.table_name.split('.')
+        else:
+            schema, table_name = 'public', self.table_name
+
+        query = """
+            SELECT COUNT(*) FROM information_schema.tables
+            WHERE table_name = %s
+            AND table_schema = %s
+        """
+
+        with self.connection.cursor() as cursor:
+            cursor.execute(query, (table_name, schema))
+            count = cursor.fetchone()[0]
+        return count
 
     @staticmethod
     def _serialize_record(cursor, record, column_data_types):
@@ -100,22 +127,6 @@ class PostgresTable:
                 raise e
 
         return serialized_record
-
-    # noinspection SqlResolve
-    def _count_rows(self):
-        """
-        Count the number of rows in the table.
-        """
-        schema, table_name = self.table_name.split('.')  # Split schema and table name
-        query = """
-            SELECT COUNT(*) FROM information_schema.tables
-            WHERE table_name = %s
-            AND table_schema = %s
-        """
-        with self.connection.cursor() as cursor:
-            cursor.execute(query, (table_name, schema))
-            count = cursor.fetchone()[0]
-        return count
 
     def get_count(self):
         """
