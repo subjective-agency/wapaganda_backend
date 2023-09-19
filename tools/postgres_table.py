@@ -170,6 +170,7 @@ class PostgresTable:
         query = f"""
         SELECT * FROM "{self.schema_name}"."{self.table_name}"
         """
+        logger.info(f"Query {query}")
 
         try:
             cursor.execute(query)
