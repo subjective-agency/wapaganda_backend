@@ -28,12 +28,17 @@ class PostgresTable:
         """
         Initialize a PostgresTable instance.
         :param connection: An existing PostgresSQL database connection.
-        :param table_name: The name of the table to export.
+        :param table_name: The name of the table to export (including schema if explicitly specified).
         :param export_dir: The directory where JSON files will be exported.
         :param batch_size: Number of records to export in each batch.
         """
         self.connection = connection
-        self.table_name = table_name
+
+        if '.' in table_name:
+            self.schema_name, self.table_name = table_name.split('.')
+        else:
+            self.schema_name, self.table_name = 'public', table_name
+
         self.export_dir = os.path.abspath(export_dir)
         self.batch_size = batch_size
         self.total_rows = None
@@ -55,11 +60,6 @@ class PostgresTable:
         Get column names and data types for a given table.
         :return: dict of column names and data types
         """
-        if '.' in self.table_name:
-            schema, table_name = self.table_name.split('.')
-        else:
-            schema, table_name = 'public', self.table_name
-
         query = """
             SELECT column_name, data_type
             FROM information_schema.columns
@@ -68,7 +68,7 @@ class PostgresTable:
         """
         logger.info(f"Query {query}")
         with self.connection.cursor() as cursor:
-            cursor.execute(query, (table_name, schema))
+            cursor.execute(query, (self.table_name, self.schema_name))
             column_data_types = {row[0]: row[1] for row in cursor.fetchall()}
         logger.info(f"Column data types for table {self.table_name}: {column_data_types}")
         return column_data_types
@@ -78,14 +78,9 @@ class PostgresTable:
         """
         Count the number of rows in the table.
         """
-        if '.' in self.table_name:
-            schema, table_name = self.table_name.split('.')
-        else:
-            schema, table_name = 'public', self.table_name
-
         query = """
             SELECT COUNT(*) FROM {}.{}
-        """.format(schema, table_name)
+        """.format(self.schema_name, self.table_name)
 
         with self.connection.cursor() as cursor:
             cursor.execute(query)
