@@ -10,7 +10,7 @@ from tools.cleanup_db import PostgresDbCleanup
 from supaword.log_helper import logger
 
 
-def export_data(table_names_file=None, rewrite=True):
+def export_data(table_names_file, restore):
     """
     Export data from Postgres database to JSON files
     """
@@ -23,10 +23,10 @@ def export_data(table_names_file=None, rewrite=True):
     )
     table_names = read_table_names(table_names_file)
     logger.info(f"Exporting data from tables: {table_names}")
-    db_export.export_to_json(table_names=table_names, rewrite=rewrite)
+    db_export.export_to_json(table_names=table_names, restore=restore)
 
 
-def import_data(table_names_file=None):
+def import_data(table_names_file):
     """
     Import data from JSON files to Postgres database
     """
