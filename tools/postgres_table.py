@@ -167,8 +167,7 @@ class PostgresTable:
         Export a single table to a JSON file
         """
         cursor = self.connection.cursor()
-        query = f"""SELECT * FROM \"{self.fully_qualified_name}\""""
-        logger.info(f"Query _export_table(): {query}")
+        query = f"""SELECT * FROM "{self.schema_name}"."{self.table_name}""""
 
         try:
             cursor.execute(query)
