@@ -67,15 +67,10 @@ class PostgresTable:
         """
         Count the number of rows in the table
         """
-        if '.' in self.table_name:
-            schema, table_name = self.table_name.split('.')
-        else:
-            schema, table_name = 'public', self.table_name
-
         query = """
             SELECT pg_total_relation_size(%s) / pg_relation_size(%s) AS row_count
         """
-
+        schema, table_name = self.schema_name, self.table_name
         with self.connection.cursor() as cursor:
             cursor.execute(query, (f"{schema}.{table_name}", f"{schema}.{table_name}"))
             row_count = cursor.fetchone()[0]
