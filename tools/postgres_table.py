@@ -24,13 +24,14 @@ class PostgresTable:
                 return obj.decode('utf-8')
             return super().default(obj)
 
-    def __init__(self, connection, table_name, export_dir, batch_size):
+    def __init__(self, connection, table_name, export_dir, batch_size, restore=False):
         """
         Initialize a PostgresTable instance.
         :param connection: An existing PostgresSQL database connection.
         :param table_name: The name of the table to export (including schema if explicitly specified).
         :param export_dir: The directory where JSON files will be exported.
         :param batch_size: Number of records to export in each batch.
+        :param restore: If True, resume exporting from the last completed batch.
         """
         self.connection = connection
         if '.' in table_name:
@@ -41,6 +42,7 @@ class PostgresTable:
         self.export_dir = os.path.abspath(export_dir)
         self.batch_size = batch_size
         self.total_rows = None
+        self.restore = restore  # Add restore flag
         logger.info(f"Create PostgresTable {self.schema_name}.{self.table_name} with batch_size {batch_size}")
 
     # noinspection SqlResolve
@@ -177,7 +179,7 @@ class PostgresTable:
 
     def _export_batches(self):
         """
-        Export a single table to multiple JSON files in equal-sized batches.
+        Export a single table to multiple JSON files in equal-sized batches
         """
         batch_ranges = self._split_table()
         cursor = self.connection.cursor()
@@ -189,6 +191,19 @@ class PostgresTable:
             # Calculate the number of leading zeros needed based on the total number of batches
             max_batch_num = len(batch_ranges) - 1
             num_leading_zeros = len(str(max_batch_num))
+
+            # Find the last completed batch if restore flag is set
+            if self.restore:
+                last_completed_batch = -1
+                for batch_num, _ in enumerate(batch_ranges):
+                    batch_index_str = str(batch_num).zfill(num_leading_zeros)
+                    batch_filename = f"{json_filename_base}{batch_index_str}.json"
+                    if os.path.exists(batch_filename) and os.path.getsize(batch_filename) > 0:
+                        last_completed_batch = batch_num
+
+                if last_completed_batch >= 0:
+                    logger.info(f"Resuming export from Batch {last_completed_batch + 1}")
+                    batch_ranges = batch_ranges[last_completed_batch + 1:]
 
             for batch_num, (limit, offset) in enumerate(batch_ranges):
                 batch_query = f"SELECT * FROM {self.full_name} LIMIT %s OFFSET %s"
