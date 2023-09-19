@@ -1,5 +1,4 @@
 import os
-import sys
 
 
 def read_table_names(table_names_file):
@@ -58,11 +57,3 @@ def rename_json_files(export_dir):
                 print(f"{json_file} -> {new_file_name}")
             except ValueError:
                 pass
-
-
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Must be 2 cmd line params")
-        sys.exit(1)
-    directory = sys.argv[1]
-    rename_json_files(directory)
