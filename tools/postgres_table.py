@@ -148,7 +148,7 @@ class PostgresTable:
         """
         cursor = self.connection.cursor()
         query = f"""
-        SELECT * FROM {self.fully_qualified_name}
+            SELECT * FROM "{self.fully_qualified_name}"
         """
         logger.info(f"Query _export_table(): {query}")
 
