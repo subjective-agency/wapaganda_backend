@@ -42,7 +42,7 @@ class PostgresTable:
         self.export_dir = os.path.abspath(export_dir)
         self.batch_size = batch_size
         self.total_rows = None
-        logger.info(f"Create PostgresTable {table_name} with batch_size {batch_size}")
+        logger.info(f"Create PostgresTable {table_name}.{self.schema_name} with batch_size {batch_size}")
 
     @staticmethod
     def _serialize_datetime(obj):
