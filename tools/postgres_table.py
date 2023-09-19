@@ -61,7 +61,6 @@ class PostgresTable:
             WHERE table_name = %s
             AND table_schema = %s
         """
-        logger.info(f"Query {query}")
         with self.connection.cursor() as cursor:
             cursor.execute(query, (table_name, schema))
             column_data_types = {row[0]: row[1] for row in cursor.fetchall()}
@@ -102,14 +101,19 @@ class PostgresTable:
 
         return serialized_record
 
+    # noinspection SqlResolve
     def _count_rows(self):
         """
         Count the number of rows in the table.
         """
-        query = f"SELECT COUNT(*) FROM {self.table_name}"
-
+        schema, table_name = self.table_name.split('.')  # Split schema and table name
+        query = """
+            SELECT COUNT(*) FROM information_schema.tables
+            WHERE table_name = %s
+            AND table_schema = %s
+        """
         with self.connection.cursor() as cursor:
-            cursor.execute(query)
+            cursor.execute(query, (table_name, schema))
             count = cursor.fetchone()[0]
         return count
 
