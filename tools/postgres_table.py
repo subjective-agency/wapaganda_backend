@@ -33,12 +33,11 @@ class PostgresTable:
         :param batch_size: Number of records to export in each batch.
         """
         self.connection = connection
-
         if '.' in table_name:
             self.schema_name, self.table_name = table_name.split('.')
         else:
             self.schema_name, self.table_name = 'public', table_name
-
+        self.full_name = f"{self.schema_name}.{self.table_name}"
         self.export_dir = os.path.abspath(export_dir)
         self.batch_size = batch_size
         self.total_rows = None
@@ -149,7 +148,7 @@ class PostgresTable:
         Export a single table to a JSON file
         """
         cursor = self.connection.cursor()
-        query = f"SELECT * FROM {self.table_name}"
+        query = f"SELECT * FROM {self.full_name}"
 
         try:
             cursor.execute(query)
@@ -158,14 +157,14 @@ class PostgresTable:
             column_data_types = self._get_column_data_types()
             serialized_records = [self._serialize_record(cursor, record, column_data_types) for record in rows]
 
-            json_filename = os.path.join(self.export_dir, f"{self.table_name}.json")
+            json_filename = os.path.join(self.export_dir, f"{self.full_name}.json")
 
             with open(json_filename, "w", encoding="utf-8") as json_file:
-                logger.info(f"Exporting table {self.table_name} to {json_filename}")
+                logger.info(f"Exporting table {self.full_name} to {json_filename}")
                 json.dump(serialized_records, json_file, cls=self.CustomJSONEncoder, ensure_ascii=False, indent=2)
-            logger.info(f"Table {self.table_name} exported to {json_filename}")
+            logger.info(f"Table {self.full_name} exported to {json_filename}")
         except Exception as e:
-            logger.error(f"Error exporting table {self.table_name}: {e}")
+            logger.error(f"Error exporting table {self.full_name}: {e}")
         finally:
             cursor.close()
 
@@ -189,14 +188,14 @@ class PostgresTable:
 
         try:
             column_data_types = self._get_column_data_types()
-            json_filename_base = os.path.join(self.export_dir, f"{self.table_name}_batch_")
+            json_filename_base = os.path.join(self.export_dir, f"{self.full_name}_batch_")
 
             # Calculate the number of leading zeros needed based on the total number of batches
             max_batch_num = len(batch_ranges) - 1
             num_leading_zeros = len(str(max_batch_num))
 
             for batch_num, (limit, offset) in enumerate(batch_ranges):
-                batch_query = f"SELECT * FROM {self.table_name} LIMIT %s OFFSET %s"
+                batch_query = f"SELECT * FROM {self.full_name} LIMIT %s OFFSET %s"
                 cursor.execute(batch_query, (limit, offset))
                 rows = cursor.fetchall()
                 serialized_records = [self._serialize_record(cursor, record, column_data_types) for record in rows]
@@ -206,11 +205,11 @@ class PostgresTable:
                 batch_filename = f"{json_filename_base}{batch_index_str}.json"
 
                 with open(batch_filename, "w", encoding="utf-8") as json_file:
-                    logger.info(f"Exporting table {self.table_name} (Batch {batch_index_str}) to {batch_filename}")
+                    logger.info(f"Exporting table {self.full_name} (Batch {batch_index_str}) to {batch_filename}")
                     json.dump(serialized_records, json_file, cls=self.CustomJSONEncoder, ensure_ascii=False, indent=2)
-                logger.info(f"Table {self.table_name} (Batch {batch_index_str}) exported to {batch_filename}")
+                logger.info(f"Table {self.full_name} (Batch {batch_index_str}) exported to {batch_filename}")
         except Exception as e:
-            logger.error(f"Error exporting table {self.table_name}: {e}")
+            logger.error(f"Error exporting table {self.full_name}: {e}")
         finally:
             cursor.close()
 
@@ -218,11 +217,11 @@ class PostgresTable:
         """
         Remove existing JSON files for the table if they exist
         """
-        json_filename = os.path.join(self.export_dir, f"{self.table_name}.json")
+        json_filename = os.path.join(self.export_dir, f"{self.full_name}.json")
         if os.path.exists(json_filename):
             os.remove(json_filename)
 
-        batch_files = [f for f in os.listdir(self.export_dir) if f.startswith(f"{self.table_name}_batch_")]
+        batch_files = [f for f in os.listdir(self.export_dir) if f.startswith(f"{self.full_name}_batch_")]
         for batch_file in batch_files:
             batch_filename = os.path.join(self.export_dir, batch_file)
             if os.path.exists(batch_filename):
