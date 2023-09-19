@@ -7,6 +7,7 @@ def connect_to_database(credentials_file):
     try:
         with open(credentials_file, 'r') as file:
             credentials = json.load(file)
+            print(credentials)
             conn = psycopg2.connect(
                 dbname=credentials['POSTGRES_DB'],
                 user=credentials['POSTGRES_USER'],
