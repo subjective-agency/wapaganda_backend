@@ -31,10 +31,11 @@ class PostgresDbExport:
             logger.info(f"Creating export directory {self.export_dir}")
             os.makedirs(self.export_dir)
 
-    def get_table(self, table_name):
+    def get_table(self, table_name, restore):
         """
         Get a PostgresTable instance for a specific table.
         :param table_name: The name of the table to export.
+        :param restore: Whether to pick up export process
         :return: PostgresTable instance.
         """
         try:
@@ -45,7 +46,7 @@ class PostgresDbExport:
                 host=self.host,
                 port=self.port
             )
-            return PostgresTable(self.connection, table_name, self.export_dir, 100000)
+            return PostgresTable(self.connection, table_name, self.export_dir, 100000, restore)
         except Exception as e:
             logger.error(f"Error get_table(): {e}")
 
@@ -56,11 +57,11 @@ class PostgresDbExport:
         if self.connection:
             self.connection.close()
 
-    def export_to_json(self, table_names: list, rewrite: bool):
+    def export_to_json(self, table_names: list, restore: bool):
         """
         Export data from Postgres database to JSON files.
         :param table_names: List of table names to export.
-        :param rewrite: Whether to overwrite existing files.
+        :param restore: Whether to pick up previous export
         """
         try:
             self.connection = psycopg2.connect(
@@ -72,8 +73,8 @@ class PostgresDbExport:
             )
 
             for table_name in table_names:
-                table = self.get_table(table_name)
-                if rewrite:
+                table = self.get_table(table_name, restore)
+                if restore is False:
                     table.remove_existing_files()
                 table.export_table()
         except Exception as e:

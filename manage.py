@@ -91,7 +91,7 @@ def main():
     command_handlers = {
         "export_data": {
             "handle": export_data,
-            "params": ["table_names_file", "rewrite"]
+            "params": ["table_names_file", "restore"]
         },
         "import_data": {
             "handle": import_data,
