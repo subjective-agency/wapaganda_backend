@@ -41,5 +41,4 @@ data.transcribed_content
 data.transcribed_content_translation_en
 text_media
 data.telegram_channels_stats
-
 data.telegram_messages

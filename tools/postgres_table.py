@@ -55,12 +55,8 @@ class PostgresTable:
         Get column names and data types for a given table
         :return: dict of column names and data types
         """
-        query = f"""
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_name = %s
-        """
-
+        query = f"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = %s"
+        logger.info(f"Column datatype query: {query}")
         with self.connection.cursor() as cursor:
             cursor.execute(query, (self.table_name,))
             column_data_types = {row[0]: row[1] for row in cursor.fetchall()}
