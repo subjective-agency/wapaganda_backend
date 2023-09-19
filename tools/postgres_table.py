@@ -83,9 +83,12 @@ class PostgresTable:
         else:
             schema, table_name = 'public', self.table_name
 
-        query = """SELECT pg_total_relation_size(%s) / pg_relation_size(%s) AS row_count"""
+        query = """
+            SELECT COUNT(*) FROM {}.{}
+        """.format(schema, table_name)
+
         with self.connection.cursor() as cursor:
-            cursor.execute(query, (f"{schema}.{table_name}", f"{schema}.{table_name}"))
+            cursor.execute(query)
             row_count = cursor.fetchone()[0]
         return row_count
 
