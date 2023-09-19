@@ -146,7 +146,7 @@ class PostgresTable:
                 logger.info("Export as a single table")
                 self._export_table()
         except Exception as e:
-            logger.error(f"Error: {e}")
+            logger.error(f"Error export_table(): {e}")
 
     def _export_table(self):
         """

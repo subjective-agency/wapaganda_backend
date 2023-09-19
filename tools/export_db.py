@@ -47,7 +47,7 @@ class PostgresDbExport:
             )
             return PostgresTable(self.connection, table_name, self.export_dir, 100000)
         except Exception as e:
-            logger.error(f"Error: {e}")
+            logger.error(f"Error get_table(): {e}")
 
     def close_connection(self):
         """
@@ -77,7 +77,7 @@ class PostgresDbExport:
                     table.remove_existing_files()
                 table.export_table()
         except Exception as e:
-            logger.error(f"Error: {e}")
+            logger.error(f"Error export_to_json(): {e}")
         finally:
             if self.connection:
                 self.connection.close()
