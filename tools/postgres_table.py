@@ -55,7 +55,6 @@ class PostgresTable:
             WHERE table_name = %s
             AND table_schema = %s
         """
-        logger.info(f"Query {query}")
         with self.connection.cursor() as cursor:
             cursor.execute(query, (self.table_name, self.schema_name))
             column_data_types = {row[0]: row[1] for row in cursor.fetchall()}
@@ -67,9 +66,8 @@ class PostgresTable:
         """
         Count the number of rows in the table
         """
-        query = """
-            SELECT pg_total_relation_size(%s) / pg_relation_size(%s) AS row_count
-        """
+        query = """SELECT pg_total_relation_size(%s) / pg_relation_size(%s) AS row_count"""
+        logger.info(f"Query {query}")
         schema, table_name = self.schema_name, self.table_name
         with self.connection.cursor() as cursor:
             cursor.execute(query, (f"{schema}.{table_name}", f"{schema}.{table_name}"))
