@@ -80,6 +80,25 @@ class PostgresTable:
         """
         if '.' in self.table_name:
             schema, table_name = self.table_name.split('.')
+        else:
+            schema, table_name = 'public', self.table_name
+
+        query = """
+            SELECT COUNT(*) FROM {}.{}
+        """.format(schema, table_name)
+
+        with self.connection.cursor() as cursor:
+            cursor.execute(query)
+            row_count = cursor.fetchone()[0]
+        return row_count
+
+    # noinspection SqlResolve
+    def _count_rows2(self):
+        """
+        Count the number of rows in the table.
+        """
+        if '.' in self.table_name:
+            schema, table_name = self.table_name.split('.')
             return self._count_rows_explicit(schema, table_name)
         else:
             table_name = self.table_name
