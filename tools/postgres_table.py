@@ -80,28 +80,10 @@ class PostgresTable:
         """
         if '.' in self.table_name:
             schema, table_name = self.table_name.split('.')
-        else:
-            schema, table_name = 'public', self.table_name
-
-        if schema == 'public':
-            return self._count_rows_default(table_name)
-        else:
             return self._count_rows_explicit(schema, table_name)
-
-    # noinspection SqlResolve
-    def _count_rows(self):
-        """
-        Count the number of rows in the table.
-        """
-        if '.' in self.table_name:
-            schema, table_name = self.table_name.split('.')
         else:
-            schema, table_name = 'public', self.table_name
-
-        if schema == 'public':
+            table_name = self.table_name
             return self._count_rows_default(table_name)
-        else:
-            return self._count_rows_explicit(schema)
 
     # noinspection SqlResolve
     def _count_rows_default(self, table_name):
@@ -117,13 +99,13 @@ class PostgresTable:
             row_count = cursor.fetchone()[0]
         return row_count
 
-    def _count_rows_explicit(self, schema):
+    def _count_rows_explicit(self, schema, table_name):
         """
         Count the number of rows in the table with an explicitly specified schema.
         """
         query = """
             SELECT COUNT(*) FROM {}.{}
-        """.format(schema, self.table_name)
+        """.format(schema, table_name)
 
         with self.connection.cursor() as cursor:
             cursor.execute(query)
