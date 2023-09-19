@@ -1,5 +1,8 @@
 import json
 import os.path
+
+from setuptools._distutils.msvc9compiler import query_vcvarsall
+
 from supaword.log_helper import logger
 from datetime import datetime, date
 
@@ -147,6 +150,7 @@ class PostgresTable:
         """
         cursor = self.connection.cursor()
         query = f"SELECT * FROM {self.fully_qualified_name}"
+        logger.info(f"Query _export_table(): {query}")
 
         try:
             cursor.execute(query)
