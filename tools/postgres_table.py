@@ -66,9 +66,7 @@ class PostgresTable:
         """
         Count the number of rows in the table using pg_stat_user_tables.
         """
-        query = """
-            SELECT n_live_tup FROM pg_stat_user_tables WHERE schemaname = %s AND relname = %s
-        """
+        query = "SELECT n_live_tup FROM pg_stat_user_tables WHERE schemaname = %s AND relname = %s"
         with self.connection.cursor() as cursor:
             cursor.execute(query, (self.schema_name, self.table_name))
             row_count = cursor.fetchone()[0]
