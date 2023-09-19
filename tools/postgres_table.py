@@ -142,12 +142,13 @@ class PostgresTable:
         except Exception as e:
             logger.error(f"Error export_table(): {e}")
 
+    # noinspection SqlResolve
     def _export_table(self):
         """
         Export a single table to a JSON file
         """
         cursor = self.connection.cursor()
-        query = f"""SELECT * FROM '{self.fully_qualified_name}'"""
+        query = f"""SELECT * FROM \"{self.fully_qualified_name}\""""
         logger.info(f"Query _export_table(): {query}")
 
         try:
