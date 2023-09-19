@@ -64,13 +64,13 @@ class PostgresTable:
     # noinspection SqlResolve
     def _count_rows(self):
         """
-        Count the number of rows in the table
+        Count the number of rows in the table using pg_stat_user_tables.
         """
-        query = """SELECT pg_total_relation_size(%s) / pg_relation_size(%s) AS row_count"""
-        logger.info(f"Query {query}")
-        schema, table_name = self.schema_name, self.table_name
+        query = """
+            SELECT n_live_tup FROM pg_stat_user_tables WHERE schemaname = %s AND relname = %s
+        """
         with self.connection.cursor() as cursor:
-            cursor.execute(query, (f"{schema}.{table_name}", f"{schema}.{table_name}"))
+            cursor.execute(query, (self.schema_name, self.table_name))
             row_count = cursor.fetchone()[0]
         return row_count
 
