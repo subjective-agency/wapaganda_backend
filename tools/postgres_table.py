@@ -1,8 +1,6 @@
 import json
 import os.path
 
-from setuptools._distutils.msvc9compiler import query_vcvarsall
-
 from supaword.log_helper import logger
 from datetime import datetime, date
 
