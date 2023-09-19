@@ -44,6 +44,39 @@ class PostgresTable:
         self.total_rows = None
         logger.info(f"Create PostgresTable {self.schema_name}.{self.table_name} with batch_size {batch_size}")
 
+    # noinspection SqlResolve
+    def _get_column_data_types(self) -> dict:
+        """
+        Get column names and data types for a given table.
+        :return: dict of column names and data types
+        """
+        query = """
+            SELECT column_name, data_type
+            FROM information_schema.columns
+            WHERE table_name = %s
+            AND table_schema = %s
+        """
+        logger.info(f"Query {query}")
+        with self.connection.cursor() as cursor:
+            cursor.execute(query, (self.table_name, self.schema_name))
+            column_data_types = {row[0]: row[1] for row in cursor.fetchall()}
+        logger.info(f"Column data types for table {self.schema_name}.{self.table_name}: {column_data_types}")
+        return column_data_types
+
+    # noinspection SqlResolve
+    def _count_rows(self):
+        """
+        Count the number of rows in the table.
+        """
+        query = """
+            SELECT COUNT(*) FROM {}.{}
+        """.format(self.schema_name, self.table_name)
+
+        with self.connection.cursor() as cursor:
+            cursor.execute(query)
+            row_count = cursor.fetchone()[0]
+        return row_count
+
     @staticmethod
     def _serialize_datetime(obj):
         """
@@ -53,49 +86,6 @@ class PostgresTable:
         if isinstance(obj, (datetime, date)):
             return obj.isoformat()
         return str(obj)
-
-    # noinspection SqlResolve
-    def _get_column_data_types(self) -> dict:
-        """
-        Get column names and data types for a given table.
-        :return: dict of column names and data types
-        """
-        if '.' in self.table_name:
-            schema, table_name = self.table_name.split('.')
-        else:
-            schema, table_name = 'public', self.table_name
-
-        query = """
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_name = %s
-            AND table_schema = %s
-        """
-        logger.info(f"Query {query}")
-        with self.connection.cursor() as cursor:
-            cursor.execute(query, (table_name, schema))
-            column_data_types = {row[0]: row[1] for row in cursor.fetchall()}
-        logger.info(f"Column data types for table {self.table_name}: {column_data_types}")
-        return column_data_types
-
-    # noinspection SqlResolve
-    def _count_rows(self):
-        """
-        Count the number of rows in the table.
-        """
-        if '.' in self.table_name:
-            schema, table_name = self.table_name.split('.')
-        else:
-            schema, table_name = 'public', self.table_name
-
-        query = """
-            SELECT COUNT(*) FROM {}.{}
-        """.format(schema, table_name)
-
-        with self.connection.cursor() as cursor:
-            cursor.execute(query)
-            row_count = cursor.fetchone()[0]
-        return row_count
 
     @staticmethod
     def _serialize_record(cursor, record, column_data_types):
