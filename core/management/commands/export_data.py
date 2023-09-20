@@ -41,7 +41,9 @@ class Command(BaseCommand):
         )
         table_names = read_table_names(self.table_names_file)
         logger.info(f"Exporting data from tables: {table_names}")
-        db_export.export_to_json(table_names=table_names, restore=self.bool_continue_export)
+        db_export.export_to_json(table_names=table_names,
+                                 rewrite=self.bool_rewrite_tables,
+                                 restore=self.bool_continue_export)
 
     def handle(self, *args, **options):
         self.table_names_file = options['table_names_file']
@@ -50,7 +52,7 @@ class Command(BaseCommand):
 
         if not os.path.exists(self.table_names_file):
             raise CommandError(f"The specified file '{self.table_names_file}' does not exist")
-        self.export_data()   
+        self.export_data()
 
         self.stdout.write(self.style.SUCCESS(
             f'Successfully exported data from file: {self.table_names_file}, '
