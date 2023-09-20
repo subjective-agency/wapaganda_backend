@@ -126,26 +126,6 @@ class PostgresTable:
             row_count = cursor.fetchone()[0]
         return row_count
 
-    def get_count(self):
-        """
-        :return:
-        """
-        if self.total_rows is None:
-            self.total_rows = self._count_rows()
-        return self.total_rows
-
-    def export_table(self):
-        """
-        Export data from the table to JSON files.
-        """
-        logger.info(f"Table {self.fully_qualified_name} has {self.get_count()} records")
-        if self.get_count() > self.batch_size:
-            logger.info("Export in batches")
-            self._export_batches()
-        else:
-            logger.info("Export as a single table")
-            self._export_table()
-
     # noinspection SqlResolve
     def _export_table(self):
         """
@@ -179,6 +159,26 @@ class PostgresTable:
             logger.error(f"Error exporting table {self.fully_qualified_name}: {e}")
         finally:
             cursor.close()
+
+    def get_count(self):
+        """
+        :return:
+        """
+        if self.total_rows is None:
+            self.total_rows = self._count_rows()
+        return self.total_rows
+
+    def export_table(self):
+        """
+        Export data from the table to JSON files.
+        """
+        logger.info(f"Table {self.fully_qualified_name} has {self.get_count()} records")
+        if self.get_count() > self.batch_size:
+            logger.info("Export in batches")
+            self._export_batches()
+        else:
+            logger.info("Export as a single table")
+            self._export_table()
 
     def _split_table(self):
         """
