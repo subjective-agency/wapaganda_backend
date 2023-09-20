@@ -49,6 +49,9 @@ class Command(BaseCommand):
         self.table_names_file = options['table_names_file']
         self.bool_rewrite_tables = options['bool_rewrite_tables']
         self.bool_continue_export = options['bool_continue_export']
+        logger.info(f"Table name file: {self.table_names_file}")
+        logger.info(f"Rewrite Tables: {self.bool_rewrite_tables}")
+        logger.info(f"Resume Export: {self.bool_continue_export}")
 
         if not os.path.exists(self.table_names_file):
             raise CommandError(f"The specified file '{self.table_names_file}' does not exist")

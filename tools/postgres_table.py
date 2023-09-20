@@ -211,7 +211,8 @@ class PostgresTable:
         Export a single table to multiple JSON files in equal-sized batches
         """
         cursor = self.connection.cursor()
-
+        logger.info(f"Export batches: rewrite={self.rewrite}")
+        logger.info(f"Export batches: restore={self.restore}")
         try:
             column_data_types = self._get_column_data_types()
             json_filename_base = os.path.join(self.export_dir, f"{self.fully_qualified_name}_batch_")
