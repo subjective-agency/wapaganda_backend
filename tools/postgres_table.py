@@ -187,7 +187,7 @@ class PostgresTable:
         total_rows = self.get_count()
         num_batches = (total_rows + self.batch_size - 1) // self.batch_size
         batches = [(self.batch_size, i * self.batch_size) for i in range(num_batches)]
-        logger.info(f"Split export into {num_batches} batches: {batches}")
+        logger.info(f"Split export into {num_batches} batches")
         return batches
 
     def _last_completed_batch(self, json_filename_base):
