@@ -62,7 +62,6 @@ class PostgresTable:
             WHERE table_name = %s
             AND table_schema = %s
         """
-        logger.info(f"Query {query}")
         with self.connection.cursor() as cursor:
             cursor.execute(query, (self.table_name, self.schema_name))
             column_data_types = {row[0]: row[1] for row in cursor.fetchall()}

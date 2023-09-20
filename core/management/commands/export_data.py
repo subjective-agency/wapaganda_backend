@@ -12,7 +12,7 @@ class Command(BaseCommand):
     help = 'Export data from specified tables'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(self, args, kwargs)
+        super().__init__(*args, **kwargs)
         self.table_names_file = []
         self.bool_rewrite_tables = False
         self.bool_continue_export = False

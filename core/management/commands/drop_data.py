@@ -12,7 +12,7 @@ class Command(BaseCommand):
     help = 'Drop specified database tables'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(self, args, kwargs)
+        super().__init__(*args, **kwargs)
         self.table_names_file = None
 
     def add_arguments(self, parser):

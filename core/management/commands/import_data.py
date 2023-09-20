@@ -12,7 +12,7 @@ class Command(BaseCommand):
     help = 'Import data into specified tables'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(self, args, kwargs)
+        super().__init__(*args, **kwargs)
         self.table_names_file = None
         self.export_dir = None
 
