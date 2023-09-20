@@ -71,11 +71,11 @@ class PostgresTable:
     # noinspection SqlResolve
     def _count_rows(self):
         """
-        Count the number of rows in the table using pg_stat_user_tables.
+        Count the number of rows in the table using SELECT COUNT(*).
         """
-        query = "SELECT n_live_tup FROM pg_stat_user_tables WHERE schemaname = %s AND relname = %s"
+        query = f"SELECT COUNT(*) FROM {self.fully_qualified_name}"
         with self.connection.cursor() as cursor:
-            cursor.execute(query, (self.schema_name, self.table_name))
+            cursor.execute(query)
             row_count = cursor.fetchone()[0]
         return row_count
 
