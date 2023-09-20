@@ -18,14 +18,16 @@ class Command(BaseCommand):
         self.bool_continue_export = False
 
     def add_arguments(self, parser):
-        parser.add_argument('table_names_file',
-                            type=str,
+        parser.add_argument('table_names_file', 
+                            type=str, 
                             help='File containing table names')
         parser.add_argument('bool_rewrite_tables',
-                            type=bool,
+                            type=lambda x: x.lower() == 'true',
+                            choices=['true', 'false'],
                             help='Boolean indicating whether to rewrite tables')
         parser.add_argument('bool_continue_export',
-                            type=bool,
+                            type=lambda x: x.lower() == 'true',
+                            choices=['true', 'false'],
                             help='Boolean indicating whether to continue paused export')
 
     def export_data(self):
