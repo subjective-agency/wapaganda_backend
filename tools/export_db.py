@@ -9,6 +9,8 @@ We utilize the class from standard Django manage.py script
 
 
 class PostgresDbExport:
+    
+    BATCH_SIZE = 100000
 
     # noinspection PyUnresolvedReferences
     def __init__(self, dbname: str, user: str, password: str, host: str, port: int):
@@ -46,7 +48,7 @@ class PostgresDbExport:
                 host=self.host,
                 port=self.port
             )
-            return PostgresTable(self.connection, table_name, self.export_dir, 100000, restore)
+            return PostgresTable(self.connection, table_name, self.export_dir, self.BATCH_SIZE, restore)
         except Exception as e:
             logger.error(f"Error get_table(): {e}")
 
@@ -57,9 +59,10 @@ class PostgresDbExport:
         if self.connection:
             self.connection.close()
 
-    def export_to_json(self, table_names: list, restore: bool):
+    def export_to_json(self, table_names: list, rewrite: bool, restore: bool):
         """
         Export data from Postgres database to JSON files.
+        :param rewrite: Whether to rewrite exported JSON
         :param table_names: List of table names to export.
         :param restore: Whether to pick up previous export
         """
@@ -73,8 +76,9 @@ class PostgresDbExport:
             )
 
             for table_name in table_names:
-                table = self.get_table(table_name, restore)
-                if restore is False:
+                table = self.get_table(table_name, rewrite, restore)
+                if rewrite is True:
+                    logger.info("Rewrite flag is true")
                     table.remove_existing_files()
                 table.export_table()
         except Exception as e:
