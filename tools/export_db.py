@@ -33,12 +33,13 @@ class PostgresDbExport:
             logger.info(f"Creating export directory {self.export_dir}")
             os.makedirs(self.export_dir)
 
-    def get_table(self, table_name, restore):
+    def get_table(self, table_name, rewrite, restore):
         """
         Get a PostgresTable instance for a specific table.
         :param table_name: The name of the table to export.
         :param restore: Whether to pick up export process
-        :return: PostgresTable instance.
+        :param rewrite: Whether to rewrite tables
+        :return: PostgresTable instance
         """
         try:
             self.connection = psycopg2.connect(
@@ -48,7 +49,12 @@ class PostgresDbExport:
                 host=self.host,
                 port=self.port
             )
-            return PostgresTable(self.connection, table_name, self.export_dir, self.BATCH_SIZE, restore)
+            return PostgresTable(connection=self.connection,
+                                 table_name=table_name,
+                                 export_dir=self.export_dir,
+                                 rewrite=rewrite,
+                                 restore=restore,
+                                 batch_size=self.BATCH_SIZE)
         except Exception as e:
             logger.error(f"Error get_table(): {e}")
 
@@ -76,7 +82,7 @@ class PostgresDbExport:
             )
 
             for table_name in table_names:
-                table = self.get_table(table_name, rewrite, restore)
+                table = self.get_table(table_name=table_name, rewrite=rewrite, restore=restore)
                 if rewrite is True:
                     logger.info("Rewrite flag is true")
                     table.remove_existing_files()
