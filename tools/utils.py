@@ -3,12 +3,12 @@ import os
 
 def read_table_names(table_names_file):
     """
-    Read table names from file
+    Read table names from file, skipping empty lines
     """
     table_names = []
     if table_names_file is not None:
         with open(table_names_file, "r") as file:
-            [table_names.append(line.strip()) for line in file.readlines() if line]
+            table_names = [line.strip() for line in file if line.strip()]
     return table_names
 
 
