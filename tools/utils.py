@@ -9,7 +9,6 @@ def read_table_names(table_names_file):
     if table_names_file is not None:
         with open(table_names_file, "r") as file:
             table_names = [line.strip() for line in file if line.strip()]
-    print(f"Table names: {table_names}")
     return table_names
 
 
