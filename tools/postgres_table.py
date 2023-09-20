@@ -92,6 +92,7 @@ class PostgresTable:
         self.export_dir = os.path.abspath(export_dir)
         self.batch_size = batch_size
         self.total_rows = None
+        self.batches = None
         self.restore = restore
         self.rewrite = rewrite
         logger.info(f"Create PostgresTable {self.schema_name}.{self.table_name} with batch_size {batch_size}")
@@ -186,9 +187,10 @@ class PostgresTable:
         """
         total_rows = self.get_count()
         num_batches = (total_rows + self.batch_size - 1) // self.batch_size
-        batches = [(self.batch_size, i * self.batch_size) for i in range(num_batches)]
-        logger.info(f"Split export into {num_batches} batches")
-        return batches
+        if self.batches is None:
+            self.batches = [(self.batch_size, i * self.batch_size) for i in range(num_batches)]
+            logger.info(f"Split export into {num_batches} batches {self.batches}")
+        return self.batches
 
     def _last_completed_batch(self, json_filename_base):
         """
