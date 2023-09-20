@@ -8,7 +8,7 @@ def read_table_names(table_names_file):
     table_names = []
     if table_names_file is not None:
         with open(table_names_file, "r") as file:
-            [table_names.append(line.strip()) for line in file.readlines()]
+            [table_names.append(line.strip()) for line in file.readlines() if line]
     return table_names
 
 
