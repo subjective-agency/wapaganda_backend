@@ -135,6 +135,18 @@ class PostgresTable:
         """
         Export data from the table to JSON files.
         """
+        logger.info(f"Table {self.fully_qualified_name} has {self.get_count()} records")
+        if self.get_count() > self.batch_size:
+            logger.info("Export in batches")
+            self._export_batches()
+        else:
+            logger.info("Export as a single table")
+            self._export_table()
+
+    def export_table_protected(self):
+        """
+        Export data from the table to JSON files.
+        """
         try:
             logger.info(f"Table {self.fully_qualified_name} has {self.get_count()} records")
             if self.get_count() > self.batch_size:
