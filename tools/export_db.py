@@ -10,7 +10,7 @@ We utilize the class from standard Django manage.py script
 
 class PostgresDbExport:
     
-    BATCH_SIZE = 100000
+    BATCH_SIZE = 10000
 
     # noinspection PyUnresolvedReferences
     def __init__(self, dbname: str, user: str, password: str, host: str, port: int):
