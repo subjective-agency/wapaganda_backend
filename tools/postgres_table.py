@@ -248,7 +248,7 @@ class PostgresTable:
                 ]
 
                 # Add leading zeros to the batch index
-                batch_index_str = str(batch_num).zfill(num_leading_zeros)
+                batch_index_str = f"{batch_num:02d}"
                 batch_filename = f"{json_filename_base}{batch_index_str}.json"
 
                 with open(batch_filename, "w", encoding="utf-8") as json_file:
