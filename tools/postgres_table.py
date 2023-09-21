@@ -52,7 +52,7 @@ class PostgresExportHelper:
         return serialized_record
 
 
-class PostgresTable:
+class PostgresTableExport:
     """
     Abstraction of PostgresTable in context of table export
     """

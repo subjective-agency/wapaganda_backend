@@ -1,7 +1,7 @@
 import os.path
 import psycopg2
 from supaword.log_helper import logger
-from tools.postgres_table import PostgresTable
+from tools.postgres_table import PostgresTableExport
 
 __doc__ = """Export data from Postgres database to JSON files
 We utilize the class from standard Django manage.py script
@@ -49,12 +49,12 @@ class PostgresDbExport:
                 host=self.host,
                 port=self.port
             )
-            return PostgresTable(connection=self.connection,
-                                 table_name=table_name,
-                                 export_dir=self.export_dir,
-                                 rewrite=rewrite,
-                                 restore=restore,
-                                 batch_size=self.BATCH_SIZE)
+            return PostgresTableExport(connection=self.connection,
+                                       table_name=table_name,
+                                       export_dir=self.export_dir,
+                                       rewrite=rewrite,
+                                       restore=restore,
+                                       batch_size=self.BATCH_SIZE)
         except Exception as e:
             logger.error(f"Error get_table(): {e}")
 
