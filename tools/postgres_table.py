@@ -133,7 +133,7 @@ class PostgresTable:
         Export a single table to a JSON file
         """
         cursor = self.connection.cursor()
-        query = f"""SELECT * FROM {self.schema_name}.{self.table_name}"""
+        query = f"SELECT * FROM {self.schema_name}.{self.table_name} ORDER BY id"
         try:
             cursor.execute(query)
             rows = cursor.fetchall()
@@ -217,6 +217,7 @@ class PostgresTable:
                 self._remove_batch_files(json_filename_base)
 
             # Find the last completed batch if restore flag is set
+            last_completed_batch = 0
             if self.restore:
                 last_completed_batch = self._last_completed_batch(json_filename_base)
 
@@ -240,8 +241,8 @@ class PostgresTable:
                     PostgresExportHelper.serialize_record(cursor, record, column_data_types) for record in rows
                 ]
 
-                # Calculate the correct batch number based on the last_completed_batch and current batch_num
-                batch_index_str = f"{last_completed_batch + batch_num + 1:03d}"
+                # Calculate file name based of overall number of batches
+                batch_index_str = f"{last_completed_batch + batch_num + 1:0{num_leading_zeros}d}"
                 batch_filename = f"{json_filename_base}{batch_index_str}.json"
 
                 with open(batch_filename, "w", encoding="utf-8") as json_file:

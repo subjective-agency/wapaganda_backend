@@ -14,6 +14,17 @@ You'll have to do the following edits to clean this up manually:
 """
 
 
+class BundleTypes(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at = models.DateTimeField()
+    code = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'enums_bundle_types'
+
+
 class EnumsISCOTaxonomy(models.Model):
     """
     | Name | Type | Constraint type |
@@ -421,7 +432,7 @@ class PeopleBundles(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     bundle_name = models.JSONField(blank=True, null=True)
-    bundle_type = models.TextField(blank=True, null=True)
+    bundle_type = models.ForeignKey(BundleTypes, models.DO_NOTHING)
     parent_bundle_id = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
@@ -995,3 +1006,25 @@ class TranscribedContentEn(models.Model):
     class Meta:
         managed = True
         db_table = 'data_transcribed_content_translation_en'
+
+
+class Rodniki(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    type = models.TextField(blank=True, null=True)
+    title = models.TextField(blank=True, null=True)
+    author = models.TextField(blank=True, null=True)
+    date = models.DateField(blank=True, null=True)
+    url = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    tags = models.TextField(blank=True, null=True)
+    photo = models.TextField(blank=True, null=True)
+    author_origin_id = models.IntegerField(blank=True, null=True)
+    have = models.BooleanField()
+    duration = models.IntegerField(blank=True, null=True)
+    url_is_alive = models.BooleanField()
+    available = models.BooleanField()
+
+    class Meta:
+        managed = False
+        db_table = 'future_rodniki'
