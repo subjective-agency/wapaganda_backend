@@ -145,9 +145,14 @@ class PostgresTableExport:
         cursor = self.connection.cursor()
         logger.info(f"Export batches: rewrite={self.rewrite}")
         logger.info(f"Export batches: restore={self.restore}")
+
+        # Create a directory for the table if it doesn't exist
+        table_dir = os.path.join(self.export_dir, self.fully_qualified_name)
+        os.makedirs(table_dir, exist_ok=True)
+
         try:
             column_data_types = self._get_column_data_types()
-            json_filename_base = os.path.join(self.export_dir, f"{self.fully_qualified_name}_batch_")
+            json_filename_base = os.path.join(table_dir, f"{self.fully_qualified_name}_batch_")
 
             # Remove existing batch files if self.rewrite is True
             if self.rewrite:
@@ -178,7 +183,7 @@ class PostgresTableExport:
                     PostgresExportHelper.serialize_record(cursor, record, column_data_types) for record in rows
                 ]
 
-                # Calculate file name based of overall number of batches
+                # Calculate file name based on the overall number of batches
                 batch_index_str = f"{last_completed_batch + batch_num + 1:0{num_leading_zeros}d}"
                 batch_filename = f"{json_filename_base}{batch_index_str}.json"
 
