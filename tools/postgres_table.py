@@ -122,7 +122,7 @@ class PostgresTableExport:
             logger.info(f"Split export into {num_batches} batches {self.batches}")
         return self.batches
 
-    def _last_completed_batch(self, json_filename_base):
+    def _last_completed_batch(self, table_dir):
         """
         Find the last completed batch.
         """
@@ -132,11 +132,25 @@ class PostgresTableExport:
         last_completed_batch = -1
         for batch_num in range(max_batch_num + 1):
             batch_index_str = str(batch_num).zfill(num_leading_zeros)
-            batch_filename = f"{json_filename_base}{batch_index_str}.json"
+            batch_filename = os.path.join(table_dir, f"{self.fully_qualified_name}_batch_{batch_index_str}.json")
             if os.path.exists(batch_filename) and os.path.getsize(batch_filename) > 0:
                 last_completed_batch = batch_num
 
         return last_completed_batch
+
+    def _remove_batch_files(self, table_dir):
+        """
+        Remove existing batch files.
+        """
+        logger.info(f"Removing batch files for {self.fully_qualified_name} table")
+        max_batch_num = len(self._split_table()) - 1
+        num_leading_zeros = len(str(max_batch_num))
+
+        for batch_num in range(max_batch_num + 1):
+            batch_index_str = str(batch_num).zfill(num_leading_zeros)
+            batch_filename = os.path.join(table_dir, f"{self.fully_qualified_name}_batch_{batch_index_str}.json")
+            if os.path.exists(batch_filename):
+                os.remove(batch_filename)
 
     def _export_batches(self):
         """
@@ -154,14 +168,13 @@ class PostgresTableExport:
             column_data_types = self._get_column_data_types()
             json_filename_base = os.path.join(table_dir, f"{self.fully_qualified_name}_batch_")
 
-            # Remove existing batch files if self.rewrite is True
             if self.rewrite:
-                self._remove_batch_files(json_filename_base)
+                self._remove_batch_files(table_dir=table_dir)
 
             # Find the last completed batch if restore flag is set
             last_completed_batch = 0
             if self.restore:
-                last_completed_batch = self._last_completed_batch(json_filename_base)
+                last_completed_batch = self._last_completed_batch(table_dir=table_dir)
 
                 if last_completed_batch >= 0:
                     logger.info(f"Resuming export from Batch {last_completed_batch + 1}")
@@ -197,20 +210,6 @@ class PostgresTableExport:
         finally:
             cursor.close()
 
-    def _remove_batch_files(self, json_filename_base):
-        """
-        Remove existing batch files.
-        """
-        logger.info(f"Removing batch files for {json_filename_base} table")
-        max_batch_num = len(self._split_table()) - 1
-        num_leading_zeros = len(str(max_batch_num))
-
-        for batch_num in range(max_batch_num + 1):
-            batch_index_str = str(batch_num).zfill(num_leading_zeros)
-            batch_filename = f"{json_filename_base}{batch_index_str}.json"
-            if os.path.exists(batch_filename):
-                os.remove(batch_filename)
-                
     def remove_existing_files(self):
         """
         Remove existing JSON files for the table if they exist
