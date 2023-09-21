@@ -119,7 +119,9 @@ class PostgresTableExport:
         num_batches = (total_rows + self.batch_size - 1) // self.batch_size
         if self.batches is None:
             self.batches = [(self.batch_size, i * self.batch_size) for i in range(num_batches)]
-            logger.info(f"Split export into {num_batches} batches {self.batches}")
+            logger.info(f"Split export into {num_batches} batches")
+            logger.info(f"First batch {self.batches[0]}")
+            logger.info(f"Last batch {self.batches[-1]}")
         return self.batches
 
     def _last_completed_batch(self, table_dir):
