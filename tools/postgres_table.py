@@ -6,6 +6,7 @@ from datetime import datetime, date
 
 
 class PostgresExportHelper:
+
     @staticmethod
     def serialize_datetime(obj):
         """
