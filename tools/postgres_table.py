@@ -1,4 +1,5 @@
 import json
+import time
 import os.path
 
 from supaword.log_helper import logger
@@ -191,22 +192,35 @@ class PostgresTableExport:
             num_leading_zeros = len(str(max_batch_num))
 
             for batch_num, (limit, offset) in enumerate(batch_ranges):
-                batch_query = f"SELECT * FROM {self.fully_qualified_name} LIMIT %s OFFSET %s"
-                cursor.execute(batch_query, (limit, offset))
-                rows = cursor.fetchall()
-                serialized_records = [
-                    PostgresExportHelper.serialize_record(cursor, record, column_data_types) for record in rows
-                ]
+                while True:
+                    try:
+                        batch_query = f"SELECT * FROM {self.fully_qualified_name} LIMIT %s OFFSET %s"
+                        cursor.execute(batch_query, (limit, offset))
+                        rows = cursor.fetchall()
+                        serialized_records = [
+                            PostgresExportHelper.serialize_record(cursor, record, column_data_types) for record in rows
+                        ]
 
-                # Calculate file name based on the overall number of batches
-                batch_index_str = f"{last_completed_batch + batch_num + 1:0{num_leading_zeros}d}"
-                batch_filename = f"{json_filename_base}{batch_index_str}.json"
+                        # Calculate file name based on the overall number of batches
+                        batch_index_str = f"{last_completed_batch + batch_num + 1:0{num_leading_zeros}d}"
+                        batch_filename = f"{json_filename_base}{batch_index_str}.json"
 
-                with open(batch_filename, "w", encoding="utf-8") as json_file:
-                    logger.info(
-                        f"Exporting table {self.fully_qualified_name} (Batch {batch_index_str}) to {batch_filename}")
-                    json.dump(serialized_records, json_file, cls=CustomJSONEncoder, ensure_ascii=False, indent=2)
-                logger.info(f"Table {self.fully_qualified_name} (Batch {batch_index_str}) exported to {batch_filename}")
+                        with open(batch_filename, "w", encoding="utf-8") as json_file:
+                            logger.info(
+                                f"Exporting table {self.fully_qualified_name} "
+                                f"(Batch {batch_index_str}) to {batch_filename}"
+                            )
+                            json.dump(serialized_records, json_file,
+                                      cls=CustomJSONEncoder,
+                                      ensure_ascii=False,
+                                      indent=2)
+                        logger.info(
+                            f"Table {self.fully_qualified_name} (Batch {batch_index_str}) exported to {batch_filename}")
+                        break  # Break the retry loop if export succeeds
+                    except Exception as e:
+                        logger.error(f"Error exporting table {self.fully_qualified_name} (Batch {batch_num}): {e}")
+                        logger.info(f"Retrying export of {self.fully_qualified_name} (Batch {batch_num}) in 5 seconds")
+                        time.sleep(5)
         except Exception as e:
             logger.error(f"Error exporting table {self.fully_qualified_name}: {e}")
         finally:
