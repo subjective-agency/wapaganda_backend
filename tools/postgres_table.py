@@ -247,8 +247,8 @@ class PostgresTable:
                     PostgresExportHelper.serialize_record(cursor, record, column_data_types) for record in rows
                 ]
 
-                # Add leading zeros to the batch index
-                batch_index_str = f"{batch_num:03d}"
+                # Calculate the correct batch number based on the last_completed_batch and current batch_num
+                batch_index_str = f"{last_completed_batch + batch_num + 1:03d}"
                 batch_filename = f"{json_filename_base}{batch_index_str}.json"
 
                 with open(batch_filename, "w", encoding="utf-8") as json_file:
