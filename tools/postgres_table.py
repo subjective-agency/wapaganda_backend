@@ -160,14 +160,6 @@ class PostgresTable:
         finally:
             cursor.close()
 
-    def get_count(self):
-        """
-        :return:
-        """
-        if self.total_rows is None:
-            self.total_rows = self._count_rows()
-        return self.total_rows
-
     def export_table(self):
         """
         Export data from the table to JSON files.
@@ -289,3 +281,11 @@ class PostgresTable:
             batch_filename = os.path.join(self.export_dir, batch_file)
             if os.path.exists(batch_filename):
                 os.remove(batch_filename)
+
+    def get_count(self):
+        """
+        :return:
+        """
+        if self.total_rows is None:
+            self.total_rows = self._count_rows()
+        return self.total_rows
