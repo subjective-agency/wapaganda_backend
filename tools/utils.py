@@ -1,4 +1,7 @@
 import os
+import json
+from datetime import datetime, date
+from supaword.log_helper import logger
 
 
 def read_table_names(table_names_file):
@@ -57,3 +60,81 @@ def rename_json_files(export_dir):
                 print(f"{json_file} -> {new_file_name}")
             except ValueError:
                 pass
+
+    class CustomJSONEncoder(json.JSONEncoder):
+        """
+        Custom JSON encoder to serialize objects to ISO format
+        """
+
+        def default(self, obj):
+            """
+            Serialize datetime and date objects to ISO format
+            """
+            if isinstance(obj, (datetime, date)):
+                return obj.isoformat()
+            if isinstance(obj, bytes):
+                return obj.decode('utf-8')
+            return super().default(obj)
+
+
+class CustomJSONEncoder(json.JSONEncoder):
+    """
+    Custom JSON encoder to serialize objects to ISO format
+    """
+
+    def default(self, obj):
+        """
+        Serialize datetime and date objects to ISO format
+        """
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        if isinstance(obj, bytes):
+            return obj.decode('utf-8')
+        return super().default(obj)
+
+
+class PostgresExportHelper:
+
+    @staticmethod
+    def serialize_datetime(obj):
+        """
+        Serialize datetime and date objects to ISO format
+        Convert other types to string
+        """
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        return str(obj)
+
+    @staticmethod
+    def serialize_record(cursor, record, column_data_types):
+        """
+        :param cursor:
+        :param record:
+        :param column_data_types:
+        :return:
+        """
+        description = [desc[0] for desc in cursor.description]
+        serialized_record = {}
+
+        for field, value, data_type in zip(description, record, column_data_types.values()):
+            try:
+                if value is None:
+                    serialized_record[field] = None
+                elif data_type == "timestamp" and isinstance(value, (datetime, date)):
+                    serialized_record[field] = value
+                elif data_type == "boolean":
+                    serialized_record[field] = value
+                elif data_type == "integer":
+                    serialized_record[field] = value
+                elif data_type in ("json", "jsonb"):
+                    # Don't parse JSON values, assign them directly
+                    serialized_record[field] = value
+                elif data_type == "array":
+                    serialized_record[field] = json.loads(value.replace("'", "\""))
+                else:
+                    serialized_record[field] = value
+            except Exception as e:
+                logger.error(f"Error serializing field '{field}' with value '{value}' of data type '{data_type}': {e}")
+                raise e
+
+        return serialized_record

@@ -2,77 +2,14 @@ import json
 import os.path
 
 from supaword.log_helper import logger
-from datetime import datetime, date
-
-
-class PostgresExportHelper:
-
-    @staticmethod
-    def serialize_datetime(obj):
-        """
-        Serialize datetime and date objects to ISO format
-        Convert other types to string
-        """
-        if isinstance(obj, (datetime, date)):
-            return obj.isoformat()
-        return str(obj)
-
-    @staticmethod
-    def serialize_record(cursor, record, column_data_types):
-        """
-        :param cursor:
-        :param record:
-        :param column_data_types:
-        :return:
-        """
-        description = [desc[0] for desc in cursor.description]
-        serialized_record = {}
-
-        for field, value, data_type in zip(description, record, column_data_types.values()):
-            try:
-                if value is None:
-                    serialized_record[field] = None
-                elif data_type == "timestamp" and isinstance(value, (datetime, date)):
-                    serialized_record[field] = value
-                elif data_type == "boolean":
-                    serialized_record[field] = value
-                elif data_type == "integer":
-                    serialized_record[field] = value
-                elif data_type in ("json", "jsonb"):
-                    # Don't parse JSON values, assign them directly
-                    serialized_record[field] = value
-                elif data_type == "array":
-                    serialized_record[field] = json.loads(value.replace("'", "\""))
-                else:
-                    serialized_record[field] = value
-            except Exception as e:
-                logger.error(f"Error serializing field '{field}' with value '{value}' of data type '{data_type}': {e}")
-                raise e
-
-        return serialized_record
+from tools.utils import CustomJSONEncoder, PostgresExportHelper
 
 
 class PostgresTableExport:
     """
     Abstraction of PostgresTable in context of table export
     """
-
-    class CustomJSONEncoder(json.JSONEncoder):
-        """
-        Custom JSON encoder to serialize objects to ISO format
-        """
-        
-        def default(self, obj):
-            """
-            Serialize datetime and date objects to ISO format
-            """
-            if isinstance(obj, (datetime, date)):
-                return obj.isoformat()
-            if isinstance(obj, bytes):
-                return obj.decode('utf-8')
-            return super().default(obj)
-
-    def __init__(self, connection, table_name, export_dir, batch_size, rewrite=False, restore=False):
+    def __init__(self, connection, table_name, export_dir, batch_size, rewrite, restore):
         """
         Initialize a PostgresTable instance.
         :param connection: An existing PostgresSQL database connection.
@@ -154,7 +91,7 @@ class PostgresTableExport:
 
             with open(json_filename, "w", encoding="utf-8") as json_file:
                 logger.info(f"Exporting table {self.fully_qualified_name} to {json_filename}")
-                json.dump(serialized_records, json_file, cls=self.CustomJSONEncoder, ensure_ascii=False, indent=2)
+                json.dump(serialized_records, json_file, cls=CustomJSONEncoder, ensure_ascii=False, indent=2)
             logger.info(f"Table {self.fully_qualified_name} exported to {json_filename}")
         except Exception as e:
             logger.error(f"Error exporting table {self.fully_qualified_name}: {e}")
@@ -248,7 +185,7 @@ class PostgresTableExport:
                 with open(batch_filename, "w", encoding="utf-8") as json_file:
                     logger.info(
                         f"Exporting table {self.fully_qualified_name} (Batch {batch_index_str}) to {batch_filename}")
-                    json.dump(serialized_records, json_file, cls=self.CustomJSONEncoder, ensure_ascii=False, indent=2)
+                    json.dump(serialized_records, json_file, cls=CustomJSONEncoder, ensure_ascii=False, indent=2)
                 logger.info(f"Table {self.fully_qualified_name} (Batch {batch_index_str}) exported to {batch_filename}")
         except Exception as e:
             logger.error(f"Error exporting table {self.fully_qualified_name}: {e}")
