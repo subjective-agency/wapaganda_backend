@@ -155,7 +155,7 @@ class PostgresTableExport:
             if os.path.exists(batch_filename):
                 os.remove(batch_filename)
 
-    def _export_batches(self):
+    def _export_batches_one(self):
         """
         Export a single table to multiple JSON files in equal-sized batches
         """
@@ -218,7 +218,7 @@ class PostgresTableExport:
         finally:
             cursor.close()
 
-    def _export_batches_loop(self):
+    def _export_batches(self):
         """
         Export a single table to multiple JSON files in equal-sized batches
         """
