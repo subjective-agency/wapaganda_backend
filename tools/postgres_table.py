@@ -193,6 +193,7 @@ class PostgresTableExport:
             num_leading_zeros = len(str(max_batch_num))
 
             for batch_num, (limit, offset) in enumerate(batch_ranges):
+                start_time = time.time()
                 batch_query = f"SELECT * FROM {self.fully_qualified_name} LIMIT %s OFFSET %s"
                 cursor.execute(batch_query, (limit, offset))
                 rows = cursor.fetchall()
@@ -204,7 +205,6 @@ class PostgresTableExport:
                 batch_index_str = f"{last_completed_batch + batch_num + 1:0{num_leading_zeros}d}"
                 batch_filename = f"{json_filename_base}{batch_index_str}.json"
 
-                start_time = time.time()
                 with open(batch_filename, "w", encoding="utf-8") as json_file:
                     logger.info(
                         f"Exporting table {self.fully_qualified_name} "
