@@ -93,6 +93,16 @@ class PagingRequestSerializer(CommonRequestSerializer):
     is_ttu = serializers.BooleanField(required=False, allow_null=True)
     is_ff = serializers.BooleanField(required=False, allow_null=True)
 
+    def validate(self, data):
+        """
+        Custom validation for age_min and age_max
+        """
+        age_min = data.get('age_min', 1)
+        age_max = data.get('age_max', 99)
+        if age_min > age_max:
+            raise ValidationError('age_min should be less than or equal to age_max')
+        return data
+
     def validate_type(self, value):
         """
         Validate the "type" field
