@@ -57,7 +57,7 @@ class PagingRequestSerializer(CommonRequestSerializer):
     * Full name: If the filter value in wildcard format is defined, we perform the respective query.
       E.g. `"filter": "Ivan*"` will return all people whose full name starts with "Ivan"
       If undefined, we return everyone
-    * Age: If the value age_min: N1 and age_max: N2 are defined, we perform the respective query.
+    * Age: If values age_min: N1 and age_max: N2 are defined, we request the respective age range.
       If only value age_min: N is defined, we request all ages above.
       If only value age_max: N is defined, we request all ages below.
       If undefined, we return everyone
