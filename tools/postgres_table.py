@@ -214,12 +214,13 @@ class PostgresTableExport:
                               cls=CustomJSONEncoder,
                               ensure_ascii=False,
                               indent=2)
-                logger.info(
-                    f"Table {self.fully_qualified_name} (Batch {batch_index_str}) exported to {batch_filename}")
+
                 end_time = time.time()
                 transaction_duration = end_time - start_time
-                logger.info(f"Transaction duration: {transaction_duration:.2f} seconds")
-
+                logger.info(
+                    f"Table {self.fully_qualified_name} (Batch {batch_index_str}) "
+                    f"exported to {batch_filename} in {transaction_duration:.2f} seconds"
+                )
         except Exception as e:
             logger.error(f"Error exporting table {self.fully_qualified_name}: {e}")
         finally:
