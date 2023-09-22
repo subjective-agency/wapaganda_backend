@@ -171,6 +171,69 @@ class PostgresTableExport:
             column_data_types = self._get_column_data_types()
             json_filename_base = os.path.join(table_dir, f"{self.fully_qualified_name}_batch_")
 
+            # Remove existing batch files if self.rewrite is True
+            if self.rewrite:
+                self._remove_batch_files(json_filename_base)
+
+            # Find the last completed batch if restore flag is set
+            last_completed_batch = 0
+            if self.restore:
+                last_completed_batch = self._last_completed_batch(json_filename_base)
+
+                if last_completed_batch >= 0:
+                    logger.info(f"Resuming export from Batch {last_completed_batch + 1}")
+                    batch_ranges = self._split_table()[last_completed_batch + 1:]
+                else:
+                    batch_ranges = self._split_table()
+            else:
+                batch_ranges = self._split_table()
+
+            # Calculate the number of leading zeros needed based on the total number of batches
+            max_batch_num = len(batch_ranges) - 1
+            num_leading_zeros = len(str(max_batch_num))
+
+            for batch_num, (limit, offset) in enumerate(batch_ranges):
+                batch_query = f"SELECT * FROM {self.fully_qualified_name} LIMIT %s OFFSET %s"
+                cursor.execute(batch_query, (limit, offset))
+                rows = cursor.fetchall()
+                serialized_records = [
+                    PostgresExportHelper.serialize_record(cursor, record, column_data_types) for record in rows
+                ]
+
+                # Calculate file name based on the overall number of batches
+                batch_index_str = f"{last_completed_batch + batch_num + 1:0{num_leading_zeros}d}"
+                batch_filename = f"{json_filename_base}{batch_index_str}.json"
+
+                start_time = time.time()
+                with open(batch_filename, "w", encoding="utf-8") as json_file:
+                    logger.info(
+                        f"Exporting table {self.fully_qualified_name} (Batch {batch_index_str}) to {batch_filename}")
+                    json.dump(serialized_records, json_file, cls=CustomJSONEncoder, ensure_ascii=False, indent=2)
+                logger.info(f"Table {self.fully_qualified_name} (Batch {batch_index_str}) exported to {batch_filename}")
+                end_time = time.time()
+                transaction_duration = end_time - start_time
+                logger.info(f"Transaction duration: {transaction_duration:.2f} seconds")
+        except Exception as e:
+            logger.error(f"Error exporting table {self.fully_qualified_name}: {e}")
+        finally:
+            cursor.close()
+
+    def _export_batches_loop(self):
+        """
+        Export a single table to multiple JSON files in equal-sized batches
+        """
+        cursor = self.connection.cursor()
+        logger.info(f"Export batches: rewrite={self.rewrite}")
+        logger.info(f"Export batches: restore={self.restore}")
+
+        # Create a directory for the table if it doesn't exist
+        table_dir = os.path.join(self.export_dir, self.fully_qualified_name)
+        os.makedirs(table_dir, exist_ok=True)
+
+        try:
+            column_data_types = self._get_column_data_types()
+            json_filename_base = os.path.join(table_dir, f"{self.fully_qualified_name}_batch_")
+
             if self.rewrite:
                 self._remove_batch_files(table_dir=table_dir)
 
@@ -205,6 +268,7 @@ class PostgresTableExport:
                         batch_index_str = f"{last_completed_batch + batch_num + 1:0{num_leading_zeros}d}"
                         batch_filename = f"{json_filename_base}{batch_index_str}.json"
 
+                        start_time = time.time()
                         with open(batch_filename, "w", encoding="utf-8") as json_file:
                             logger.info(
                                 f"Exporting table {self.fully_qualified_name} "
@@ -216,7 +280,12 @@ class PostgresTableExport:
                                       indent=2)
                         logger.info(
                             f"Table {self.fully_qualified_name} (Batch {batch_index_str}) exported to {batch_filename}")
-                        break  # Break the retry loop if export succeeds
+                        end_time = time.time()
+                        transaction_duration = end_time - start_time
+                        logger.info(f"Transaction duration: {transaction_duration:.2f} seconds")
+                        
+                        # Break the retry loop if export succeeds
+                        break
                     except Exception as e:
                         logger.error(f"Error exporting table {self.fully_qualified_name} (Batch {batch_num}): {e}")
                         logger.info(f"Retrying export of {self.fully_qualified_name} (Batch {batch_num}) in 5 seconds")
