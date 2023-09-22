@@ -176,8 +176,8 @@ class PeopleExtendedAPIView(SupawordAPIView):
 
         # Apply filtering
         filter_value = request.data.get('filter', '')
-        age_filter = request.data.get('age', None)
-        age_direction = request.data.get('age_direction', None)
+        age_min = request.data.get('age_min', 1)
+        age_max = request.data.get('age_max', 99)
         sex_filter = request.data.get('sex', None)
 
         # Tristate filters: True, False, None
@@ -196,20 +196,10 @@ class PeopleExtendedAPIView(SupawordAPIView):
         if sex_filter is not None:
             people = people.filter(sex=sex_filter)
 
-        if age_filter is not None and age_direction == 'below':
-            today = datetime.now().date()
-            birth_date_limit = today - timedelta(days=int(age_filter) * 365)
-            people = people.filter(dob__gte=birth_date_limit)
-        elif age_filter is not None and age_direction == 'above':
-            today = datetime.now().date()
-            birth_date_limit = today - timedelta(days=(int(age_filter) + 1) * 365)
-            people = people.filter(dob__lt=birth_date_limit)
-        elif age_filter is not None and age_direction is None:
-            today = datetime.now().date()
-            birth_date_limit = today - timedelta(days=int(age_filter) * 365)
-            people = people.filter(dob__gte=birth_date_limit)
-        elif age_filter is None and age_direction is not None:
-            return Response({'error': 'Invalid age filter'}, status=status.HTTP_400_BAD_REQUEST)
+        today = datetime.now().date()
+        birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+        birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+        people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
 
         if traitors_filter is not None:
             people = people.filter(is_ttu=traitors_filter)
@@ -227,7 +217,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         result_page = paginator.paginate_queryset(people, request)
         serializer = PeopleExtendedBriefSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
-
+    
     @staticmethod
     def return_search_result(request):
         """

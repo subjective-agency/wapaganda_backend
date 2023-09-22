@@ -57,9 +57,9 @@ class PagingRequestSerializer(CommonRequestSerializer):
     * Full name: If the filter value in wildcard format is defined, we perform the respective query.
       E.g. `"filter": "Ivan*"` will return all people whose full name starts with "Ivan"
       If undefined, we return everyone
-    * Age: If the value `age: N` is defined, we perform the respective query.
-      Age direction Should be also defined: `age_direction: "below"` or `age_direction: "above"`
-      Default direction is "below"
+    * Age: If the value age_min: N1 and age_max: N2 are defined, we perform the respective query.
+      If only value age_min: N is defined, we request all ages above.
+      If only value age_max: N is defined, we request all ages below.
       If undefined, we return everyone
 
     In the end we apply the sorting condition, then requests paginated data from a sorted dataset
@@ -87,8 +87,8 @@ class PagingRequestSerializer(CommonRequestSerializer):
     sort_direction = serializers.ChoiceField(choices=['asc', 'desc'], required=False, default='asc')
     filter = serializers.CharField(required=False, allow_blank=True, allow_null=True, max_length=100)
     sex = serializers.ChoiceField(choices=[('m', 'm'), ('f', 'f')], required=False, allow_null=True)
-    age = serializers.IntegerField(required=False, min_value=1)
-    age_direction = serializers.ChoiceField(choices=[('below', 'below'), ('above', 'above')], required=False)
+    age_min = serializers.IntegerField(required=False, min_value=1, max_value=99)
+    age_max = serializers.IntegerField(required=False, min_value=1, max_value=99)
     alive = serializers.BooleanField(required=False, allow_null=True)
     is_ttu = serializers.BooleanField(required=False, allow_null=True)
     is_ff = serializers.BooleanField(required=False, allow_null=True)
@@ -140,6 +140,4 @@ class PagingRequestSerializer(CommonRequestSerializer):
         """
         if 'sex' in data and data['sex'] is not None:
             data['sex'] = data['sex'].lower()
-        if 'age_direction' in data and data['age_direction'] is not None:
-            data['age_direction'] = data['age_direction'].lower()
         return super().to_internal_value(data)
