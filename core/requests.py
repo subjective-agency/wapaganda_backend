@@ -99,6 +99,8 @@ class PagingRequestSerializer(CommonRequestSerializer):
         """
         age_min = data.get('age_min', 1)
         age_max = data.get('age_max', 99)
+        age_min = age_min if age_min is not None else 1
+        age_max = age_max if age_max is not None else 99
         if age_min > age_max:
             raise ValidationError('age_min should be less than or equal to age_max')
         return data
