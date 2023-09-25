@@ -308,12 +308,15 @@ class TheoryAPIView(SupawordAPIView):
         # Apply filtering based on date_min and date_max
         date_min_str = request.data.get('date_min', '01.01.1970')
         date_max_str = request.data.get('date_max', '31.12.2099')
+        date_min_str = date_min_str if date_min_str is not None else '01.01.1970'
+        date_max_str = date_max_str if date_max_str is not None else '31.12.2099'
 
         try:
             date_min = parse_date(date_min_str)
             date_max = parse_date(date_max_str)
         except ValueError:
-            return Response({'error': 'Invalid date format. Use DD.MM.YYYY format.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid date format. Use DD.MM.YYYY format'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
 
         theory = theory.filter(original_content_metadata__date_published__gte=date_min,
                                original_content_metadata__date_published__lte=date_max)
