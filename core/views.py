@@ -331,8 +331,8 @@ class TheoryAPIView(SupawordAPIView):
 
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
-        sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
-        filtered_articles.sort(key=lambda x: x.original_content_metadata.get(sort_by))
+        filtered_articles.sort(key=lambda x: x.original_content_metadata.get(sort_by, ''), 
+                               reverse=sort_direction == 'desc')
 
         serializer = TheorySerializer(filtered_articles, many=True)
         return Response(data=serializer.data)
