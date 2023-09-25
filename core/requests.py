@@ -1,5 +1,6 @@
 import re
 from abc import abstractmethod
+from datetime import datetime
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -152,4 +153,46 @@ class PagingRequestSerializer(CommonRequestSerializer):
         """
         if 'sex' in data and data['sex'] is not None:
             data['sex'] = data['sex'].lower()
+        return super().to_internal_value(data)
+
+
+class TheoryRequestSerializer(CommonRequestSerializer):
+    allowed_fields = ['id', 'title', 'type']
+
+    type = serializers.CharField(required=True)
+    sort_by = serializers.ChoiceField(choices=allowed_fields, required=False, default='id')
+    sort_direction = serializers.ChoiceField(choices=['asc', 'desc'], required=False, default='asc')
+    date_min = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    date_max = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
+    def validate(self, data):
+        """
+        Custom validation for date_min and date_max
+        """
+        date_min = data.get('date_min')
+        date_max = data.get('date_max')
+        if date_min and date_max:
+            try:
+                date_min = datetime.strptime(date_min, '%d.%m.%Y')
+                date_max = datetime.strptime(date_max, '%d.%m.%Y')
+            except ValueError:
+                raise ValidationError('Invalid date format. Use DD.MM.YYYY format.')
+            if date_min > date_max:
+                raise ValidationError('date_min should be less than or equal to date_max')
+        return data
+
+    def validate_type(self, value):
+        """
+        Validate the "type" field
+        """
+        if value.lower() != 'general':
+            raise ValidationError('Invalid request type, "general" expected')
+        return value
+
+    def to_internal_value(self, data):
+        """
+        Convert the "type" value to lowercase before validation
+        """
+        if 'type' in data and data['type'] is not None:
+            data['type'] = data['type'].lower()
         return super().to_internal_value(data)

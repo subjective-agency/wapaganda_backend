@@ -1,10 +1,6 @@
-import re
-from abc import abstractmethod
-
 from . import models
 from . import fields
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 
 class TheorySerializer(serializers.Serializer):

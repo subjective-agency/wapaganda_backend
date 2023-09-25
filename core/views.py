@@ -4,6 +4,7 @@ from functools import reduce
 from django.db.models import Q, Max
 from django.http import HttpResponseBadRequest
 from django.conf import settings
+from django.utils.dateparse import parse_date
 
 from rest_framework import generics
 from rest_framework import status
@@ -15,10 +16,9 @@ from core.search import search_model_fulltext
 from supaword import settings
 from core import models
 from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer
-from core.serializers import OrganizationSerializer
 from core.serializers import TheorySerializer
-from core.requests import PagingRequestSerializer
-from core.models import PeopleExtended, PeopleInOrgs, Organizations, Theory
+from core.requests import PagingRequestSerializer, TheoryRequestSerializer
+from core.models import PeopleExtended, Theory
 from core.pagination import CustomPostPagination
 
 
@@ -244,7 +244,6 @@ class PeopleExtendedAPIView(SupawordAPIView):
         :param request: Object of type rest_framework.request.Request
         :return: JSON response
         """
-
         request_data = request.data
         values = request_data.get('values', [])
         people = search_model_fulltext(model=PeopleExtended,
@@ -290,67 +289,41 @@ class TheoryAPIView(SupawordAPIView):
         Initialize the class
         """
         super().__init__(request_handler={
-            'all': self.return_all
+            'general': self.return_all
         })
 
     @staticmethod
     def return_all(request):
         """
-        Return all publications
+        Return filtered publications based on request parameters
         """
-        if request.data.get('type', '') != 'all':
-            return Response({'error': 'Invalid request type, "all" expected'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = TheoryRequestSerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+
         theory = Theory.objects.all()
+
+        # Apply filtering based on date_min and date_max
+        date_min_str = request.data.get('date_min', '01.01.1970')
+        date_max_str = request.data.get('date_max', '31.12.2099')
+
+        try:
+            date_min = parse_date(date_min_str)
+            date_max = parse_date(date_max_str)
+        except ValueError:
+            return Response({'error': 'Invalid date format. Use DD.MM.YYYY format.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        theory = theory.filter(original_content_metadata__date_published__gte=date_min,
+                               original_content_metadata__date_published__lte=date_max)
+
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
         sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
         theory = theory.order_by(sort_by)
         serializer = TheorySerializer(theory, many=True)
         return Response(data=serializer.data)
-
-
-class OrganizationsAPIView(SupawordAPIView):
-    """
-    API view to handle Organizations
-    """
-    queryset = models.Organizations.objects.all()
-    serializer_class = OrganizationSerializer
-    parser_classes = [JSONParser]
-    pagination_class = CustomPostPagination
-
-    def __init__(self):
-        """
-        Initialize the class
-        """
-        super().__init__(request_handler={
-            'all': self.return_all_organizations,
-            'person': self.person_organization_data
-        })
-
-    @staticmethod
-    def return_all_organizations(request):
-        """
-        :param request:
-        :return:
-        """
-        organizations = Organizations.objects.all().order_by('id')[:20]
-        serializer = OrganizationSerializer(organizations, many=True)
-        return Response(data=serializer.data)
-
-    @staticmethod
-    def person_organization_data(request):
-        request_data = request.data
-        person_id = request_data.get('id')
-
-        # Get all the organization IDs where the person is registered
-        orgs = PeopleInOrgs.objects.filter(person=person_id)
-        orgs_ids = [org.id for org in orgs]
-
-        # Get all the organizations with the IDs
-        organizations = Organizations.objects.filter(id__in=orgs_ids)
-        organizations_serializer = OrganizationSerializer(organizations, many=True)
-
-        return Response(data=organizations_serializer.data)
 
 
 def bad_request(request):
