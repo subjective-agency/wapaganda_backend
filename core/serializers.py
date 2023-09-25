@@ -37,7 +37,8 @@ class TheorySerializer(serializers.Serializer):
             'title',
             'type',
             'excerpt',
-            'content'
+            'content',
+            'original_content_metadata'
         )
 
 
