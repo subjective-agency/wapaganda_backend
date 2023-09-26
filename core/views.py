@@ -289,11 +289,11 @@ class TheoryAPIView(SupawordAPIView):
         Initialize the class
         """
         super().__init__(request_handler={
-            'general': self.return_all
+            'general': self.return_general
         })
 
     @staticmethod
-    def return_all(request):
+    def return_general(request):
         """
         Return filtered publications based on request parameters
         """
@@ -301,7 +301,7 @@ class TheoryAPIView(SupawordAPIView):
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as error:
-            return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': f"Theory.return_general() {str(error)}"}, status=status.HTTP_400_BAD_REQUEST)
 
         theory = Theory.objects.all()
         articles = list(theory)
@@ -311,7 +311,7 @@ class TheoryAPIView(SupawordAPIView):
             date_published_str = article.original_content_metadata.get('date_published')
             if date_published_str:
                 try:
-                    article.original_content_metadata['date_published'] = parse_date(date_published_str)
+                    article['date_published'] = parse_date(date_published_str)
                 except ValueError:
                     pass  # Handle invalid date strings gracefully
 
@@ -331,8 +331,7 @@ class TheoryAPIView(SupawordAPIView):
 
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
-        filtered_articles.sort(key=lambda x: x.original_content_metadata.get(sort_by, ''), 
-                               reverse=sort_direction == 'desc')
+        filtered_articles.sort(key=lambda x: x.get(sort_by, ''), reverse=sort_direction == 'desc')
 
         serializer = TheorySerializer(filtered_articles, many=True)
         return Response(data=serializer.data)
