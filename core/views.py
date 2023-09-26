@@ -327,6 +327,7 @@ class TheoryAPIView(SupawordAPIView):
         # Convert date strings to ISO format and sort by date_published
         for article in articles:
             date_published_list = article.original_content_metadata
+            print(date_published_list)
             date_published_list.sort(key=lambda x: parse_date(x.get('date_published', '')))
             for pub_data in date_published_list:
                 date_published_str = pub_data.get('date_published')
