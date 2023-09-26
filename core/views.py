@@ -325,9 +325,11 @@ class TheoryAPIView(SupawordAPIView):
 
         filter_value = request.data.get('filter', '')
         if filter_value != '':
-            articles = articles.filter(
-                Q(title__icontains=filter_value)
-            )
+            # Use Q objects to filter by all three language versions in the title
+            filter_q = Q(title__en__icontains=filter_value) | \
+                       Q(title__ru__icontains=filter_value) | \
+                       Q(title__uk__icontains=filter_value)
+            articles = articles.filter(filter_q)
 
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
