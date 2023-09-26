@@ -14,6 +14,7 @@ from rest_framework.exceptions import ValidationError
 
 from core.search import search_model_fulltext
 from supaword import settings
+from supaword.log_helper import logger
 from core import models
 from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer
 from core.serializers import TheorySerializer
@@ -79,14 +80,17 @@ class SupawordAPIView(generics.CreateAPIView):
         Version of POST without exception handling
         """
         if not isinstance(request.data, dict):
+            logger.error(f'Invalid request data: {request.data}')
             return Response({'error': 'Invalid request data'}, status=status.HTTP_400_BAD_REQUEST)
 
         if (request_type := request.data.get('type', '')) == '':
+            logger.error(f'No request type specified in request data: {request.data}')
             return Response({'error': 'No request type specified'}, status=status.HTTP_400_BAD_REQUEST)
 
         if handler := self.request_handler.get(request_type):
             return handler(request)
         else:
+            logger.error(f'Invalid request type: {request_type}')
             return Response({'error': 'Invalid request type'}, status=status.HTTP_400_BAD_REQUEST)
 
     def _post_protected(self, request, *args, **kwargs):
@@ -96,6 +100,7 @@ class SupawordAPIView(generics.CreateAPIView):
         try:
             return self._post(request, *args, **kwargs)
         except Exception as e:
+            logger.error(f'Exception in _post_protected: {str(e)}')
             return Response({'Server error:': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, *args, **kwargs):
@@ -139,12 +144,15 @@ class PeopleExtendedAPIView(SupawordAPIView):
         Return data for caching
         """
         if request.data.get('type', '') != 'cache':
+            logger.error(f'Invalid request type: {request.data.get("type", "")}')
             return Response({'error': 'Invalid request type, "cache" expected'}, status=status.HTTP_400_BAD_REQUEST)
+
         request_data = request.data
+        logger.info(f'Cache request: {request_data}')
         created_after = request_data.get('timestamp', 0) + 1
         created_after_datetime = datetime.fromtimestamp(created_after, tz=timezone.utc)
 
-        # All records created after the specified timestamp
+        logger.info(f"All records created after the specified timestamp: {created_after_datetime}")
         people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')
         serializer = CacheSerializer(people, many=True)
 
@@ -170,9 +178,11 @@ class PeopleExtendedAPIView(SupawordAPIView):
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as error:
+            logger.error(f'Invalid request data: {request.data}: {str(error)}')
             return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
         people = PeopleExtended.objects.all()
+        logger.info(f'Page request: {request.data}')
 
         # Apply filtering
         filter_value = request.data.get('filter', '')
@@ -202,6 +212,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         today = datetime.now().date()
         birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
         birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+        logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
         people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
 
         if traitors_filter is not None:
@@ -214,6 +225,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         sort_by = request.data.get('sort_by', 'fullname_en')
         sort_direction = request.data.get('sort_direction', 'asc')
         sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
+        logger.info(f'Sorting condition {sort_by}')
         people = people.order_by(sort_by)
 
         paginator = CustomPostPagination()
@@ -230,6 +242,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         """
         request_data = request.data
         values = request_data.get('values', [])
+        logger.info(f'Search request: {request_data}')
         people = PeopleExtended.objects.filter(reduce(lambda x, y: x | y, [
             Q(fullname_en=value) |
             Q(fullname_ru=value) |
@@ -246,6 +259,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         """
         request_data = request.data
         values = request_data.get('values', [])
+        logger.info(f'Fulltext search request: {request_data}')
         people = search_model_fulltext(model=PeopleExtended,
                                        fields=['fullname_en', 'fullname_ru', 'fullname_uk'],
                                        values=values)
@@ -266,9 +280,11 @@ class PeopleExtendedAPIView(SupawordAPIView):
         try:
             person = PeopleExtended.objects.get(id=person_id)
         except PeopleExtended.DoesNotExist:
+            logger.error(f'Person with id={person_id} does not exist')
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         # Serialize the person and organizations data
+        logger.info(f'Person data request: {request_data}')
         person_serializer = PeopleExtendedSerializer(person)
         # Combine the serialized data and return the response
         response_data = person_serializer.data
@@ -301,8 +317,10 @@ class TheoryAPIView(SupawordAPIView):
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as error:
+            logger.error(f'Invalid request data: {request.data}: {str(error)}')
             return Response({'error': f"Theory.return_general() {str(error)}"}, status=status.HTTP_400_BAD_REQUEST)
 
+        logger.info(f'General articles request: {request.data}')
         theory = Theory.objects.all()
         articles = list(theory)
 
@@ -310,17 +328,21 @@ class TheoryAPIView(SupawordAPIView):
         for article in articles:
             date_published_list = article.original_content_metadata
             earliest_date = None
+            article['date_published'] = None
             for pub_data in date_published_list:
                 date_published_str = pub_data.get('date_published')
                 if date_published_str:
                     try:
-                        pub_data['date_published'] = parse_date(date_published_str)
+                        pub_data['date_published'] = parse_date(date_published_str).isoformat()
                         if earliest_date is None or pub_data['date_published'] < earliest_date:
                             earliest_date = pub_data['date_published']
                     except ValueError:
-                        pass  # Handle invalid date strings gracefully
+                        logger.error(f'Invalid date format: {date_published_str}')
             if earliest_date:
+                logger.info(f'Earliest publication date: {earliest_date}')
                 article['date_published'] = earliest_date.isoformat()
+            else:
+                logger.warning(f'No valid date found for article {article["id"]}')
 
         # Apply filtering based on date_min and date_max
         date_min_str = request.data.get('date_min', '01.01.1970')
@@ -330,6 +352,7 @@ class TheoryAPIView(SupawordAPIView):
             date_min = parse_date(date_min_str)
             date_max = parse_date(date_max_str)
         except ValueError:
+            logger.error(f'Invalid date format: {date_min_str} or {date_max_str}')
             return Response({'error': 'Invalid date format. Use DD.MM.YYYY format'},
                             status=status.HTTP_400_BAD_REQUEST)
 
