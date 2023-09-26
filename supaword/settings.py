@@ -31,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = DJANGO_KEY
-DEBUG = SERVER_DEBUG
+DEBUG = True
 ALLOWED_HOSTS = [
     "*",
     "supaword-service-production.up.railway.app",
@@ -191,6 +191,7 @@ REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'vnd.api+json'
 }
 
+logger.info(f"SERVER_DEBUG: {SERVER_DEBUG}")
 logger.info(f"DEBUG: {DEBUG}")
 logger.info(f"POSTGRES_ADDRESS: {POSTGRES_ADDRESS}")
 logger.info(f"POSTGRES_PORT: {POSTGRES_PORT}")
