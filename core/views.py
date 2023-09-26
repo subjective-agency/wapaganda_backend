@@ -323,6 +323,12 @@ class TheoryAPIView(SupawordAPIView):
         logger.info(f'General articles request: {request.data}')
         articles = Theory.objects.all()
 
+        filter_value = request.data.get('filter', '')
+        if filter_value != '':
+            articles = articles.filter(
+                Q(title__icontains=filter_value)
+            )
+
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
         sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
@@ -330,7 +336,7 @@ class TheoryAPIView(SupawordAPIView):
             logger.warning(f'Sorting by date_published is not supported, using title instead')
             sort_by = 'title'
         logger.info(f'Sorting condition {sort_by}')
-        articles = people.order_by(sort_by)
+        articles = articles.order_by(sort_by)
 
         serializer = TheorySerializer(articles, many=True)
         return Response(data=serializer.data)

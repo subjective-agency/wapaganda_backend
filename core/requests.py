@@ -165,6 +165,7 @@ class TheoryRequestSerializer(CommonRequestSerializer):
     sort_direction = serializers.ChoiceField(choices=['asc', 'desc'], required=False, default='asc')
     date_min = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     date_max = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    filter = serializers.CharField(required=False, allow_blank=True, allow_null=True, max_length=100)
 
     def validate(self, data):
         """
@@ -177,7 +178,7 @@ class TheoryRequestSerializer(CommonRequestSerializer):
                 date_min = datetime.strptime(date_min, '%d.%m.%Y')
                 date_max = datetime.strptime(date_max, '%d.%m.%Y')
             except ValueError:
-                raise ValidationError('Invalid date format. Use DD.MM.YYYY format.')
+                raise ValidationError('Invalid date format. Use DD.MM.YYYY format')
             if date_min > date_max:
                 raise ValidationError('date_min should be less than or equal to date_max')
         return data
@@ -188,6 +189,20 @@ class TheoryRequestSerializer(CommonRequestSerializer):
         """
         if value.lower() != 'general':
             raise ValidationError('Invalid request type, "general" expected')
+        return value
+
+    def validate_filter(self, value):
+        """
+        Validate the "filter" value to match wildcard mask
+        """
+        if value is None or value.strip() == '':
+            return value
+
+        valid_wildcard_mask = re.compile(r'^[\w\s*?]+$')
+
+        if not valid_wildcard_mask.match(value):
+            raise ValidationError('Invalid filter format: it must be a valid wildcard mask or empty')
+
         return value
 
     def to_internal_value(self, data):
