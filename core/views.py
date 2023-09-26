@@ -232,7 +232,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         result_page = paginator.paginate_queryset(people, request)
         serializer = PeopleExtendedBriefSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
-    
+
     @staticmethod
     def return_search_result(request):
         """
@@ -324,28 +324,17 @@ class TheoryAPIView(SupawordAPIView):
         theory = Theory.objects.all()
         articles = list(theory)
 
-        # Convert date strings to datetime objects and find the earliest publication date
+        # Convert date strings to ISO format and sort by date_published
         for article in articles:
             date_published_list = article.original_content_metadata
-            earliest_date = None
-            article_data = model_to_dict(article)
-            article_data['date_published'] = None
-
+            date_published_list.sort(key=lambda x: parse_date(x.get('date_published', '')))
             for pub_data in date_published_list:
                 date_published_str = pub_data.get('date_published')
                 if date_published_str:
                     try:
                         pub_data['date_published'] = parse_date(date_published_str).isoformat()
-                        if earliest_date is None or pub_data['date_published'] < earliest_date:
-                            earliest_date = pub_data['date_published']
                     except ValueError:
                         logger.error(f'Invalid date format: {date_published_str}')
-
-            if earliest_date:
-                logger.info(f'Earliest publication date: {earliest_date}')
-                article_data['date_published'] = earliest_date.isoformat()
-            else:
-                logger.warning(f'No valid date found for article {article.id}')
 
         # Apply filtering based on date_min and date_max
         date_min_str = request.data.get('date_min', '01.01.1970')
@@ -359,12 +348,16 @@ class TheoryAPIView(SupawordAPIView):
             return Response({'error': 'Invalid date format. Use DD.MM.YYYY format'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        filtered_articles = [article_data for article_data in articles if 'date_published' in article_data
-                             and date_min <= parse_date(article_data['date_published']) <= date_max]
+        filtered_articles = [
+            article for article in articles if
+            'date_published' in article.original_content_metadata and
+            date_min <= parse_date(article.original_content_metadata[0].get('date_published', '')) <= date_max
+        ]
 
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
-        filtered_articles.sort(key=lambda x: x.get(sort_by, ''), reverse=sort_direction == 'desc')
+        filtered_articles.sort(key=lambda x: x.original_content_metadata[0].get(sort_by, ''),
+                               reverse=sort_direction == 'desc')
 
         serializer = TheorySerializer(filtered_articles, many=True)
         return Response(data=serializer.data)
