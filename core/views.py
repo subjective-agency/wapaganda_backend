@@ -329,9 +329,11 @@ class TheoryAPIView(SupawordAPIView):
         if filter_value != '':
             # Filter articles based on the filter value in titles
             filtered_articles = [article for article in articles if
-                                 filter_value.lower() in article.title.get('en', '').lower() or
-                                 filter_value.lower() in article.title.get('ru', '').lower() or
-                                 filter_value.lower() in article.title.get('uk', '').lower()]
+                                 article.title is not None and (
+                                         filter_value.lower() in article.title.get('en', '').lower() or
+                                         filter_value.lower() in article.title.get('ru', '').lower() or
+                                         filter_value.lower() in article.title.get('uk', '').lower()
+                                 )]
         else:
             # If no filter value, use all articles
             filtered_articles = articles
@@ -343,9 +345,9 @@ class TheoryAPIView(SupawordAPIView):
         # Sort the filtered articles list
         if sort_by == 'date_published':
             logger.warning(f'Sorting by date_published is not supported, using title instead')
-            filtered_articles.sort(key=lambda x: x.title.get('en', ''), reverse=reverse_sort)
+            filtered_articles.sort(key=lambda x: (x.title or {}).get('en', ''), reverse=reverse_sort)
         else:
-            filtered_articles.sort(key=lambda x: x.title.get('en', ''), reverse=reverse_sort)
+            filtered_articles.sort(key=lambda x: (x.title or {}).get('en', ''), reverse=reverse_sort)
 
         serializer = TheorySerializer(filtered_articles, many=True)
         return Response(data=serializer.data)
