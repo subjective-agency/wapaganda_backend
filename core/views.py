@@ -328,11 +328,11 @@ class TheoryAPIView(SupawordAPIView):
         filter_value = request.data.get('filter', '')
         if filter_value != '':
             # Filter articles based on the filter value in titles
+            lang = request.data.get('lang', 'en')
+            logger.info(f'Filtering by {lang} title: "{filter_value}"')
             filtered_articles = [article for article in articles if
                                  article.title is not None and (
-                                         filter_value.lower() in article.title.get('en', '').lower() or
-                                         filter_value.lower() in article.title.get('ru', '').lower() or
-                                         filter_value.lower() in article.title.get('uk', '').lower()
+                                         filter_value.lower() in article.title.get(lang, '').lower()
                                  )]
         else:
             # If no filter value, use all articles
