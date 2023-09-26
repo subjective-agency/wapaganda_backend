@@ -325,10 +325,10 @@ class TheoryAPIView(SupawordAPIView):
 
         filter_value = request.data.get('filter', '')
         if filter_value != '':
-            # Use Q objects to filter by all three language versions in the title
-            filter_q = Q(title__en__icontains=filter_value) | \
-                       Q(title__ru__icontains=filter_value) | \
-                       Q(title__uk__icontains=filter_value)
+            # Use F expressions to filter by the JSONB 'title' field
+            filter_q = Q(title__contains={'en': filter_value}) | \
+                       Q(title__contains={'ru': filter_value}) | \
+                       Q(title__contains={'uk': filter_value})
             articles = articles.filter(filter_q)
 
         sort_by = request.data.get('sort_by', 'title')
