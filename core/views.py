@@ -348,16 +348,14 @@ class TheoryAPIView(SupawordAPIView):
             return Response({'error': 'Invalid date format. Use DD.MM.YYYY format'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        filtered_articles = [
-            article for article in articles if
-            'date_published' in article.original_content_metadata and
-            date_min <= parse_date(article.original_content_metadata[0].get('date_published', '')) <= date_max
-        ]
-
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
-        filtered_articles.sort(key=lambda x: x.original_content_metadata[0].get(sort_by, ''),
-                               reverse=sort_direction == 'desc')
+
+        if sort_by == 'date_published':
+            filtered_articles.sort(key=lambda x: parse_date(x.original_content_metadata[0].get(sort_by, '')),
+                                   reverse=sort_direction == 'desc')
+        else:
+            filtered_articles.sort(key=lambda x: x.get(sort_by, ''), reverse=sort_direction == 'desc')
 
         serializer = TheorySerializer(filtered_articles, many=True)
         return Response(data=serializer.data)
