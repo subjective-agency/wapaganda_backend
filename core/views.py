@@ -321,26 +321,33 @@ class TheoryAPIView(SupawordAPIView):
             return Response({'error': f"Theory.return_general() {str(error)}"}, status=status.HTTP_400_BAD_REQUEST)
 
         logger.info(f'General articles request: {request.data}')
-        articles = Theory.objects.all()
+
+        # Fetch all articles from the database and convert to a Python list
+        articles = list(Theory.objects.all())
 
         filter_value = request.data.get('filter', '')
         if filter_value != '':
-            # Use F expressions to filter by the JSONB 'title' field
-            filter_q = Q(title__contains={'en': filter_value}) | \
-                       Q(title__contains={'ru': filter_value}) | \
-                       Q(title__contains={'uk': filter_value})
-            articles = articles.filter(filter_q)
+            # Filter articles based on the filter value in titles
+            filtered_articles = [article for article in articles if
+                                 filter_value.lower() in article.title.get('en', '').lower() or
+                                 filter_value.lower() in article.title.get('ru', '').lower() or
+                                 filter_value.lower() in article.title.get('uk', '').lower()]
+        else:
+            # If no filter value, use all articles
+            filtered_articles = articles
 
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
-        sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
+        reverse_sort = sort_direction == 'desc'
+
+        # Sort the filtered articles list
         if sort_by == 'date_published':
             logger.warning(f'Sorting by date_published is not supported, using title instead')
-            sort_by = 'title'
-        logger.info(f'Sorting condition {sort_by}')
-        articles = articles.order_by(sort_by)
+            filtered_articles.sort(key=lambda x: x.title.get('en', ''), reverse=reverse_sort)
+        else:
+            filtered_articles.sort(key=lambda x: x.title.get('en', ''), reverse=reverse_sort)
 
-        serializer = TheorySerializer(articles, many=True)
+        serializer = TheorySerializer(filtered_articles, many=True)
         return Response(data=serializer.data)
 
 
