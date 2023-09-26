@@ -306,14 +306,21 @@ class TheoryAPIView(SupawordAPIView):
         theory = Theory.objects.all()
         articles = list(theory)
 
-        # Convert date strings to datetime objects
+        # Convert date strings to datetime objects and find the earliest publication date
         for article in articles:
-            date_published_str = article.original_content_metadata.get('date_published')
-            if date_published_str:
-                try:
-                    article['date_published'] = parse_date(date_published_str)
-                except ValueError:
-                    pass  # Handle invalid date strings gracefully
+            date_published_list = article.original_content_metadata
+            earliest_date = None
+            for pub_data in date_published_list:
+                date_published_str = pub_data.get('date_published')
+                if date_published_str:
+                    try:
+                        pub_data['date_published'] = parse_date(date_published_str)
+                        if earliest_date is None or pub_data['date_published'] < earliest_date:
+                            earliest_date = pub_data['date_published']
+                    except ValueError:
+                        pass  # Handle invalid date strings gracefully
+            if earliest_date:
+                article['date_published'] = earliest_date.isoformat()
 
         # Apply filtering based on date_min and date_max
         date_min_str = request.data.get('date_min', '01.01.1970')
@@ -326,8 +333,8 @@ class TheoryAPIView(SupawordAPIView):
             return Response({'error': 'Invalid date format. Use DD.MM.YYYY format'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        filtered_articles = [article for article in articles if 'date_published' in article.original_content_metadata
-                             and date_min <= article.original_content_metadata['date_published'] <= date_max]
+        filtered_articles = [article for article in articles if 'date_published' in article
+                             and date_min <= parse_date(article['date_published']) <= date_max]
 
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
