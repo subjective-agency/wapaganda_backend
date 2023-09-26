@@ -321,44 +321,18 @@ class TheoryAPIView(SupawordAPIView):
             return Response({'error': f"Theory.return_general() {str(error)}"}, status=status.HTTP_400_BAD_REQUEST)
 
         logger.info(f'General articles request: {request.data}')
-        theory = Theory.objects.all()
-        articles = list(theory)
-
-        # Convert date strings to ISO format and sort by date_published
-        for article in articles:
-            date_published_list = article.original_content_metadata
-            print(date_published_list)
-            date_published_list.sort(key=lambda x: parse_date(x.get('date_published', '')))
-            for pub_data in date_published_list:
-                date_published_str = pub_data.get('date_published')
-                if date_published_str:
-                    try:
-                        pub_data['date_published'] = parse_date(date_published_str).isoformat()
-                    except ValueError:
-                        logger.error(f'Invalid date format: {date_published_str}')
-
-        # Apply filtering based on date_min and date_max
-        date_min_str = request.data.get('date_min', '01.01.1970')
-        date_max_str = request.data.get('date_max', '31.12.2099')
-
-        try:
-            date_min = parse_date(date_min_str)
-            date_max = parse_date(date_max_str)
-        except ValueError:
-            logger.error(f'Invalid date format: {date_min_str} or {date_max_str}')
-            return Response({'error': 'Invalid date format. Use DD.MM.YYYY format'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        articles = Theory.objects.all()
 
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
-
+        sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
         if sort_by == 'date_published':
-            filtered_articles.sort(key=lambda x: parse_date(x.original_content_metadata[0].get(sort_by, '')),
-                                   reverse=sort_direction == 'desc')
-        else:
-            filtered_articles.sort(key=lambda x: x.get(sort_by, ''), reverse=sort_direction == 'desc')
+            logger.warning(f'Sorting by date_published is not supported, using title instead')
+            sort_by = 'title'
+        logger.info(f'Sorting condition {sort_by}')
+        articles = people.order_by(sort_by)
 
-        serializer = TheorySerializer(filtered_articles, many=True)
+        serializer = TheorySerializer(articles, many=True)
         return Response(data=serializer.data)
 
 
