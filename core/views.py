@@ -328,7 +328,9 @@ class TheoryAPIView(SupawordAPIView):
         for article in articles:
             date_published_list = article.original_content_metadata
             earliest_date = None
-            article['date_published'] = None
+            article_data = model_to_dict(article)
+            article_data['date_published'] = None
+
             for pub_data in date_published_list:
                 date_published_str = pub_data.get('date_published')
                 if date_published_str:
@@ -338,11 +340,12 @@ class TheoryAPIView(SupawordAPIView):
                             earliest_date = pub_data['date_published']
                     except ValueError:
                         logger.error(f'Invalid date format: {date_published_str}')
+
             if earliest_date:
                 logger.info(f'Earliest publication date: {earliest_date}')
-                article['date_published'] = earliest_date.isoformat()
+                article_data['date_published'] = earliest_date.isoformat()
             else:
-                logger.warning(f'No valid date found for article {article["id"]}')
+                logger.warning(f'No valid date found for article {article.id}')
 
         # Apply filtering based on date_min and date_max
         date_min_str = request.data.get('date_min', '01.01.1970')
@@ -356,8 +359,8 @@ class TheoryAPIView(SupawordAPIView):
             return Response({'error': 'Invalid date format. Use DD.MM.YYYY format'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        filtered_articles = [article for article in articles if 'date_published' in article
-                             and date_min <= parse_date(article['date_published']) <= date_max]
+        filtered_articles = [article_data for article_data in articles if 'date_published' in article_data
+                             and date_min <= parse_date(article_data['date_published']) <= date_max]
 
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
