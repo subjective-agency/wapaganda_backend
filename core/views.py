@@ -323,7 +323,7 @@ class TheoryAPIView(SupawordAPIView):
             date_min = parse_date(date_min_str)
             date_max = parse_date(date_max_str)
         except ValueError:
-            return Response({'error': 'Invalid date format. Use DD.MM.YYYY format.'},
+            return Response({'error': 'Invalid date format. Use DD.MM.YYYY format'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         filtered_articles = [article for article in articles if 'date_published' in article.original_content_metadata

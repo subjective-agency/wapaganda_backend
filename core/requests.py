@@ -156,6 +156,7 @@ class PagingRequestSerializer(CommonRequestSerializer):
         return super().to_internal_value(data)
 
 
+# noinspection PyMethodMayBeStatic
 class TheoryRequestSerializer(CommonRequestSerializer):
     allowed_fields = ['id', 'title', 'type', 'publication_date']
 
