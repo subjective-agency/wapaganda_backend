@@ -780,6 +780,7 @@ class Theory(models.Model):
     content = models.JSONField(blank=True, null=True)
     original_content_metadata = ArrayField(models.JSONField(), blank=True, null=True)
     added_at = models.DateTimeField(blank=True, null=True)
+    publish_date = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = True

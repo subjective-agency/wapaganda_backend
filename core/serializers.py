@@ -13,6 +13,7 @@ class TheorySerializer(serializers.Serializer):
     excerpt = serializers.JSONField(allow_null=True)
     content = serializers.JSONField(allow_null=True)
     original_content_metadata = serializers.JSONField(allow_null=True)
+    publish_date = serializers.DateTimeField(allow_null=True)
 
     def create(self, validated_data):
         """

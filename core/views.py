@@ -323,33 +323,15 @@ class TheoryAPIView(SupawordAPIView):
         logger.info(f'General articles request: {request.data}')
 
         # Fetch all articles from the database and convert to a Python list
-        articles = list(Theory.objects.all())
-
-        filter_value = request.data.get('filter', '')
-        if filter_value != '':
-            # Filter articles based on the filter value in titles
-            lang = request.data.get('lang', 'en')
-            logger.info(f'Filtering by {lang} title: "{filter_value}"')
-            filtered_articles = [article for article in articles if
-                                 article.title is not None and (
-                                         filter_value.lower() in article.title.get(lang, '').lower()
-                                 )]
-        else:
-            # If no filter value, use all articles
-            filtered_articles = articles
+        articles = Theory.objects.all()
 
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
-        reverse_sort = sort_direction == 'desc'
+        sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
+        logger.info(f'Sorting condition {sort_by}')
+        articles = articles.order_by(sort_by)
 
-        # Sort the filtered articles list
-        if sort_by == 'date_published':
-            logger.warning(f'Sorting by date_published is not supported, using title instead')
-            filtered_articles.sort(key=lambda x: (x.title or {}).get('en', ''), reverse=reverse_sort)
-        else:
-            filtered_articles.sort(key=lambda x: (x.title or {}).get('en', ''), reverse=reverse_sort)
-
-        serializer = TheorySerializer(filtered_articles, many=True)
+        serializer = TheorySerializer(articles, many=True)
         return Response(data=serializer.data)
 
 
