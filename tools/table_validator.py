@@ -13,6 +13,7 @@ class TableValidator:
         validate_table.validate_table("theory")
         validate_table.close_connection()
     """
+
     def __init__(self, dbname: str, user: str, password: str, host: str, port: int):
         """
         :param dbname:
@@ -34,7 +35,7 @@ class TableValidator:
             "theory": f"""
                 UPDATE theory
                 SET original_content_metadata = original_content_metadata
-                WHERE publish_date IS NOT NULL;
+                WHERE id = {record_id} AND publish_date IS NULL;
             """
             # Add more tables and their corresponding queries here
         }
@@ -52,19 +53,19 @@ class TableValidator:
             exit()
 
     def validate_table(self, table_name):
-        """
-        Executes the validation trigger for the given table
-        """
         try:
-            sql_query = self.query_dict.get(table_name)
-            if sql_query:
-                self.cursor.execute(sql_query)
-                self.connection.commit()
-                logger.info(f"Validation trigger executed for table: {table_name}")
-            else:
-                logger.warning(f"No validation query found for table: {table_name}")
-        except psycopg2.Error as e:
-            logger.error(f"Error executing validation trigger for table {table_name}:", e)
+            # Get the IDs of records that trigger an error during update
+            self.cursor.execute(f"SELECT id FROM {table_name} WHERE publish_date IS NULL")
+            record_ids = [row[0] for row in self.cursor.fetchall()]
+
+            for record_id in record_ids:
+                try:
+                    sql_query = self.query_dict.get(table_name).format(record_id=record_id)
+                    self.cursor.execute(sql_query)
+                    self.connection.commit()
+                    logger.info(f"Validation trigger executed for {table_name}, ID: {record_id}")
+                except psycopg2.Error as e:
+                    logger.error(f"Error executing validation for {table_name}, ID: {record_id}, Error: {e}")
 
     def close_connection(self):
         """
