@@ -53,21 +53,20 @@ class TableValidator:
             exit()
 
     def validate_table(self, table_name):
-        try:
-            # Get the IDs of records that trigger an error during update
-            self.cursor.execute(f"SELECT id FROM {table_name} WHERE publish_date IS NULL")
-            record_ids = [row[0] for row in self.cursor.fetchall()]
-            logger.info(f"Found {len(record_ids)} records to validate in {table_name}")
+        # Get the IDs of records that trigger an error during update
+        self.cursor.execute(f"SELECT id FROM {table_name} WHERE publish_date IS NULL")
+        record_ids = [row[0] for row in self.cursor.fetchall()]
+        logger.info(f"Found {len(record_ids)} records to validate in {table_name}")
 
-            for record_id in record_ids:
-                try:
-                    sql_query = self.query_dict.get(table_name).format(record_id=record_id)
-                    self.cursor.execute(sql_query)
-                    self.connection.commit()
-                    logger.info(f"Validation trigger executed for {table_name}, ID: {record_id}")
-                except psycopg2.Error as e:
-                    logger.error(f"Error executing validation for {table_name}, ID: {record_id}, Error: {e}")
-                    self.connection.rollback()
+        for record_id in record_ids:
+            try:
+                sql_query = self.query_dict.get(table_name).format(record_id=record_id)
+                self.cursor.execute(sql_query)
+                self.connection.commit()
+                logger.info(f"Validation trigger executed for {table_name}, ID: {record_id}")
+            except psycopg2.Error as e:
+                logger.error(f"Error executing validation for {table_name}, ID: {record_id}, Error: {e}")
+                self.connection.rollback()
 
     def close_connection(self):
         """
