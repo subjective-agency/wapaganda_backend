@@ -158,7 +158,7 @@ class PagingRequestSerializer(CommonRequestSerializer):
 
 # noinspection PyMethodMayBeStatic
 class TheoryRequestSerializer(CommonRequestSerializer):
-    allowed_fields = ['id', 'title', 'type', 'publication_date']
+    allowed_fields = ['id', 'title', 'type', 'publish_date']
 
     type = serializers.CharField(required=True)
     sort_by = serializers.ChoiceField(choices=allowed_fields, required=False, default='id')
