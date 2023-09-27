@@ -325,6 +325,21 @@ class TheoryAPIView(SupawordAPIView):
         # Fetch all articles from the database and convert to a Python list
         articles = Theory.objects.all()
 
+        # Filter articles by "publish_date" between "date_min" and "date_max"
+        date_min_str = request.data.get('date_min', '01.01.1970')
+        date_max_str = request.data.get('date_max', '31.12.2099')
+
+        try:
+            date_min = datetime.strptime(date_min_str, '%d.%m.%Y')
+            date_max = datetime.strptime(date_max_str, '%d.%m.%Y')
+        except ValueError:
+            logger.error(f'Invalid date format: {date_min_str} or {date_max_str}')
+            return Response({'error': 'Invalid date format. Use DD.MM.YYYY format'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Use Q objects to filter articles by date range
+        articles = articles.filter(Q(publish_date__gte=date_min) & Q(publish_date__lte=date_max))
+
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
         sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
