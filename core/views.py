@@ -328,6 +328,7 @@ class TheoryAPIView(SupawordAPIView):
         # Filter articles by "publish_date" between "date_min" and "date_max"
         date_min_str = request.data.get('date_min', '01.01.1970')
         date_max_str = request.data.get('date_max', '31.12.2099')
+        logger.info(f'Request date range [{date_min_str}; {date_max_str}]')
 
         try:
             date_min = datetime.strptime(date_min_str, '%d.%m.%Y')
