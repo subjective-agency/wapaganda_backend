@@ -3,7 +3,7 @@
 import os
 from django.core.management.base import BaseCommand, CommandError
 from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
-from tools.validate_table import ValidateTable
+from tools.table_validator import TableValidator
 from supaword.log_helper import logger
 
 
@@ -21,7 +21,7 @@ class Command(BaseCommand):
         """
         Export data from Postgres database to JSON files
         """
-        validator = ValidateTable(
+        validator = TableValidator(
             dbname=POSTGRES_DB,
             user=POSTGRES_USER,
             password=POSTGRES_PASSWORD,
@@ -33,8 +33,8 @@ class Command(BaseCommand):
         validator.close_connection()
 
     def handle(self, *args, **options):
-        self.table_name = options['table_names_file']
-        logger.info(f"Table name file: {self.table_name}")
+        self.table_name = options['table_name']
+        logger.info(f"Table name: {self.table_name}")
         self.validate_theory()
 
         self.stdout.write(self.style.SUCCESS(

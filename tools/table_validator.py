@@ -1,7 +1,27 @@
 import psycopg2
 
-class ValidateTable:
+
+# noinspection SqlNoDataSourceInspection,SqlResolve
+class TableValidator:
+    """
+    This class is used to execute validation triggers on tables in the database.
+    Almost every table features an 'id' column, which is used to identify the problem rows
+    Example usage:
+        validate_table = TableValidator("dbname", "user", "password", "host", 5432)
+        validate_table.connect_to_database()
+        validate_table.validate_table("theory")
+        validate_table.close_connection()
+    """
     def __init__(self, dbname: str, user: str, password: str, host: str, port: int):
+        """
+        :param dbname:
+        :param user:
+        :param password:
+        :param host:
+        :param port:
+        """
+        self.connection = None
+        self.cursor = None
         self.db_params = {
             "dbname": dbname,
             "user": user,
@@ -19,6 +39,9 @@ class ValidateTable:
         }
 
     def connect_to_database(self):
+        """
+        Connects to the database
+        """
         try:
             self.connection = psycopg2.connect(**self.db_params)
             self.cursor = self.connection.cursor()
@@ -27,6 +50,9 @@ class ValidateTable:
             exit()
 
     def validate_table(self, table_name):
+        """
+        Executes the validation trigger for the given table
+        """
         try:
             sql_query = self.query_dict.get(table_name)
             if sql_query:
@@ -39,11 +65,8 @@ class ValidateTable:
             print(f"Error executing validation trigger for table {table_name}:", e)
 
     def close_connection(self):
+        """
+        Closes the connection to the database
+        """
         self.cursor.close()
         self.connection.close()
-
-# Example usage:
-# validator = ValidateTable("your_db_name", "your_db_user", "your_db_password", "your_db_host", your_db_port)
-# validator.connect_to_database()
-# validator.validate_table("theory")
-# validator.close_connection()
