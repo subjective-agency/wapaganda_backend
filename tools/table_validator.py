@@ -67,6 +67,7 @@ class TableValidator:
                     logger.info(f"Validation trigger executed for {table_name}, ID: {record_id}")
                 except psycopg2.Error as e:
                     logger.error(f"Error executing validation for {table_name}, ID: {record_id}, Error: {e}")
+                    self.connection.rollback()
 
     def close_connection(self):
         """
