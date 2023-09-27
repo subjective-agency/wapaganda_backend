@@ -35,7 +35,7 @@ class TableValidator:
             "theory": """
                 UPDATE theory
                 SET original_content_metadata = original_content_metadata
-                WHERE id = {record_id} AND publish_date IS NULL;
+                WHERE id=%s AND publish_date IS NULL;
             """
             # Add more tables and their corresponding queries here
         }
@@ -60,8 +60,8 @@ class TableValidator:
 
         for record_id in record_ids:
             try:
-                sql_query = self.query_dict.get(table_name).format(record_id=record_id)
-                self.cursor.execute(sql_query)
+                sql_query = self.query_dict[table_name]
+                self.cursor.execute(sql_query, (record_id,))
                 self.connection.commit()
                 logger.info(f"Validation trigger executed for {table_name}, ID: {record_id}")
             except psycopg2.Error as e:
