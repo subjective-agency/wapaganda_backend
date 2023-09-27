@@ -45,8 +45,3 @@ class ValidateTheoryTable:
         finally:
             self.cursor.close()
             self.connection.close()
-
-def main():
-    theory_validator = ValidateTheoryTable()
-    theory_validator.connect_to_database()
-    theory_validator.validate_metadata_dates()
