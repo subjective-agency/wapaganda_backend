@@ -1,4 +1,5 @@
 import psycopg2
+from supaword.log_helper import logger
 
 
 # noinspection SqlNoDataSourceInspection,SqlResolve
@@ -43,10 +44,11 @@ class TableValidator:
         Connects to the database
         """
         try:
+            logger.info("Connecting to database")
             self.connection = psycopg2.connect(**self.db_params)
             self.cursor = self.connection.cursor()
         except psycopg2.Error as e:
-            print("Error connecting to the database:", e)
+            logger.error(f"Error connecting to database: {e}")
             exit()
 
     def validate_table(self, table_name):
@@ -58,15 +60,16 @@ class TableValidator:
             if sql_query:
                 self.cursor.execute(sql_query)
                 self.connection.commit()
-                print(f"Validation trigger executed for table: {table_name}")
+                logger.info(f"Validation trigger executed for table: {table_name}")
             else:
-                print(f"No validation query found for table: {table_name}")
+                logger.warning(f"No validation query found for table: {table_name}")
         except psycopg2.Error as e:
-            print(f"Error executing validation trigger for table {table_name}:", e)
+            logger.error(f"Error executing validation trigger for table {table_name}:", e)
 
     def close_connection(self):
         """
         Closes the connection to the database
         """
+        logger.info("Closing database connection")
         self.cursor.close()
         self.connection.close()

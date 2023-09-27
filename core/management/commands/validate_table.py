@@ -15,7 +15,7 @@ class Command(BaseCommand):
         self.table_name = ""
 
     def add_arguments(self, parser):
-        parser.add_argument('table_name', type=str, help='table name to validate')
+        parser.add_argument('table_name', type=str, help='Table name to validate')
 
     def validate_theory(self):
         """
