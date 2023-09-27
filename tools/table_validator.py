@@ -32,7 +32,7 @@ class TableValidator:
             "port": port
         }
         self.query_dict = {
-            "theory": f"""
+            "theory": """
                 UPDATE theory
                 SET original_content_metadata = original_content_metadata
                 WHERE id = {record_id} AND publish_date IS NULL;
