@@ -32,11 +32,32 @@ class PostgresTableExport:
         self.fully_qualified_name = f"{self.schema_name}.{self.table_name}"
         self.export_dir = os.path.abspath(export_dir)
         self.batch_size = batch_size
-        self.total_rows = None
-        self.batches = None
-        self.restore = restore
         self.rewrite = rewrite
+        self.restore = restore
+        self.total_rows = None
+        self.id_column_exists = False
+        self.column_data_types = None
+        self.json_filename_base = None
+        self.num_leading_zeros = 0
+        self.is_batches = False
+
+        self._preprocess()
         logger.info(f"Create PostgresTable {self.schema_name}.{self.table_name} with batch_size {batch_size}")
+
+    def _preprocess(self):
+        """
+        Preprocess information about the table before exporting.
+        """
+        self.id_column_exists = self._check_id_column_exists()
+        if self.get_count() > self.batch_size:
+            self.is_batches = True
+            self.json_filename_base = os.path.join(self.export_dir, f"{self.full_name}_batch_")
+            self.num_leading_zeros = len(str(self.get_count() - 1))
+            self.batches = self._split_table()
+
+        if self.restore and self.is_batches:
+            table_dir = os.path.join(self.export_dir, self.full_name)
+            self.last_completed_batch = self._last_completed_batch(table_dir=table_dir)
 
     # noinspection SqlResolve
     def _get_column_data_types(self) -> dict:
@@ -176,79 +197,60 @@ class PostgresTableExport:
 
     def _export_batches(self):
         """
-        Export a single table to multiple JSON files in equal-sized batches
+        Export a single table to multiple JSON files in equal-sized batches.
         """
+        if not self.is_batches:
+            raise RuntimeError(f"Table {self.fully_qualified_name} does not have enough records to export in batches")
+
         cursor = self.connection.cursor()
         logger.info(f"Export batches: rewrite={self.rewrite}")
         logger.info(f"Export batches: restore={self.restore}")
 
-        # Create a directory for the table if it doesn't exist
-        table_dir = os.path.join(self.export_dir, self.fully_qualified_name)
-        os.makedirs(table_dir, exist_ok=True)
-
-        # Check if the 'id' column exists in the table
-        id_column_exists = self._check_id_column_exists()
-
         try:
-            column_data_types = self._get_column_data_types()
-            json_filename_base = os.path.join(table_dir, f"{self.fully_qualified_name}_batch_")
-
             if self.rewrite:
-                self._remove_batch_files(table_dir=table_dir)
+                self._remove_batch_files(table_dir=self.export_dir)
 
-            # Find the last completed batch if restore flag is set
-            last_completed_batch = 0
-            if self.restore:
-                last_completed_batch = self._last_completed_batch(table_dir=table_dir)
-
-                if last_completed_batch >= 0:
-                    logger.info(f"Resuming export from Batch {last_completed_batch + 1}")
-                    batch_ranges = self._split_table()[last_completed_batch + 1:]
-                else:
-                    batch_ranges = self._split_table()
-            else:
-                batch_ranges = self._split_table()
-
-            # Calculate the number of leading zeros needed based on the total number of batches
-            max_batch_num = len(batch_ranges) - 1
-            num_leading_zeros = len(str(max_batch_num))
-
-            for batch_num, (limit, offset) in enumerate(batch_ranges):
-                start_time = time.time()
-                batch_query = f"SELECT * FROM {self.fully_qualified_name} LIMIT %s OFFSET %s"
-                if id_column_exists:
-                    batch_query += " ORDER BY id"
-
-                cursor.execute(batch_query, (limit, offset))
-                rows = cursor.fetchall()
-                serialized_records = [
-                    PostgresExportHelper.serialize_record(cursor, record, column_data_types) for record in rows
-                ]
-
-                # Calculate file name based on the overall number of batches
-                batch_index_str = f"{last_completed_batch + batch_num + 1:0{num_leading_zeros}d}"
-                batch_filename = f"{json_filename_base}{batch_index_str}.json"
-
-                with open(batch_filename, "w", encoding="utf-8") as json_file:
-                    logger.info(
-                        f"Exporting table {self.fully_qualified_name} "
-                        f"(Batch {batch_index_str}) to {batch_filename}"
-                    )
-                    json.dump(serialized_records, json_file,
-                              cls=CustomJSONEncoder,
-                              ensure_ascii=False,
-                              indent=2)
-
-                end_time = time.time()
-                transaction_duration = end_time - start_time
-                logger.info(
-                    f"Table {self.fully_qualified_name} (Batch {batch_index_str}) "
-                    f"exported to {batch_filename} in {transaction_duration:.2f} seconds"
-                )
+            for batch_num, (limit, offset) in enumerate(self.batches):
+                self._export_batch(cursor=cursor, batch_num=batch_num, limit=limit, offset=offset)
         except Exception as e:
-            logger.error(f"Error exporting table {self.fully_qualified_name}: {e}")
+            logger.error(f"Error exporting table {self.full_name}: {e}")
         finally:
             cursor.close()
+
+    def _export_batch(self, cursor, batch_num, limit, offset):
+        """
+        Export a single batch of table data to a JSON file
+        :param cursor: A PostgresSQL database cursor
+        :param batch_num: The batch number
+        :param limit: The total number of records to export from the table
+        :param offset: The number of records in the batch
+        """
+        start_time = time.time()
+        batch_query = f"SELECT * FROM {self.full_name} LIMIT %s OFFSET %s"
+        if self.id_column_exists:
+            batch_query += " ORDER BY id"
+
+        cursor.execute(batch_query, (limit, offset))
+        rows = cursor.fetchall()
+        serialized_records = [
+            PostgresExportHelper.serialize_record(cursor, record, self.column_data_types) for record in rows
+        ]
+
+        batch_index_str = f"{self.last_completed_batch + batch_num + 1:0{self.num_leading_zeros}d}"
+        batch_filename = f"{self.json_filename_base}{batch_index_str}.json"
+
+        with open(batch_filename, "w", encoding="utf-8") as json_file:
+            logger.info(
+                f"Exporting table {self.full_name} (Batch {batch_index_str}) to {batch_filename}"
+            )
+            json.dump(serialized_records, json_file, cls=CustomJSONEncoder, ensure_ascii=False, indent=2)
+
+        end_time = time.time()
+        transaction_duration = end_time - start_time
+        logger.info(
+            f"Table {self.full_name} (Batch {batch_index_str}) "
+            f"exported to {batch_filename} in {transaction_duration:.2f} seconds"
+        )
 
     def remove_existing_files(self):
         """
