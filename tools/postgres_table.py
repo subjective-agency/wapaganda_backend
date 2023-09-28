@@ -51,10 +51,15 @@ class PostgresTableExport:
         """
         if not self.rewrite:
             last_data_timestamp = self._last_data_timestamp()
+            if last_data_timestamp:
+                logger.info(f"Last data timestamp for table {self.fully_qualified_name}: {last_data_timestamp}")
+
             last_edited = self._last_edited()
+            if last_edited:
+                logger.info(f"Last edited timestamp for table {self.fully_qualified_name}: {last_edited}")
 
             if last_data_timestamp and last_edited and last_data_timestamp == last_edited:
-                logger.info(f"Table {self.fully_qualified_name} is up to date. No export required.")
+                logger.info(f"Table {self.fully_qualified_name} is up to date. No export required")
                 self.up_to_date = True
                 return
 
