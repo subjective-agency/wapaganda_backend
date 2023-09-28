@@ -48,7 +48,14 @@ class PostgresTableExport:
     def _preprocess(self):
         """
         Preprocess information about the table before exporting.
+        What we actually do:
+        - check if table has 'id' column
+        - get column data types
+        - check if table has enough records to export in batches
+        - get last completed batch
+        - check if table is up-to-date and we can skip export
         """
+        # Check if the table is up-to-date and we can skip export
         if not self.rewrite:
             last_data_timestamp = self._last_data_timestamp()
             if last_data_timestamp:
@@ -63,6 +70,7 @@ class PostgresTableExport:
                 self.up_to_date = True
                 return
 
+        # Check if the table has an 'id' column to sort by
         self.id_column_exists = self._check_id_column_exists()
         if self.id_column_exists:
             logger.info(f"Table {self.fully_qualified_name} has an 'id' column")
@@ -70,6 +78,7 @@ class PostgresTableExport:
         self.column_data_types = self._get_column_data_types()
         logger.info(f"Column data types for table {self.fully_qualified_name}: {self.column_data_types}")
 
+        # Check if the table has enough records to export in batches
         if self.get_count() > self.batch_size:
             self.is_batches = True
             logger.info(f"Table {self.fully_qualified_name} has enough records to export in batches")
@@ -83,6 +92,7 @@ class PostgresTableExport:
             self.batches = self._split_table()
             logger.info(f"Number of batches for {self.fully_qualified_name}: {len(self.batches)}")
 
+        # Check if we need to restore from the last completed batch
         if self.restore and self.is_batches:
             table_dir = os.path.join(self.export_dir, self.full_name)
             logger.info(f"Table directory for {self.fully_qualified_name}: {table_dir}")
@@ -90,7 +100,6 @@ class PostgresTableExport:
             self.last_completed_batch = self._last_completed_batch(table_dir=table_dir)
             logger.info(f"Last completed batch for {self.fully_qualified_name}: {self.last_completed_batch}")
 
-    # noinspection SqlResolve
     def _get_column_data_types(self) -> dict:
         """
         Get column names and data types for a given table.
@@ -208,23 +217,6 @@ class PostgresTableExport:
         finally:
             cursor.close()
 
-    def export_table(self):
-        """
-        Export data from the table to JSON files.
-        """
-        # Allow exiting early if the data is up-to-date
-        if self.up_to_date:
-            logger.info(f"Table {self.fully_qualified_name} export exiting early")
-            return
-
-        logger.info(f"Table {self.fully_qualified_name} has {self.get_count()} records")
-        if self.get_count() > self.batch_size:
-            logger.info("Export in batches")
-            self._export_batches()
-        else:
-            logger.info("Export as a single table")
-            self._export_table()
-
     def _split_table(self):
         """
         Split a table into equal batches based on the given batch size
@@ -340,6 +332,23 @@ class PostgresTableExport:
             f"Table {self.full_name} (Batch {batch_index_str}) "
             f"exported to {batch_filename} in {transaction_duration:.2f} seconds"
         )
+
+    def export_table(self):
+        """
+        Export data from the table to JSON files.
+        """
+        # Allow exiting early if the data is up-to-date
+        if self.up_to_date:
+            logger.info(f"Table {self.fully_qualified_name} export exiting early")
+            return
+
+        logger.info(f"Table {self.fully_qualified_name} has {self.get_count()} records")
+        if self.get_count() > self.batch_size:
+            logger.info("Export in batches")
+            self._export_batches()
+        else:
+            logger.info("Export as a single table")
+            self._export_table()
 
     def remove_existing_files(self):
         """
