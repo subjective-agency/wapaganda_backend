@@ -40,6 +40,7 @@ class PostgresTableExport:
         self.json_filename_base = None
         self.num_leading_zeros = 0
         self.is_batches = False
+        self.up_to_date = False
 
         self._preprocess()
         logger.info(f"Create PostgresTable {self.schema_name}.{self.table_name} with batch_size {batch_size}")
@@ -48,16 +49,41 @@ class PostgresTableExport:
         """
         Preprocess information about the table before exporting.
         """
+        if not self.rewrite:
+            last_data_timestamp = self._last_data_timestamp()
+            last_edited = self._last_edited()
+
+            if last_data_timestamp and last_edited and last_data_timestamp == last_edited:
+                logger.info(f"Table {self.fully_qualified_name} is up to date. No export required.")
+                self.up_to_date = True
+                return
+
         self.id_column_exists = self._check_id_column_exists()
+        if self.id_column_exists:
+            logger.info(f"Table {self.fully_qualified_name} has an 'id' column")
+
+        self.column_data_types = self._get_column_data_types()
+        logger.info(f"Column data types for table {self.fully_qualified_name}: {self.column_data_types}")
+
         if self.get_count() > self.batch_size:
             self.is_batches = True
+            logger.info(f"Table {self.fully_qualified_name} has enough records to export in batches")
+
             self.json_filename_base = os.path.join(self.export_dir, f"{self.full_name}_batch_")
+            logger.info(f"JSON filename base for {self.fully_qualified_name}: {self.json_filename_base}")
+
             self.num_leading_zeros = len(str(self.get_count() - 1))
+            logger.info(f"Number of leading zeros for {self.fully_qualified_name}: {self.num_leading_zeros}")
+
             self.batches = self._split_table()
+            logger.info(f"Number of batches for {self.fully_qualified_name}: {len(self.batches)}")
 
         if self.restore and self.is_batches:
             table_dir = os.path.join(self.export_dir, self.full_name)
+            logger.info(f"Table directory for {self.fully_qualified_name}: {table_dir}")
+
             self.last_completed_batch = self._last_completed_batch(table_dir=table_dir)
+            logger.info(f"Last completed batch for {self.fully_qualified_name}: {self.last_completed_batch}")
 
     # noinspection SqlResolve
     def _get_column_data_types(self) -> dict:
@@ -77,7 +103,6 @@ class PostgresTableExport:
         logger.info(f"Column data types for table {self.schema_name}.{self.table_name}: {column_data_types}")
         return column_data_types
 
-    # noinspection SqlResolve
     def _count_rows(self):
         """
         Count the number of rows in the table using SELECT COUNT(*).
@@ -87,6 +112,61 @@ class PostgresTableExport:
             cursor.execute(query)
             row_count = cursor.fetchone()[0]
         return row_count
+
+    def _last_edited(self):
+        """
+        Get the timestamp of the last change to the table.
+        """
+        query = """
+            SELECT last_analyze
+            FROM pg_stat_all_tables
+            WHERE schemaname = %s AND relname = %s
+        """
+        with self.connection.cursor() as cursor:
+            cursor.execute(query, (self.schema_name, self.table_name))
+            result = cursor.fetchone()
+            if result is not None:
+                return datetime.fromisoformat(result[0])
+        return None
+
+    def _last_data_timestamp(self):
+        """
+        Find the latest 'added_on', 'added_at', or 'created_at' timestamp in specific JSON data files.
+        """
+        # Define the JSON schema field names to check
+        timestamp_fields = ['added_on', 'added_at', 'created_at']
+
+        # Initialize the latest timestamp as None
+        latest_timestamp = None
+
+        # List of JSON filenames to check
+        json_filenames = []
+
+        if self.is_batches:
+            # If exporting in batches, generate a list of batch JSON filenames
+            for batch_num in range(self.batch_count):
+                batch_index_str = f"{batch_num:0{self.num_leading_zeros}d}"
+                json_filenames.append(f"{self.json_filename_base}{batch_index_str}.json")
+        else:
+            # If exporting as a single table, use the main JSON filename
+            json_filenames.append(f"{self.full_name}.json")
+
+        # Directory where JSON data files are located
+        data_dir = os.path.join(self.export_dir, self.full_name)
+
+        # Iterate through specified JSON data files
+        for filename in json_filenames:
+            file_path = os.path.join(data_dir, filename)
+            with open(file_path, "r", encoding="utf-8") as json_file:
+                data = json.load(json_file)
+                for record in data:
+                    for field in timestamp_fields:
+                        if field in record and record[field]:
+                            timestamp = datetime.fromisoformat(record[field])
+                            if latest_timestamp is None or timestamp > latest_timestamp:
+                                latest_timestamp = timestamp
+
+        return latest_timestamp
 
     def _export_table(self):
         """
@@ -101,9 +181,8 @@ class PostgresTableExport:
             cursor.execute(query)
             rows = cursor.fetchall()
 
-            column_data_types = self._get_column_data_types()
             serialized_records = [
-                PostgresExportHelper.serialize_record(cursor, record, column_data_types) for record in rows
+                PostgresExportHelper.serialize_record(cursor, record, self.column_data_types) for record in rows
             ]
             logger.info(f"Got {len(serialized_records)} records from table {self.fully_qualified_name}")
 
@@ -128,6 +207,11 @@ class PostgresTableExport:
         """
         Export data from the table to JSON files.
         """
+        # Allow exiting early if the data is up-to-date
+        if self.up_to_date:
+            logger.info(f"Table {self.fully_qualified_name} export exiting early")
+            return
+
         logger.info(f"Table {self.fully_qualified_name} has {self.get_count()} records")
         if self.get_count() > self.batch_size:
             logger.info("Export in batches")
