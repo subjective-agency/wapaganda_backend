@@ -83,7 +83,7 @@ class PostgresTableExport:
             self.is_batches = True
             logger.info(f"Table {self.fully_qualified_name} has enough records to export in batches")
 
-            self.json_filename_base = os.path.join(self.export_dir, f"{self.full_name}_batch_")
+            self.json_filename_base = os.path.join(self.export_dir, f"{self.fully_qualified_name}_batch_")
             logger.info(f"JSON filename base for {self.fully_qualified_name}: {self.json_filename_base}")
 
             self.num_leading_zeros = len(str(self.get_count() - 1))
@@ -94,7 +94,7 @@ class PostgresTableExport:
 
         # Check if we need to restore from the last completed batch
         if self.restore and self.is_batches:
-            table_dir = os.path.join(self.export_dir, self.full_name)
+            table_dir = os.path.join(self.export_dir, self.fully_qualified_name)
             logger.info(f"Table directory for {self.fully_qualified_name}: {table_dir}")
 
             self.last_completed_batch = self._last_completed_batch(table_dir=table_dir)
@@ -163,10 +163,10 @@ class PostgresTableExport:
                 json_filenames.append(f"{self.json_filename_base}{batch_index_str}.json")
         else:
             # If exporting as a single table, use the main JSON filename
-            json_filenames.append(f"{self.full_name}.json")
+            json_filenames.append(f"{self.fully_qualified_name}.json")
 
         # Directory where JSON data files are located
-        data_dir = os.path.join(self.export_dir, self.full_name)
+        data_dir = os.path.join(self.export_dir, self.fully_qualified_name)
 
         # Iterate through specified JSON data files
         for filename in json_filenames:
@@ -294,7 +294,7 @@ class PostgresTableExport:
             for batch_num, (limit, offset) in enumerate(self.batches):
                 self._export_batch(cursor=cursor, batch_num=batch_num, limit=limit, offset=offset)
         except Exception as e:
-            logger.error(f"Error exporting table {self.full_name}: {e}")
+            logger.error(f"Error exporting table {self.fully_qualified_name}: {e}")
         finally:
             cursor.close()
 
@@ -307,7 +307,7 @@ class PostgresTableExport:
         :param offset: The number of records in the batch
         """
         start_time = time.time()
-        batch_query = f"SELECT * FROM {self.full_name} LIMIT %s OFFSET %s"
+        batch_query = f"SELECT * FROM {self.fully_qualified_name} LIMIT %s OFFSET %s"
         if self.id_column_exists:
             batch_query += " ORDER BY id"
 
@@ -322,14 +322,14 @@ class PostgresTableExport:
 
         with open(batch_filename, "w", encoding="utf-8") as json_file:
             logger.info(
-                f"Exporting table {self.full_name} (Batch {batch_index_str}) to {batch_filename}"
+                f"Exporting table {self.fully_qualified_name} (Batch {batch_index_str}) to {batch_filename}"
             )
             json.dump(serialized_records, json_file, cls=CustomJSONEncoder, ensure_ascii=False, indent=2)
 
         end_time = time.time()
         transaction_duration = end_time - start_time
         logger.info(
-            f"Table {self.full_name} (Batch {batch_index_str}) "
+            f"Table {self.fully_qualified_name} (Batch {batch_index_str}) "
             f"exported to {batch_filename} in {transaction_duration:.2f} seconds"
         )
 
