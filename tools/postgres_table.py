@@ -6,6 +6,7 @@ from supaword.log_helper import logger
 from tools.utils import CustomJSONEncoder, PostgresExportHelper
 
 
+# noinspection SqlNoDataSourceInspection,SqlResolve
 class PostgresTableExport:
     """
     Abstraction of PostgresTable in context of table export
@@ -66,13 +67,15 @@ class PostgresTableExport:
             row_count = cursor.fetchone()[0]
         return row_count
 
-    # noinspection SqlResolve
     def _export_table(self):
         """
         Export a single table to a JSON file
         """
         cursor = self.connection.cursor()
-        query = f"SELECT * FROM {self.schema_name}.{self.table_name} ORDER BY id"
+        query = f"SELECT * FROM {self.schema_name}.{self.table_name}"
+        if self._check_id_column_exists():
+            query += " ORDER BY id"
+
         try:
             cursor.execute(query)
             rows = cursor.fetchall()
@@ -156,6 +159,21 @@ class PostgresTableExport:
             if os.path.exists(batch_filename):
                 os.remove(batch_filename)
 
+    def _check_id_column_exists(self):
+        """
+        Check if the 'id' column exists in the table's metadata.
+        """
+        query = """
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = %s
+            AND table_schema = %s
+            AND column_name = 'id'
+        """
+        with self.connection.cursor() as cursor:
+            cursor.execute(query, (self.table_name, self.schema_name))
+            return cursor.fetchone() is not None
+
     def _export_batches(self):
         """
         Export a single table to multiple JSON files in equal-sized batches
@@ -167,6 +185,9 @@ class PostgresTableExport:
         # Create a directory for the table if it doesn't exist
         table_dir = os.path.join(self.export_dir, self.fully_qualified_name)
         os.makedirs(table_dir, exist_ok=True)
+
+        # Check if the 'id' column exists in the table
+        id_column_exists = self._check_id_column_exists()
 
         try:
             column_data_types = self._get_column_data_types()
@@ -195,6 +216,9 @@ class PostgresTableExport:
             for batch_num, (limit, offset) in enumerate(batch_ranges):
                 start_time = time.time()
                 batch_query = f"SELECT * FROM {self.fully_qualified_name} LIMIT %s OFFSET %s"
+                if id_column_exists:
+                    batch_query += " ORDER BY id"
+
                 cursor.execute(batch_query, (limit, offset))
                 rows = cursor.fetchall()
                 serialized_records = [
