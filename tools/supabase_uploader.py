@@ -74,12 +74,12 @@ class SupabaseUploader:
         :param content_type: content type of the file, e.g. image/jpeg
         :return:
         """
-    if not os.path.isdir(os.path.abspath(target_dir)):
-        self.logger.error(f'Directory {target_dir} does not exist')
-        sys.exit(1)
+        if not os.path.isdir(os.path.abspath(target_dir)):
+            self.logger.error(f'Directory {target_dir} does not exist')
+            sys.exit(1)
 
-    self.logger.info(f'Processing photos from {target_dir}')
-    for file_name in sorted(os.listdir(target_dir)):
-        file_name = os.path.join(target_dir, file_name)
-        self.upload_file(local_path=file_name, bucket_name=bucket_name, storage_path=storage_path,
-                         content_type=content_type)
+        self.logger.info(f'Processing photos from {target_dir}')
+        for file_name in sorted(os.listdir(target_dir)):
+            file_name = os.path.join(target_dir, file_name)
+            self.upload_file(local_path=file_name, bucket_name=bucket_name, storage_path=storage_path,
+                             content_type=content_type)
