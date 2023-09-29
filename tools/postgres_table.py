@@ -83,7 +83,11 @@ class PostgresTableExport:
             self.is_batches = True
             logger.info(f"Table {self.fully_qualified_name} has enough records to export in batches")
 
-            self.json_filename_base = os.path.join(self.export_dir, f"{self.fully_qualified_name}_batch_")
+            batches_dir = os.path.join(self.export_dir, self.fully_qualified_name)
+            os.makedirs(batches_dir, exist_ok=True)
+            logger.info(f"Batches directory for {self.fully_qualified_name}: {batches_dir}")
+
+            self.json_filename_base = os.path.join(batches_dir, f"{self.fully_qualified_name}_batch_")
             logger.info(f"JSON filename base for {self.fully_qualified_name}: {self.json_filename_base}")
 
             self.num_leading_zeros = len(str(self.get_count() - 1))
@@ -225,11 +229,21 @@ class PostgresTableExport:
         total_rows = self.get_count()
         num_batches = (total_rows + self.batch_size - 1) // self.batch_size
         if self.batches is None:
-            self.batches = [(self.batch_size, i * self.batch_size) for i in range(num_batches)]
+            self.batches = [(i + 1, self.batch_size,
+                             i * self.batch_size,
+                             self._get_batch_json_filename(i + 1))
+                            for i in range(num_batches)]
             logger.info(f"Split export into {num_batches} batches")
             logger.info(f"First batch {self.batches[0]}")
             logger.info(f"Last batch {self.batches[-1]}")
         return self.batches
+
+    def _get_batch_json_filename(self, batch_number):
+        """
+        Get the full JSON filename for a batch based on batch number.
+        """
+        batch_index_str = str(batch_number).zfill(self.num_leading_zeros)
+        return f"{self.json_filename_base}_batch_{batch_index_str}.json"
 
     def _last_completed_batch(self, table_dir):
         """
@@ -372,3 +386,20 @@ class PostgresTableExport:
         if self.total_rows is None:
             self.total_rows = self._count_rows()
         return self.total_rows
+
+    @staticmethod
+    def package_json(source, output_filename):
+        """
+        Package JSON data into a 7z archive using py7zr.
+        """
+        try:
+            with SevenZipFile(output_filename, 'w') as archive:
+                if os.path.isfile(source):
+                    archive.write(source, arcname=os.path.basename(source))
+                elif os.path.isdir(source):
+                    archive.writeall(source)
+
+            # Log success
+            logger.info(f"Packaged {source} into {output_filename}")
+        except Exception as e:
+            logger.error(f"Error packaging {source} into {output_filename}: {e}")
