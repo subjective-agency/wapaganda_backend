@@ -5,7 +5,6 @@ import argparse
 import logging
 import unicodedata
 import supabase
-from supaword.secure_env import API_KEY, DB_URL
 from supaword.log_helper import logger
 
 
@@ -84,54 +83,3 @@ class SupabaseUploader:
         file_name = os.path.join(target_dir, file_name)
         self.upload_file(local_path=file_name, bucket_name=bucket_name, storage_path=storage_path,
                          content_type=content_type)
-
-
-def main():
-    """
-    :return: system exit code
-    """
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--target-dir',
-                        help='Directory to upload files from',
-                        default='',
-                        required=False)
-    parser.add_argument('--target-file',
-                        help='File to upload',
-                        default='',
-                        required=False)
-    parser.add_argument('--target-path',
-                        help='Relative path to the file in the bucket',
-                        default='',
-                        required=False)
-    parser.add_argument('--bucket-name',
-                        help='Name of the bucket to upload to',
-                        default='photos',
-                        required=False)
-    parser.add_argument('--content-type',
-                        help='Content type of the file',
-                        default='image/jpeg',
-                        required=False)
-    parser.add_argument('--db-url',
-                        help='Supabase database URL',
-                        required=True)
-    parser.add_argument('--api-key',
-                        help='Supabase API key',
-                        required=True)
-
-    args = parser.parse_args()
-    uploader = SupabaseUploader(args.db_url, args.api_key)
-
-    logger.info(f'TargetFile="{args.target_file}"; TargetDir="{args.target_dir}"; Bucket={args.bucket_name}')
-
-    if args.bucket_name and args.target_path and args.content_type:
-        if args.target_file:
-            uploader.upload_file(local_path=args.target_file, bucket_name=args.bucket_name,
-                                 storage_path=args.target_path, content_type=args.content_type)
-        elif args.target_dir:
-            uploader.upload_dir(target_dir=args.target_dir, bucket_name=args.bucket_name,
-                                storage_path=args.target_path, content_type=args.content_type)
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
