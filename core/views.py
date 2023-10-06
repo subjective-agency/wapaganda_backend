@@ -305,7 +305,8 @@ class TheoryAPIView(SupawordAPIView):
         Initialize the class
         """
         super().__init__(request_handler={
-            'general': self.return_general
+            'general': self.return_general,
+            'article': self.return_article
         })
 
     @staticmethod
@@ -348,6 +349,26 @@ class TheoryAPIView(SupawordAPIView):
         articles = articles.order_by(sort_by)
 
         serializer = TheorySerializer(articles, many=True)
+        return Response(data=serializer.data)
+
+    @staticmethod
+    def return_article(request):
+        """
+        Return single article
+        """
+        logger.info(f'Article request: {request.data}')
+        article_id = request.data.get('id', None)
+        if article_id is None:
+            logger.error(f'Article id is not specified')
+            return Response({'error': 'Article id is not specified'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            article = Theory.objects.get(id=article_id)
+        except Theory.DoesNotExist:
+            logger.error(f'Article id={article_id} does not exist')
+            return Response({'error': 'Article not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = TheorySerializer(article)
         return Response(data=serializer.data)
 
 
