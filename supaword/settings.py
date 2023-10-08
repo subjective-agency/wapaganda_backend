@@ -114,9 +114,6 @@ WSGI_APPLICATION = 'supaword.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 DATABASES = {
-    # Available backends:
-    # postgresql://postgres:[password]@db.svfizyfozagyqkkjzqdc.supabase.co:5432/postgres
-    # postgresql://postgres:[password]@db.kvbsgqfhjpdovrinmmrs.supabase.co:5432/postgres
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': POSTGRES_DB,

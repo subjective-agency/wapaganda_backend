@@ -1,3 +1,4 @@
+enums.rucr_taxonomy
 enums.isco08_taxonomy
 enums.isco08_index
 enums.isco08_taxonomy_closure

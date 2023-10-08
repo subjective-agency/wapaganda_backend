@@ -14,6 +14,22 @@ You'll have to do the following edits to clean this up manually:
 """
 
 
+class RucrTaxonomy(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    content_en = models.TextField()
+    content_ru = models.TextField()
+    content_uk = models.TextField()
+    tags = models.ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
+    xml_id = models.TextField()
+    xml_data = models.JSONField()
+    updated_on = models.DateTimeField()
+    status = models.TextField()
+
+    class Meta:
+        managed = True
+        db_table = 'enums_rucr_taxonomy'
+
+
 class BundleTypes(models.Model):
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField()
@@ -21,7 +37,7 @@ class BundleTypes(models.Model):
     description = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'enums_bundle_types'
 
 
@@ -1027,5 +1043,5 @@ class Rodniki(models.Model):
     available = models.BooleanField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'future_rodniki'

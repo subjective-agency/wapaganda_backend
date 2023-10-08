@@ -40,22 +40,19 @@ class PostgresDbExport:
         :param rewrite: Whether to rewrite tables
         :return: PostgresTable instance
         """
-        try:
-            self.connection = psycopg2.connect(
-                dbname=self.dbname,
-                user=self.user,
-                password=self.password,
-                host=self.host,
-                port=self.port
-            )
-            return PostgresTableExport(connection=self.connection,
-                                       table_name=table_name,
-                                       export_dir=self.export_dir,
-                                       rewrite=rewrite,
-                                       restore=restore,
-                                       batch_size=self.BATCH_SIZE)
-        except Exception as e:
-            logger.error(f"Error get_table(): {e}")
+        self.connection = psycopg2.connect(
+            dbname=self.dbname,
+            user=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port
+        )
+        return PostgresTableExport(connection=self.connection,
+                                   table_name=table_name,
+                                   export_dir=self.export_dir,
+                                   rewrite=rewrite,
+                                   restore=restore,
+                                   batch_size=self.BATCH_SIZE)
 
     def close_connection(self):
         """
@@ -71,23 +68,19 @@ class PostgresDbExport:
         :param table_names: List of table names to export.
         :param restore: Whether to pick up previous export
         """
-        try:
-            self.connection = psycopg2.connect(
-                dbname=self.dbname,
-                user=self.user,
-                password=self.password,
-                host=self.host,
-                port=self.port
-            )
+        self.connection = psycopg2.connect(
+            dbname=self.dbname,
+            user=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port
+        )
 
-            for table_name in table_names:
-                table = self.get_table(table_name=table_name, rewrite=rewrite, restore=restore)
-                if rewrite is True:
-                    logger.info("Rewrite flag is true")
-                    table.remove_existing_files()
-                table.export_table()
-        except Exception as e:
-            logger.error(f"Error export_to_json(): {e}")
-        finally:
-            if self.connection:
-                self.connection.close()
+        for table_name in table_names:
+            table = self.get_table(table_name=table_name, rewrite=rewrite, restore=restore)
+            if rewrite is True:
+                logger.info("Rewrite flag is true")
+                table.remove_existing_files()
+            table.export_table()
+
+        self.close_connection()
