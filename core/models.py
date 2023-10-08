@@ -19,7 +19,7 @@ class RucrTaxonomy(models.Model):
     content_en = models.TextField()
     content_ru = models.TextField()
     content_uk = models.TextField()
-    tags = models.ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
+    tags = ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
     xml_id = models.TextField()
     xml_data = models.JSONField()
     updated_on = models.DateTimeField()
