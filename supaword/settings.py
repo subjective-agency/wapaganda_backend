@@ -124,7 +124,7 @@ DATABASES = {
     },
     'wapamock': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db-mock.sqlite3',
+        'NAME': BASE_DIR / 'db-mock.sqlite3'
     }
 }
 
