@@ -27,6 +27,7 @@ class RucrTaxonomy(models.Model):
 
     class Meta:
         managed = True
+        # enums.rucr_taxonomy
         db_table = 'enums_rucr_taxonomy'
 
 
@@ -38,6 +39,7 @@ class BundleTypes(models.Model):
 
     class Meta:
         managed = True
+        # enums.bundle_types
         db_table = 'enums_bundle_types'
 
 
