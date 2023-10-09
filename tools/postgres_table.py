@@ -395,15 +395,13 @@ class PostgresTableExport:
         if self.get_count() > self.batch_size:
             logger.info("Export in batches")
             self._export_batches()
-            archive_source = os.path.dirname(self.json_filename_base)
+            if self.archive:
+                archive_source = os.path.dirname(self.json_filename_base)
+                logger.info(f"Package JSON data in {archive_source}.7z")
+                self.package_json(source=archive_source)
         else:
             logger.info("Export as a single table")
             self._export_table()
-            archive_source = os.path.join(self.export_dir, f"{self.fully_qualified_name}.json")
-
-        if self.archive:
-            logger.info(f"Package JSON data in {archive_source}.7z")
-            self.package_json(source=archive_source)
 
     def remove_existing_files(self):
         """
