@@ -264,7 +264,9 @@ class PostgresTableExport:
         Get the full JSON filename for a batch based on batch number.
         """
         batch_index_str = str(batch_number).zfill(self.num_leading_zeros)
-        return f"{self.json_filename_base}_batch_{batch_index_str}.json"
+        result = f"{self.json_filename_base}{batch_index_str}.json"
+        logger.debug(f"_get_batch_json_filename: {self.fully_qualified_name} (Batch {batch_number}): {result}")
+        return result
 
     def _last_completed_batch(self, table_dir):
         """
