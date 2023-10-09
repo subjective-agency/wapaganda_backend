@@ -339,9 +339,10 @@ class PostgresTableExport:
         :param offset: The number of records in the batch
         """
         start_time = time.time()
-        batch_query = f"SELECT * FROM {self.fully_qualified_name} LIMIT %s OFFSET %s"
+        batch_query = f"SELECT * FROM {self.fully_qualified_name}"
         if self.id_column_exists:
             batch_query += " ORDER BY id"
+        batch_query += " LIMIT %s OFFSET %s"
 
         cursor.execute(batch_query, (limit, offset))
         rows = cursor.fetchall()
