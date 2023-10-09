@@ -38,13 +38,16 @@ class PostgresTableExport:
         self.restore = restore
         self.skip_export = skip_export
 
+        # List of batch information tuples (batch_num, limit, offset, filename)
+        self.batches = None
+
         # Get from PSQL table
         self.total_rows = None
 
-        # Get from PSQL table
+        # Get from PSQL information_schema.columns
         self.id_column_exists = False
 
-        # Get from PSQL table
+        # Get from PSQL table information_schema.columns
         self.column_data_types = None
 
         # e.g. 'export/data.telegram_messages_'
