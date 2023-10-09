@@ -114,7 +114,6 @@ class PostgresTableExport:
             logger.info(f"Number of leading zeros for {self.fully_qualified_name}: {self.num_leading_zeros}")
 
             self.batches = self._split_table()
-            logger.debug(f"Batches for {self.fully_qualified_name}: {self.batches}")
             logger.info(f"Number of batches for {self.fully_qualified_name}: {len(self.batches)}")
 
         # Check if we need to restore from the last completed batch
@@ -123,7 +122,7 @@ class PostgresTableExport:
             table_dir = os.path.join(self.export_dir, self.fully_qualified_name)
             logger.info(f"Table directory for {self.fully_qualified_name}: {table_dir}")
 
-            self.last_completed_batch = self._last_completed_batch(table_dir=table_dir)
+            self.last_completed_batch = self._last_completed_batch()
             logger.info(f"Last completed batch for {self.fully_qualified_name}: {self.last_completed_batch}")
 
     def _get_column_data_types(self) -> dict:
@@ -269,13 +268,10 @@ class PostgresTableExport:
         logger.debug(f"_get_batch_json_filename: {self.fully_qualified_name} (Batch {batch_number}): {result}")
         return result
 
-    def _last_completed_batch(self, table_dir):
+    def _last_completed_batch(self):
         """
         Find the last completed batch.
         """
-        max_batch_num = len(self._split_table()) - 1
-        num_leading_zeros = len(str(max_batch_num))
-
         last_completed_batch = -1
         for batch_info in self.batches:
             batch_num, limit, offset, batch_filename = batch_info
@@ -328,6 +324,10 @@ class PostgresTableExport:
 
         if self.rewrite:
             self._remove_batch_files(table_dir=self.export_dir)
+
+        if self.last_completed_batch >= 0:
+            self.batches = self.batches[self.last_completed_batch + 1:]
+            logger.info(f"Resuming export from batch {self.last_completed_batch + 1} of {len(self.batches)}")
 
         for batch_info in self.batches:
             batch_num, limit, offset, filename = batch_info
