@@ -2,7 +2,7 @@ import json
 import time
 from datetime import datetime
 import os.path
-
+from collections import OrderedDict
 from supaword.log_helper import logger
 from tools.utils import CustomJSONEncoder, PostgresExportHelper
 
@@ -40,8 +40,8 @@ class PostgresTableExport:
         self.skip_export = skip_export
         self.archive = archive
 
-        # List of batch information tuples (batch_num, limit, offset, filename)
-        self.batches = None
+        # OrderedDict of batch information dicts batch_num = {size, offset, filename}
+        self.batches = OrderedDict()
 
         # Get from PSQL table
         self.total_rows = None
@@ -249,17 +249,24 @@ class PostgresTableExport:
         Calculate the number of batches needed
         """
         total_rows = self.get_count()
-        num_batches = (total_rows + self.batch_size - 1) // self.batch_size
-        if self.batches is None:
-            self.batches = [(i + 1,
-                             self.batch_size,
-                             i * self.batch_size,
-                             self._get_batch_json_filename(i + 1))
-                            for i in range(num_batches)]
-            logger.info(f"Split export into {num_batches} batches")
-            logger.info(f"First batch {self.batches[0]}")
-            logger.info(f"Last batch {self.batches[-1]}")
-        return self.batches
+        num_batches = total_rows // self.batch_size
+        remainder = total_rows % self.batch_size
+
+        if remainder > 0:
+            num_batches += 1
+
+        batches = {}
+        logger.info(f"Split export into {num_batches} batches")
+        logger.info(f"First batch {batches[0]}")
+        logger.info(f"Last batch {batches[-1]}")
+        logger.info(f"Last batch size {remainder}")
+        for i in range(num_batches):
+            batches[i + 1] = {
+                "batch_size": self.batch_size if i < num_batches - 1 else remainder,
+                "offset": i * self.batch_size,
+                "filename": self._get_batch_json_filename(i + 1)
+            }
+        return batches
 
     def _get_batch_json_filename(self, batch_number):
         """
@@ -274,8 +281,8 @@ class PostgresTableExport:
         Find the last completed batch.
         """
         last_completed_batch = -1
-        for batch_info in self.batches:
-            batch_num, limit, offset, batch_filename = batch_info
+        for batch_num, batch_info in self.batches:
+            batch_filename = batch_info["filename"]
             logger.debug(f"_last_completed_batch: {self.fully_qualified_name}:{batch_filename}")
             if os.path.exists(batch_filename) and os.path.getsize(batch_filename) > 0:
                 logger.debug(f"Found batch {batch_num} for {self.fully_qualified_name}")
@@ -331,12 +338,13 @@ class PostgresTableExport:
         if self.last_completed_batch >= 0:
             logger.info(f"Resuming export from batch {self.last_completed_batch + 1} of {len(self.batches)}")
 
-        for batch_info in self.batches:
-            batch_num, limit, offset, filename = batch_info
+        for batch_num, batch_info in self.batches:
+            batch_size = batch_info["batch_size"]
+            offset = batch_info["offset"]
             if self.last_completed_batch >= 0 and batch_num <= self.last_completed_batch:
                 continue
             logger.info(f"Exporting batch {batch_num} of {len(self.batches)}: {filename}")
-            self._export_batch(cursor=cursor, batch_num=batch_num, limit=limit, offset=offset)
+            self._export_batch(cursor=cursor, batch_num=batch_num, limit=batch_size, offset=offset)
         cursor.close()
 
     def _export_batch(self, cursor, batch_num, limit, offset):
