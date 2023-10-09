@@ -175,6 +175,8 @@ class PostgresTableExport:
         # Iterate through specified JSON data files
         for filename in json_filenames:
             file_path = os.path.join(data_dir, filename)
+            if not os.path.isfile(file_path):
+                continue
             with open(file_path, "r", encoding="utf-8") as json_file:
                 data = json.load(json_file)
                 for record in data:
