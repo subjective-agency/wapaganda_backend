@@ -248,7 +248,8 @@ class PostgresTableExport:
         total_rows = self.get_count()
         num_batches = (total_rows + self.batch_size - 1) // self.batch_size
         if self.batches is None:
-            self.batches = [(i + 1, self.batch_size,
+            self.batches = [(i + 1,
+                             self.batch_size,
                              i * self.batch_size,
                              self._get_batch_json_filename(i + 1))
                             for i in range(num_batches)]
@@ -320,16 +321,13 @@ class PostgresTableExport:
         logger.info(f"Export batches: rewrite={self.rewrite}")
         logger.info(f"Export batches: restore={self.restore}")
 
-        try:
-            if self.rewrite:
-                self._remove_batch_files(table_dir=self.export_dir)
+        if self.rewrite:
+            self._remove_batch_files(table_dir=self.export_dir)
 
-            for batch_num, (limit, offset) in enumerate(self.batches):
-                self._export_batch(cursor=cursor, batch_num=batch_num, limit=limit, offset=offset)
-        except Exception as e:
-            logger.error(f"Error exporting table {self.fully_qualified_name}: {e}")
-        finally:
-            cursor.close()
+        for batch_num, limit, offset, filename in enumerate(self.batches):
+            logger.info(f"Exporting batch {batch_num + 1} of {len(self.batches)}: {filename}")
+            self._export_batch(cursor=cursor, batch_num=batch_num, limit=limit, offset=offset)
+        cursor.close()
 
     def _export_batch(self, cursor, batch_num, limit, offset):
         """
