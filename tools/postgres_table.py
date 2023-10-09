@@ -346,6 +346,7 @@ class PostgresTableExport:
         for batch_num, batch_info in self.batches.items():
             batch_size = batch_info["batch_size"]
             offset = batch_info["offset"]
+            filename = batch_info["filename"]
             if self.last_completed_batch >= 0 and batch_num <= self.last_completed_batch:
                 continue
             logger.info(f"Exporting batch {batch_num} of {len(self.batches)}: {filename}")
