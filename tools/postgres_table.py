@@ -262,7 +262,7 @@ class PostgresTableExport:
                 "offset": i * self.batch_size,
                 "filename": self._get_batch_json_filename(i + 1)
             }
-            logger.debug(
+            logger.info(
                 f"Batch {i + 1} of {num_batches}:size={self.batch_size if i < num_batches - 1 else remainder}"
             )
 
