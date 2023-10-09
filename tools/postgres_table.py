@@ -13,7 +13,7 @@ class PostgresTableExport:
     Abstraction of PostgresTable in context of table export
     """
 
-    def __init__(self, connection, table_name, export_dir, batch_size, rewrite, restore, skip_export):
+    def __init__(self, connection, table_name, export_dir, batch_size, rewrite, restore, skip_export, archive):
         """
         Initialize a PostgresTable instance.
         :param connection: An existing PostgresSQL database connection.
@@ -23,6 +23,7 @@ class PostgresTableExport:
         :param rewrite: If True, rewrite already exported tables
         :param restore: If True, resume exporting from the last completed batch
         :param skip_export: If True, skip exporting the table if it is up-to-date
+        :param archive: If True, archive the JSON files into a 7z archive
         """
         self.connection = connection
         if not table_name:
@@ -37,6 +38,7 @@ class PostgresTableExport:
         self.rewrite = rewrite
         self.restore = restore
         self.skip_export = skip_export
+        self.archive = archive
 
         # List of batch information tuples (batch_num, limit, offset, filename)
         self.batches = None
@@ -378,9 +380,13 @@ class PostgresTableExport:
         if self.get_count() > self.batch_size:
             logger.info("Export in batches")
             self._export_batches()
+            json_export_dir = os.path.dirname(self.json_filename_base)
+            logger.info(f"Package JSON data in {json_export_dir}")
+            self.package_json(source=json_export_dir)
         else:
             logger.info("Export as a single table")
             self._export_table()
+            logger.info(f"Package JSON data in {self.fully_qualified_name}")
             self.package_json(source=os.path.join(self.export_dir, self.fully_qualified_name))
 
     def remove_existing_files(self):
