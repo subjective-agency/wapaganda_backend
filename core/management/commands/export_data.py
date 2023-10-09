@@ -16,13 +16,16 @@ class Command(BaseCommand):
         self.table_names_file = []
         self.bool_rewrite_tables = False
         self.bool_continue_export = False
+        self.skip_export = False
 
     def add_arguments(self, parser):
         parser.add_argument('table_names_file', type=str, help='File containing table names')
-        parser.add_argument('--rewrite-tables', type=str, choices=['true', 'false'],
+        parser.add_argument('--rewrite-tables', type=str, choices=['true', 'false'], default='false', required=False,
                             help='Boolean indicating whether to rewrite tables')
-        parser.add_argument('--continue-export', type=str, choices=['true', 'false'],
+        parser.add_argument('--continue-export', type=str, choices=['true', 'false'], default='false', required=False,
                             help='Boolean indicating whether to continue paused export')
+        parser.add_argument('--skip-export', type=str, choices=['true', 'false'], default='false', required=False,
+                            help='Boolean indicating whether to skip export if the table up-to-date')
 
     def export_data(self):
         """
@@ -43,8 +46,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.table_names_file = options['table_names_file']
-        self.bool_rewrite_tables = options['rewrite_tables'] == 'true'  # Convert to boolean
-        self.bool_continue_export = options['continue_export'] == 'true'  # Convert to boolean
+        # Convert to boolean
+        self.bool_rewrite_tables = options['rewrite_tables'] == 'true'
+        self.bool_continue_export = options['continue_export'] == 'true'
+        self.skip_export = options['skip_export'] == 'true'
+
         logger.info(f"Table name file: {self.table_names_file}")
         logger.info(f"Rewrite Tables: {self.bool_rewrite_tables}")
         logger.info(f"Resume Export: {self.bool_continue_export}")

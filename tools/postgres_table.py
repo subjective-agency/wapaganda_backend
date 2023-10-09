@@ -13,7 +13,7 @@ class PostgresTableExport:
     Abstraction of PostgresTable in context of table export
     """
 
-    def __init__(self, connection, table_name, export_dir, batch_size, rewrite, restore):
+    def __init__(self, connection, table_name, export_dir, batch_size, rewrite, restore, skip_export):
         """
         Initialize a PostgresTable instance.
         :param connection: An existing PostgresSQL database connection.
@@ -21,7 +21,8 @@ class PostgresTableExport:
         :param export_dir: The directory where JSON files will be exported.
         :param batch_size: Number of records to export in each batch.
         :param rewrite: If True, rewrite already exported tables
-        :param restore: If True, resume exporting from the last completed batch.
+        :param restore: If True, resume exporting from the last completed batch
+        :param skip_export: If True, skip exporting the table if it is up-to-date
         """
         self.connection = connection
         if not table_name:
@@ -35,12 +36,27 @@ class PostgresTableExport:
         self.batch_size = batch_size
         self.rewrite = rewrite
         self.restore = restore
+        self.skip = skip
+
+        # Get from PSQL table
         self.total_rows = None
+
+        # Get from PSQL table
         self.id_column_exists = False
+
+        # Get from PSQL table
         self.column_data_types = None
+
+        # e.g. 'export/data.telegram_messages_'
         self.json_filename_base = None
+
+        # If exporting in batches, should be enough leading zeros to cover the number of batches
         self.num_leading_zeros = 0
+
+        # If table has enough records to export in batches
         self.is_batches = False
+
+        # If table is up-to-date, we can skip export
         self.up_to_date = False
 
         self._preprocess()
@@ -57,7 +73,7 @@ class PostgresTableExport:
         - check if table is up-to-date and we can skip export
         """
         # Check if the table is up-to-date and we can skip export
-        if not self.rewrite:
+        if not self.rewrite and self.skip:
             last_data_timestamp = self._last_data_timestamp()
             if last_data_timestamp:
                 logger.info(f"Last data timestamp for table {self.fully_qualified_name}: {last_data_timestamp}")
@@ -145,7 +161,7 @@ class PostgresTableExport:
             cursor.execute(query, (self.schema_name, self.table_name))
             result = cursor.fetchone()
             logger.info(f"Table {self.schema_name}.{self.table_name} last edited {result}")
-            if result is not None:
+            if result is not None and result[0] is not None:
                 return datetime.fromisoformat(result[0])
         return None
 
