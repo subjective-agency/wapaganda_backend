@@ -33,13 +33,9 @@ class PostgresDbExport:
             logger.info(f"Creating export directory {self.export_dir}")
             os.makedirs(self.export_dir)
 
-    def get_table(self, table_name, rewrite, restore):
+    def create_connection(self):
         """
-        Get a PostgresTable instance for a specific table.
-        :param table_name: The name of the table to export.
-        :param restore: Whether to pick up export process
-        :param rewrite: Whether to rewrite tables
-        :return: PostgresTable instance
+        Create a database connection.
         """
         self.connection = psycopg2.connect(
             dbname=self.dbname,
@@ -48,8 +44,6 @@ class PostgresDbExport:
             host=self.host,
             port=self.port
         )
-        return PostgresTableExport(connection=self.connection, table_name=table_name, export_dir=self.export_dir,
-                                   batch_size=self.BATCH_SIZE, rewrite=rewrite, restore=restore, skip_export=False)
 
     def close_connection(self):
         """
@@ -58,6 +52,19 @@ class PostgresDbExport:
         if self.connection:
             self.connection.close()
 
+    def get_table(self, table_name, rewrite, restore):
+        """
+        Get a PostgresTable instance for a specific table.
+        :param table_name: The name of the table to export.
+        :param restore: Whether to pick up export process
+        :param rewrite: Whether to rewrite tables
+        :return: PostgresTable instance
+        """
+        if self.connection is None:
+            self.create_connection()
+        return PostgresTableExport(connection=self.connection, table_name=table_name, export_dir=self.export_dir,
+                                   batch_size=self.BATCH_SIZE, rewrite=rewrite, restore=restore, skip_export=False)
+
     def export_to_json(self, table_names: list, rewrite: bool, restore: bool):
         """
         Export data from Postgres database to JSON files.
@@ -65,17 +72,10 @@ class PostgresDbExport:
         :param table_names: List of table names to export.
         :param restore: Whether to pick up previous export
         """
-        self.connection = psycopg2.connect(
-            dbname=self.dbname,
-            user=self.user,
-            password=self.password,
-            host=self.host,
-            port=self.port
-        )
-
         for table_name in table_names:
             while True:
                 try:
+                    self.create_connection()
                     table = self.get_table(table_name=table_name, rewrite=rewrite, restore=restore)
                     table.export_table()
                     # Success, break out of the retry loop
@@ -84,10 +84,10 @@ class PostgresDbExport:
                     logger.error(f"Error exporting {table_name}: {e}")
 
                     # check if the exception indicates a timeout
+                    self.close_connection()
                     if "timeout" in str(e).lower():
                         logger.info("Timeout exception, retrying in 60 seconds...")
                         time.sleep(60)
                     else:
                         # Break out of the retry loop for other exceptions
                         break
-        self.close_connection()
