@@ -266,7 +266,6 @@ class PostgresTableExport:
         logger.info(f"Split export into {num_batches} batches")
         logger.info(f"First batch {list(batches.values())[0]}")
         logger.info(f"Last batch {list(batches.values())[-1]}")
-        logger.info(f"Last batch size {remainder}")
         return batches
 
     def _get_batch_json_filename(self, batch_number):
