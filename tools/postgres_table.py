@@ -117,7 +117,7 @@ class PostgresTableExport:
             num_batches = len(self.batches)
             self.num_leading_zeros = int(math.ceil(math.log10(num_batches + 1)))
             logger.info(
-                f"{num_batches} batches; {num_digits} digits; {self.num_leading_zeros} leading zeros"
+                f"{num_batches} batches; {self.num_leading_zeros} leading zeros"
             )
 
         # Check if we need to restore from the last completed batch
