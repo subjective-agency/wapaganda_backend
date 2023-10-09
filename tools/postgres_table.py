@@ -96,7 +96,6 @@ class PostgresTableExport:
             logger.info(f"Table {self.fully_qualified_name} has an 'id' column")
 
         self.column_data_types = self._get_column_data_types()
-        logger.info(f"Column data types for table {self.fully_qualified_name}: {self.column_data_types}")
 
         # Check if the table has enough records to export in batches
         if self.get_count() > self.batch_size:
@@ -393,21 +392,6 @@ class PostgresTableExport:
         else:
             logger.info("Export as a single table")
             self._export_table()
-
-    def remove_existing_files(self):
-        """
-        Remove existing JSON files for the table if they exist
-        """
-        json_filename = os.path.join(self.export_dir, f"{self.fully_qualified_name}.json")
-        if os.path.exists(json_filename):
-            os.remove(json_filename)
-
-        batch_files = [f for f in os.listdir(self.export_dir) if f.startswith(f"{self.fully_qualified_name}_batch_")]
-        logger.info(f"Prepare to remove {len(batch_files)} files")
-        for batch_file in batch_files:
-            batch_filename = os.path.join(self.export_dir, batch_file)
-            if os.path.exists(batch_filename):
-                os.remove(batch_filename)
 
     def get_count(self):
         """

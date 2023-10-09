@@ -73,10 +73,20 @@ class PostgresDbExport:
         )
 
         for table_name in table_names:
-            table = self.get_table(table_name=table_name, rewrite=rewrite, restore=restore)
-            if rewrite is True:
-                logger.info("Rewrite flag is true")
-                table.remove_existing_files()
-            table.export_table()
+            while True:
+                try:
+                    table = self.get_table(table_name=table_name, rewrite=rewrite, restore=restore)
+                    table.export_table()
+                    # Success, break out of the retry loop
+                    break
+                except OperationalError as e:
+                    logger.error(f"Error exporting {table_name}: {e}")
 
+                    # check if the exception indicates a timeout
+                    if "timeout" in str(e).lower():
+                        logger.info("Timeout exception, retrying in 60 seconds...")
+                        time.sleep(60)
+                    else:
+                        # Break out of the retry loop for other exceptions
+                        break
         self.close_connection()
