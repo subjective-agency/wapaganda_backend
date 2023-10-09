@@ -54,4 +54,4 @@ class LogHelper:
         self.logger.debug(message)
 
 
-logger = LogHelper(name="supaword", level=logging.INFO, log_to_file=True)
+logger = LogHelper(name="supaword", level=logging.DEBUG, log_to_file=True)
