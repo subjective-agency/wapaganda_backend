@@ -365,7 +365,7 @@ class PostgresTableExport:
         end_time = time.time()
         transaction_duration = end_time - start_time
         logger.info(
-            f"Batch of {self.fully_qualified_name} exported to {batch_filename} in {transaction_duration:.2f} seconds"
+            f"Batch {batch_index_str}) exported to {batch_filename} in {transaction_duration:.2f} seconds"
         )
 
     def export_table(self):
