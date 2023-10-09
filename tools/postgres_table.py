@@ -369,7 +369,7 @@ class PostgresTableExport:
         ]
 
         with open(filename, "w", encoding="utf-8") as json_file:
-            logger.info(f"Exporting batched {self.fully_qualified_name} (Batch {batch_num}) to {filename}")
+            logger.info(f"Write exported file {filename}")
             json.dump(serialized_records, json_file, cls=CustomJSONEncoder, ensure_ascii=False, indent=2)
 
         end_time = time.time()
