@@ -286,7 +286,7 @@ class PostgresTableExport:
         Find the last completed batch.
         """
         last_completed_batch = -1
-        for batch_num, batch_info in self.batches:
+        for batch_num, batch_info in self.batches.items():
             batch_filename = batch_info["filename"]
             logger.debug(f"_last_completed_batch: {self.fully_qualified_name}:{batch_filename}")
             if os.path.exists(batch_filename) and os.path.getsize(batch_filename) > 0:
@@ -343,7 +343,7 @@ class PostgresTableExport:
         if self.last_completed_batch >= 0:
             logger.info(f"Resuming export from batch {self.last_completed_batch + 1} of {len(self.batches)}")
 
-        for batch_num, batch_info in self.batches:
+        for batch_num, batch_info in self.batches.items():
             batch_size = batch_info["batch_size"]
             offset = batch_info["offset"]
             if self.last_completed_batch >= 0 and batch_num <= self.last_completed_batch:
