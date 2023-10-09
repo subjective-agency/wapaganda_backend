@@ -144,6 +144,7 @@ class PostgresTableExport:
         with self.connection.cursor() as cursor:
             cursor.execute(query, (self.schema_name, self.table_name))
             result = cursor.fetchone()
+            logger.info(f"Table {self.schema_name}.{self.table_name} last edited {result}")
             if result is not None:
                 return datetime.fromisoformat(result[0])
         return None
