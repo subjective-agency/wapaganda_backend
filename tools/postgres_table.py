@@ -36,7 +36,7 @@ class PostgresTableExport:
         self.batch_size = batch_size
         self.rewrite = rewrite
         self.restore = restore
-        self.skip = skip
+        self.skip_export = skip_export
 
         # Get from PSQL table
         self.total_rows = None
@@ -73,7 +73,7 @@ class PostgresTableExport:
         - check if table is up-to-date and we can skip export
         """
         # Check if the table is up-to-date and we can skip export
-        if not self.rewrite and self.skip:
+        if not self.rewrite and self.skip_export:
             last_data_timestamp = self._last_data_timestamp()
             if last_data_timestamp:
                 logger.info(f"Last data timestamp for table {self.fully_qualified_name}: {last_data_timestamp}")
