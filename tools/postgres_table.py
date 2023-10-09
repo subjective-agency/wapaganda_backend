@@ -330,10 +330,11 @@ class PostgresTableExport:
 
         len_batches = len(self.batches)
         if self.last_completed_batch >= 0:
-            self.batches = self.batches[self.last_completed_batch + 1:]
             logger.info(f"Resuming export from batch {self.last_completed_batch + 1} of {len(self.batches)}")
 
         for batch_info in self.batches:
+            if self.last_completed_batch >= 0 and batch_num <= self.last_completed_batch:
+                continue
             batch_num, limit, offset, filename = batch_info
             logger.info(f"Exporting batch {batch_num} of {len_batches}: {filename}")
             self._export_batch(cursor=cursor, batch_num=batch_num, limit=limit, offset=offset)
@@ -368,7 +369,7 @@ class PostgresTableExport:
 
         end_time = time.time()
         transaction_duration = end_time - start_time
-        logger.info(f"Batch {batch_index_str}) exported to {batch_filename} in {transaction_duration:.2f} seconds")
+        logger.info(f"Batch {batch_index_str} exported to {batch_filename} in {transaction_duration:.2f} seconds")
 
     def export_table(self):
         """
