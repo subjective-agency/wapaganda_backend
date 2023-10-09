@@ -79,7 +79,7 @@ class PostgresDbExport:
                     table.export_table()
                     # Success, break out of the retry loop
                     break
-                except OperationalError as e:
+                except psycopg2.OperationalError as e:
                     logger.error(f"Error exporting {table_name}: {e}")
 
                     # check if the exception indicates a timeout
