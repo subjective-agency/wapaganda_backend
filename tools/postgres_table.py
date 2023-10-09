@@ -229,12 +229,12 @@ class PostgresTableExport:
             ]
             logger.info(f"Got {len(serialized_records)} records from table {self.fully_qualified_name}")
 
+            # Check if the file already exists and self.rewrite is False
             json_filename = os.path.join(self.export_dir, f"{self.fully_qualified_name}.json")
 
-            # Check if the file already exists and self.rewrite is False
             if not self.rewrite and os.path.exists(json_filename) and os.path.getsize(json_filename) > 0:
                 logger.warning(
-                    f"Table {self.fully_qualified_name} already exists in {json_filename}. Use --rewrite to overwrite.")
+                    f"Table {self.fully_qualified_name} already exists in {json_filename}; use --rewrite to overwrite.")
                 return
 
             with open(json_filename, "w", encoding="utf-8") as json_file:
@@ -381,7 +381,6 @@ class PostgresTableExport:
 
         logger.info(f"Table {self.fully_qualified_name} has {self.get_count()} records")
 
-        archive_source = None
         if self.get_count() > self.batch_size:
             logger.info("Export in batches")
             self._export_batches()
