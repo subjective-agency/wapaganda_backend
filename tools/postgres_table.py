@@ -344,16 +344,17 @@ class PostgresTableExport:
             if self.last_completed_batch > 0 and batch_num <= self.last_completed_batch:
                 continue
             logger.info(f"Exporting batch {batch_num} of {len(self.batches)}: {filename}")
-            self._export_batch(cursor=cursor, batch_num=batch_num, limit=batch_size, offset=offset)
+            self._export_batch(cursor=cursor, batch_num=batch_num, limit=batch_size, offset=offset, filename=filename)
         cursor.close()
 
-    def _export_batch(self, cursor, batch_num, limit, offset):
+    def _export_batch(self, cursor, batch_num, limit, offset, filename):
         """
         Export a single batch of table data to a JSON file
         :param cursor: A PostgresSQL database cursor
         :param batch_num: The batch number
         :param limit: The total number of records to export from the table
         :param offset: The number of records in the batch
+        :param filename: The filename of the JSON batch to export to
         """
         start_time = time.time()
         batch_query = f"SELECT * FROM {self.fully_qualified_name}"
@@ -367,16 +368,13 @@ class PostgresTableExport:
             PostgresExportHelper.serialize_record(cursor, record, self.column_data_types) for record in rows
         ]
 
-        batch_index_str = f"{batch_num + 1:0{self.num_leading_zeros}d}"
-        batch_filename = f"{self.json_filename_base}{batch_index_str}.json"
-
-        with open(batch_filename, "w", encoding="utf-8") as json_file:
-            logger.info(f"Exporting table {self.fully_qualified_name} (Batch {batch_index_str}) to {batch_filename}")
+        with open(filename, "w", encoding="utf-8") as json_file:
+            logger.info(f"Exporting batched {self.fully_qualified_name} (Batch {batch_num}) to {filename}")
             json.dump(serialized_records, json_file, cls=CustomJSONEncoder, ensure_ascii=False, indent=2)
 
         end_time = time.time()
         transaction_duration = end_time - start_time
-        logger.info(f"Batch {batch_index_str} exported to {batch_filename} in {transaction_duration:.2f} seconds")
+        logger.info(f"Batch {batch_index_str} exported to {filename} in {transaction_duration:.2f} seconds")
 
     def export_table(self):
         """
