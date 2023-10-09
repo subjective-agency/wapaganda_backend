@@ -114,11 +114,7 @@ class PostgresTableExport:
             logger.info(f"Number of batches for {self.fully_qualified_name}: {len(self.batches)}")
 
             # Calculate the number of leading zeros needed for batch filenames
-            num_batches = len(self.batches)
-            self.num_leading_zeros = int(math.ceil(math.log10(num_batches + 1)))
-            logger.info(
-                f"{num_batches} batches; {self.num_leading_zeros} leading zeros"
-            )
+            self.num_leading_zeros = 7
 
         # Check if we need to restore from the last completed batch
         logger.debug(f"self.restore={self.restore} self.is_batches={self.is_batches}")
