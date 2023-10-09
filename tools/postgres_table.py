@@ -255,9 +255,10 @@ class PostgresTableExport:
         if remainder > 0:
             num_batches += 1
 
-        batches = {}
+        batches = OrderedDict()
         for i in range(num_batches):
             batches[i + 1] = {
+                "batch_num": i + 1,
                 "batch_size": self.batch_size if i < num_batches - 1 else remainder,
                 "offset": i * self.batch_size,
                 "filename": self._get_batch_json_filename(i + 1)
@@ -267,8 +268,8 @@ class PostgresTableExport:
             )
 
         logger.info(f"Split export into {num_batches} batches")
-        logger.info(f"First batch {batches[0]}")
-        logger.info(f"Last batch {batches[-1]}")
+        logger.info(f"First batch {list(batches.values())[0]}")
+        logger.info(f"Last batch {list(batches.values())[-1]}")
         logger.info(f"Last batch size {remainder}")
         return batches
 
