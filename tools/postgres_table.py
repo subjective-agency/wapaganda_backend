@@ -265,7 +265,6 @@ class PostgresTableExport:
         """
         batch_index_str = str(batch_number).zfill(self.num_leading_zeros)
         result = f"{self.json_filename_base}{batch_index_str}.json"
-        logger.debug(f"_get_batch_json_filename: {self.fully_qualified_name} (Batch {batch_number}): {result}")
         return result
 
     def _last_completed_batch(self):
@@ -382,6 +381,7 @@ class PostgresTableExport:
         else:
             logger.info("Export as a single table")
             self._export_table()
+            self.package_json(source=os.path.join(self.export_dir, self.fully_qualified_name))
 
     def remove_existing_files(self):
         """
@@ -407,11 +407,12 @@ class PostgresTableExport:
         return self.total_rows
 
     @staticmethod
-    def package_json(source, output_filename):
+    def package_json(source):
         """
         Package JSON data into a 7z archive using py7zr.
         """
         try:
+            logger.info(f"Packaging {source} into {source}.7z")
             with SevenZipFile(output_filename, 'w') as archive:
                 if os.path.isfile(source):
                     archive.write(source, arcname=os.path.basename(source))
@@ -419,6 +420,6 @@ class PostgresTableExport:
                     archive.writeall(source)
 
             # Log success
-            logger.info(f"Packaged {source} into {output_filename}")
+            logger.info(f"Packaged {source} into {source}.7z")
         except Exception as e:
-            logger.error(f"Error packaging {source} into {output_filename}: {e}")
+            logger.error(f"Error packaging {source} into {source}.7z: {e}")
