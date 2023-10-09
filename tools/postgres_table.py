@@ -254,11 +254,13 @@ class PostgresTableExport:
 
         batches = OrderedDict()
         for i in range(num_batches):
-            batches[i + 1] = {
+            batch_index = i + 1
+            last_batch_index = num_batches - 1
+            batches[batch_index] = {
                 "batch_num": i + 1,
-                "batch_size": self.batch_size if i < num_batches - 1 else remainder,
+                "batch_size": self.batch_size if i != last_batch_index else remainder,
                 "offset": i * self.batch_size,
-                "filename": self._get_batch_json_filename(i + 1)
+                "filename": self._get_batch_json_filename(batch_index)
             }
 
         logger.info(f"Split export into {num_batches} batches")
