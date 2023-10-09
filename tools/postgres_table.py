@@ -280,7 +280,9 @@ class PostgresTableExport:
         for batch_num in range(max_batch_num + 1):
             batch_index_str = str(batch_num).zfill(num_leading_zeros)
             batch_filename = os.path.join(table_dir, f"{self.fully_qualified_name}_batch_{batch_index_str}.json")
+            logger.debug(f"_last_completed_batch: {self.fully_qualified_name} (Batch {batch_num}): {batch_filename}")
             if os.path.exists(batch_filename) and os.path.getsize(batch_filename) > 0:
+                logger.debug(f"Found batch {batch_num} for {self.fully_qualified_name}")
                 last_completed_batch = batch_num
 
         return last_completed_batch
