@@ -5,7 +5,6 @@ enums.isco08_taxonomy_closure
 enums.orgs_taxonomy
 enums.orgs_taxonomy_closure
 enums.theory_types
-
 organization_type
 organizations
 media_segments
@@ -15,7 +14,6 @@ media_roles
 ntv_episodes
 komso_episodes
 smotrim_episodes
-
 youtube_vids
 rutube_vids
 people
@@ -27,7 +25,6 @@ people_bundles
 days_of_war
 telegram_channels
 telegram_authors
-
 printed
 printed_to_people_mapping
 youtube_authors
@@ -40,7 +37,6 @@ people_in_bundles
 people_3rdprt_details_raw
 msegments_to_ychannels_mapping
 msegments_to_rchannels_mapping
-
 data.transcripts
 data.transcribed_content
 data.transcribed_content_translation_en

@@ -218,7 +218,6 @@ class PostgresTableExport:
         if self._check_id_column_exists():
             query += " ORDER BY id"
 
-        try:
             cursor.execute(query)
             rows = cursor.fetchall()
 
@@ -239,9 +238,6 @@ class PostgresTableExport:
                 logger.info(f"Exporting table {self.fully_qualified_name} to {json_filename}")
                 json.dump(serialized_records, json_file, cls=CustomJSONEncoder, ensure_ascii=False, indent=2)
             logger.info(f"Table {self.fully_qualified_name} exported to {json_filename}")
-        except Exception as e:
-            logger.error(f"Error exporting table {self.fully_qualified_name}: {e}")
-        finally:
             cursor.close()
 
     def _split_table(self):
