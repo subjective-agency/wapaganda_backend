@@ -263,9 +263,6 @@ class PostgresTableExport:
                 "offset": i * self.batch_size,
                 "filename": self._get_batch_json_filename(i + 1)
             }
-            logger.info(
-                f"Batch {i + 1} of {num_batches}:size={self.batch_size if i < num_batches - 1 else remainder}"
-            )
 
         logger.info(f"Split export into {num_batches} batches")
         logger.info(f"First batch {list(batches.values())[0]}")
