@@ -370,7 +370,7 @@ class PostgresTableExport:
             PostgresExportHelper.serialize_record(cursor, record, self.column_data_types) for record in rows
         ]
 
-        batch_index_str = f"{self.last_completed_batch + batch_num + 1:0{self.num_leading_zeros}d}"
+        batch_index_str = f"{batch_num + 1:0{self.num_leading_zeros}d}"
         batch_filename = f"{self.json_filename_base}{batch_index_str}.json"
 
         with open(batch_filename, "w", encoding="utf-8") as json_file:
