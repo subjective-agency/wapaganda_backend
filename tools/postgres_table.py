@@ -324,8 +324,9 @@ class PostgresTableExport:
         if self.rewrite:
             self._remove_batch_files(table_dir=self.export_dir)
 
-        for batch_num, limit, offset, filename in enumerate(self.batches):
-            logger.info(f"Exporting batch {batch_num + 1} of {len(self.batches)}: {filename}")
+        for batch_info in self.batches:
+            batch_num, limit, offset, filename = batch_info
+            logger.info(f"Exporting batch {batch_num} of {len(self.batches)}: {filename}")
             self._export_batch(cursor=cursor, batch_num=batch_num, limit=limit, offset=offset)
         cursor.close()
 
