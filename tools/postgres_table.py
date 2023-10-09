@@ -118,6 +118,7 @@ class PostgresTableExport:
             logger.info(f"Number of batches for {self.fully_qualified_name}: {len(self.batches)}")
 
         # Check if we need to restore from the last completed batch
+        logger.debug(f"self.restore={self.restore} self.is_batches={self.is_batches}")
         if self.restore and self.is_batches:
             table_dir = os.path.join(self.export_dir, self.fully_qualified_name)
             logger.info(f"Table directory for {self.fully_qualified_name}: {table_dir}")
@@ -357,16 +358,12 @@ class PostgresTableExport:
         batch_filename = f"{self.json_filename_base}{batch_index_str}.json"
 
         with open(batch_filename, "w", encoding="utf-8") as json_file:
-            logger.info(
-                f"Exporting table {self.fully_qualified_name} (Batch {batch_index_str}) to {batch_filename}"
-            )
+            logger.info(f"Exporting table {self.fully_qualified_name} (Batch {batch_index_str}) to {batch_filename}")
             json.dump(serialized_records, json_file, cls=CustomJSONEncoder, ensure_ascii=False, indent=2)
 
         end_time = time.time()
         transaction_duration = end_time - start_time
-        logger.info(
-            f"Batch {batch_index_str}) exported to {batch_filename} in {transaction_duration:.2f} seconds"
-        )
+        logger.info(f"Batch {batch_index_str}) exported to {batch_filename} in {transaction_duration:.2f} seconds")
 
     def export_table(self):
         """
