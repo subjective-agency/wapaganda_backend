@@ -256,16 +256,16 @@ class PostgresTableExport:
             num_batches += 1
 
         batches = {}
-        logger.info(f"Split export into {num_batches} batches")
-        logger.info(f"First batch {batches[0]}")
-        logger.info(f"Last batch {batches[-1]}")
-        logger.info(f"Last batch size {remainder}")
         for i in range(num_batches):
             batches[i + 1] = {
                 "batch_size": self.batch_size if i < num_batches - 1 else remainder,
                 "offset": i * self.batch_size,
                 "filename": self._get_batch_json_filename(i + 1)
             }
+        logger.info(f"Split export into {num_batches} batches")
+        logger.info(f"First batch {batches[0]}")
+        logger.info(f"Last batch {batches[-1]}")
+        logger.info(f"Last batch size {remainder}")
         return batches
 
     def _get_batch_json_filename(self, batch_number):
