@@ -114,6 +114,7 @@ class PostgresTableExport:
             logger.info(f"Number of leading zeros for {self.fully_qualified_name}: {self.num_leading_zeros}")
 
             self.batches = self._split_table()
+            logger.debug(f"Batches for {self.fully_qualified_name}: {self.batches}")
             logger.info(f"Number of batches for {self.fully_qualified_name}: {len(self.batches)}")
 
         # Check if we need to restore from the last completed batch
