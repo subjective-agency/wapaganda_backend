@@ -13,7 +13,7 @@ class PostgresTableExport:
     Abstraction of PostgresTable in context of table export
     """
 
-    def __init__(self, connection, table_name, export_dir, batch_size, rewrite, restore, skip_export, archive):
+    def __init__(self, connection, table_name, export_dir, batch_size, rewrite, restore, skip_export):
         """
         Initialize a PostgresTable instance.
         :param connection: An existing PostgresSQL database connection.
@@ -23,7 +23,6 @@ class PostgresTableExport:
         :param rewrite: If True, rewrite already exported tables
         :param restore: If True, resume exporting from the last completed batch
         :param skip_export: If True, skip exporting the table if it is up-to-date
-        :param archive: If True, archive the JSON files into a 7z archive
         """
         self.connection = connection
         if not table_name:
@@ -38,7 +37,6 @@ class PostgresTableExport:
         self.rewrite = rewrite
         self.restore = restore
         self.skip_export = skip_export
-        self.archive = archive
 
         # OrderedDict of batch information dicts batch_num = {size, offset, filename}
         self.batches = OrderedDict()
@@ -332,19 +330,18 @@ class PostgresTableExport:
         logger.info(f"Export batches: rewrite={self.rewrite}")
         logger.info(f"Export batches: restore={self.restore}")
         logger.info(f"Export batches: skip_export={self.skip_export}")
-        logger.info(f"Export batches: archive={self.archive}")
 
         if self.rewrite:
             self._remove_batch_files(table_dir=self.export_dir)
 
-        if self.last_completed_batch >= 0:
+        if self.last_completed_batch > 0:
             logger.info(f"Resuming export from batch {self.last_completed_batch + 1} of {len(self.batches)}")
 
         for batch_num, batch_info in self.batches.items():
             batch_size = batch_info["batch_size"]
             offset = batch_info["offset"]
             filename = batch_info["filename"]
-            if self.last_completed_batch >= 0 and batch_num <= self.last_completed_batch:
+            if self.last_completed_batch > 0 and batch_num <= self.last_completed_batch:
                 continue
             logger.info(f"Exporting batch {batch_num} of {len(self.batches)}: {filename}")
             self._export_batch(cursor=cursor, batch_num=batch_num, limit=batch_size, offset=offset)
@@ -395,10 +392,6 @@ class PostgresTableExport:
         if self.get_count() > self.batch_size:
             logger.info("Export in batches")
             self._export_batches()
-            if self.archive:
-                archive_source = os.path.dirname(self.json_filename_base)
-                logger.info(f"Package JSON data in {archive_source}.7z")
-                self.package_json(source=archive_source)
         else:
             logger.info("Export as a single table")
             self._export_table()
@@ -425,21 +418,3 @@ class PostgresTableExport:
         if self.total_rows is None:
             self.total_rows = self._count_rows()
         return self.total_rows
-
-    @staticmethod
-    def package_json(source):
-        """
-        Package JSON data into a 7z archive using py7zr.
-        """
-        try:
-            logger.info(f"Packaging {source} into {source}.7z")
-            with SevenZipFile(output_filename, 'w') as archive:
-                if os.path.isfile(source):
-                    archive.write(source, arcname=os.path.basename(source))
-                elif os.path.isdir(source):
-                    archive.writeall(source)
-
-            # Log success
-            logger.info(f"Packaged {source} into {source}.7z")
-        except Exception as e:
-            logger.error(f"Error packaging {source} into {source}.7z: {e}")

@@ -47,14 +47,8 @@ class PostgresDbExport:
             host=self.host,
             port=self.port
         )
-        return PostgresTableExport(connection=self.connection,
-                                   table_name=table_name,
-                                   export_dir=self.export_dir,
-                                   rewrite=rewrite,
-                                   restore=restore,
-                                   skip_export=False,
-                                   archive=True,
-                                   batch_size=self.BATCH_SIZE)
+        return PostgresTableExport(connection=self.connection, table_name=table_name, export_dir=self.export_dir,
+                                   batch_size=self.BATCH_SIZE, rewrite=rewrite, restore=restore, skip_export=False)
 
     def close_connection(self):
         """
