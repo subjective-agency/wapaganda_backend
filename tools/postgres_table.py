@@ -1,5 +1,6 @@
 import json
 import time
+import math
 from datetime import datetime
 import os.path
 from collections import OrderedDict
@@ -109,11 +110,16 @@ class PostgresTableExport:
             self.json_filename_base = os.path.join(batches_dir, f"{self.fully_qualified_name}_batch_")
             logger.info(f"JSON filename base for {self.fully_qualified_name}: {self.json_filename_base}")
 
-            self.num_leading_zeros = len(str(self.get_count() - 1))
-            logger.info(f"Number of leading zeros for {self.fully_qualified_name}: {self.num_leading_zeros}")
-
             self.batches = self._split_table()
             logger.info(f"Number of batches for {self.fully_qualified_name}: {len(self.batches)}")
+
+            # Calculate the number of leading zeros needed for batch filenames
+            num_batches = len(self.batches)
+            num_digits = int(math.ceil(math.log10(num_batches + 1)))
+            self.num_leading_zeros = max(num_digits - 2, 0)  # Minimum of 0 leading zeros
+            logger.info(
+                f"{num_batches} batches; {num_digits} digits; {self.num_leading_zeros} leading zeros"
+            )
 
         # Check if we need to restore from the last completed batch
         logger.debug(f"self.restore={self.restore} self.is_batches={self.is_batches}")
