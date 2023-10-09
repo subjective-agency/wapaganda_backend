@@ -115,8 +115,7 @@ class PostgresTableExport:
 
             # Calculate the number of leading zeros needed for batch filenames
             num_batches = len(self.batches)
-            num_digits = int(math.ceil(math.log10(num_batches + 1)))
-            self.num_leading_zeros = max(num_digits - 2, 0)  # Minimum of 0 leading zeros
+            self.num_leading_zeros = int(math.ceil(math.log10(num_batches + 1)))
             logger.info(
                 f"{num_batches} batches; {num_digits} digits; {self.num_leading_zeros} leading zeros"
             )
