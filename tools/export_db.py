@@ -53,6 +53,7 @@ class PostgresDbExport:
                                    rewrite=rewrite,
                                    restore=restore,
                                    skip_export=False,
+                                   archive=True,
                                    batch_size=self.BATCH_SIZE)
 
     def close_connection(self):
