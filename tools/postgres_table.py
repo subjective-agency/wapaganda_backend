@@ -322,6 +322,8 @@ class PostgresTableExport:
         cursor = self.connection.cursor()
         logger.info(f"Export batches: rewrite={self.rewrite}")
         logger.info(f"Export batches: restore={self.restore}")
+        logger.info(f"Export batches: skip_export={self.skip_export}")
+        logger.info(f"Export batches: archive={self.archive}")
 
         if self.rewrite:
             self._remove_batch_files(table_dir=self.export_dir)
