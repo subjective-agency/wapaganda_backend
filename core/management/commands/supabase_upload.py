@@ -69,7 +69,7 @@ class Command(BaseCommand):
             sys.exit(1)
 
         # get file name from local_path and filter out non-ascii characters
-        file_name = asciify(os.path.basename(local_path))
+        file_name = self.asciify(os.path.basename(local_path))
         logger.info(f'Uploading {file_name} to /{bucket_name}/{storage_path}')
         connect = supabase.Client(DB_URL, API_KEY)
         storage = connect.storage()
