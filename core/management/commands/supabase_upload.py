@@ -4,8 +4,8 @@ import argparse
 import logging
 import unicodedata
 from django.core.management.base import BaseCommand
-from supabase.log_helper import logger
-from supabase.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
+from supaword.log_helper import logger
+from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
 
 
 class Command(BaseCommand):
