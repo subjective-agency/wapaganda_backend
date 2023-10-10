@@ -50,7 +50,7 @@ class Command(BaseCommand):
         remaining_files = []
 
         for item in os.listdir(export_dir):
-            item_path = os.path.join(export_dir, item)
+            item_path = item
             if os.path.isdir(item_path):
                 archive_items.append(item_path)
             if os.path.isfile(item_path) and item_path.endswith('.json'):
@@ -95,7 +95,7 @@ class Command(BaseCommand):
         """
         Archive files together using 7z
         """
-        archive_name = os.path.join(export_dir, f'{export_dir}.7z')
+        archive_name =  f'{export_dir}.7z'
         subprocess.run(['7z', 'a', archive_name] + files)
 
     def delete_files_and_subfolders(self, items):
