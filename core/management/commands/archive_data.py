@@ -39,7 +39,7 @@ class Command(BaseCommand):
             if os.path.isdir(item_path):
                 archive_items.append(item_path)
             if os.path.isfile(item_path) and item_path.endswith('.json'):
-                file_size = os.path.getsize(file_path)
+                file_size = os.path.getsize(item_path)
                 if file_size >= min_size:
                     archive_items.append(item_path)
                 else:
