@@ -73,8 +73,6 @@ class Command(BaseCommand):
         Archive a single item using 7z
         """
         subprocess.run(['7z', 'a', f'{file_path}.7z', file_path])
-        if os.path.exists(f'{file_path}.7z'):
-            os.remove(file_path)
 
     def archive_remain(self, export_dir, files):
         """
