@@ -4,7 +4,7 @@ import argparse
 import logging
 import unicodedata
 
-from supabase.client import Client
+import supabase
 from django.core.management.base import BaseCommand
 from supaword.log_helper import logger
 from supaword.secure_env import SUPABASE_KEY, SUPABASE_URL
@@ -73,7 +73,7 @@ class Command(BaseCommand):
         # get file name from local_path and filter out non-ascii characters
         file_name = asciify(os.path.basename(local_path))
         logger.info(f'Uploading {file_name} to /{bucket_name}/{storage_path}')
-        connect = Client(supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
+        connect = supabase.Client(supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
         storage = connect.storage()
         storage_bucket = storage.get_bucket(bucket_name)
         try:
