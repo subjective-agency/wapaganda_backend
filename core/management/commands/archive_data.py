@@ -72,7 +72,7 @@ class Command(BaseCommand):
             self.archive_remain(export_dir, remaining_files)
 
         if delete_files:
-            self.delete_files_and_subfolders([*archive_items, *remaining_files])
+            self.cleanup([*archive_items, *remaining_files])
 
     def parse_size_argument(self, size_str):
         """
@@ -96,16 +96,15 @@ class Command(BaseCommand):
         """
         Archive files together using 7z
         """
-        archive_name =  f'{export_dir}.7z'
+        archive_name = f'{export_dir}.7z'
         subprocess.run(['7z', 'a', archive_name] + files)
 
-    def delete_files_and_subfolders(self, items):
+    def cleanup(self, items):
         """
         Delete files and subfolders
         """
         for item in items:
-            if os.path.exists(item):
-                if os.path.isfile(item):
-                    os.remove(item)
-                elif os.path.isdir(item):
-                    os.rmdir(item)
+            if os.path.isfile(item):
+                os.remove(item)
+            elif os.path.isdir(item):
+                shutil.rmtree(item, onerror=on_rm_error)
