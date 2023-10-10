@@ -34,7 +34,7 @@ class Command(BaseCommand):
                 logger.info(
                     f'Uploading file {options["target_file"]} to {options["bucket_name"]}/{options["target_path"]}'
                 )
-                self.upload_file(local_path=target_path,
+                self.upload_file(local_path=target_file,
                                  bucket_name=bucket_name,
                                  storage_path=target_path,
                                  content_type=content_type)
