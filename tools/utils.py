@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime, date
+from uuid import UUID
 
 from supaword.log_helper import logger
 
@@ -62,22 +63,6 @@ def rename_json_files(export_dir):
             except ValueError:
                 pass
 
-    class CustomJSONEncoder(json.JSONEncoder):
-        """
-        Custom JSON encoder to serialize objects to ISO format
-        """
-
-        def default(self, obj):
-            """
-            Serialize datetime and date objects to ISO format
-            """
-            if isinstance(obj, (datetime, date)):
-                return obj.isoformat()
-            if isinstance(obj, bytes):
-                return obj.decode('utf-8')
-            return super().default(obj)
-
-
 class CustomJSONEncoder(json.JSONEncoder):
     """
     Custom JSON encoder to serialize objects to ISO format
@@ -86,11 +71,14 @@ class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         """
         Serialize datetime and date objects to ISO format
+        Serialize UUID objects to their string representation
         """
         if isinstance(obj, (datetime, date)):
             return obj.isoformat()
         if isinstance(obj, bytes):
             return obj.decode('utf-8')
+        if isinstance(obj, UUID):
+            return str(obj)
         return super().default(obj)
 
 
