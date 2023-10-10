@@ -3,11 +3,26 @@
 import os
 import subprocess
 import argparse
+import shutil
 from django.core.management.base import BaseCommand, CommandError
 from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
 from tools.utils import read_table_names
 from tools.export_db import PostgresDbExport
 from supaword.log_helper import logger
+
+
+def on_rm_error(*args):
+    """
+    In case the file or directory is read-only and we need to delete it
+    this function will help to remove 'read-only' attribute
+    :param args: (func, path, exc_info) tuple
+    """
+    # path contains the path of the file that couldn't be removed
+    # let's just assume that it's read-only and unlink it.
+    _, path, _ = args
+    logger.warning("OnRmError: {0}".format(path))
+    os.chmod(path, stat.S_IWRITE)
+    os.unlink(path)
 
 
 # noinspection PyMethodMayBeStatic
@@ -72,6 +87,8 @@ class Command(BaseCommand):
         """
         Archive a single item using 7z
         """
+        if os.path.exists(f'{file_path}.7z'):
+            os.remove(f'{file_path}.7z')
         subprocess.run(['7z', 'a', f'{file_path}.7z', file_path])
 
     def archive_remain(self, export_dir, files):
