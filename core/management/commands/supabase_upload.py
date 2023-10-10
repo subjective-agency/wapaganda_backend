@@ -8,6 +8,11 @@ from supaword.log_helper import logger
 from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
 
 
+def asciify(input_str):
+    normalized_string = unicodedata.normalize('NFKD', input_str)
+    return ''.join(c for c in normalized_string if ord(c) < 128)
+
+
 class Command(BaseCommand):
     help = 'Upload files and directories to Supabase Storage'
 
@@ -49,11 +54,6 @@ class Command(BaseCommand):
                                 content_type=content_type)
 
     @staticmethod
-    def asciify(input_str):
-        normalized_string = unicodedata.normalize('NFKD', input_str)
-        return ''.join(c for c in normalized_string if ord(c) < 128)
-
-    @staticmethod
     def upload_file(local_path, bucket_name, storage_path, content_type):
         """
         Upload a file to a Supabase Storage bucket
@@ -69,7 +69,7 @@ class Command(BaseCommand):
             sys.exit(1)
 
         # get file name from local_path and filter out non-ascii characters
-        file_name = self.asciify(os.path.basename(local_path))
+        file_name = asciify(os.path.basename(local_path))
         logger.info(f'Uploading {file_name} to /{bucket_name}/{storage_path}')
         connect = supabase.Client(DB_URL, API_KEY)
         storage = connect.storage()
