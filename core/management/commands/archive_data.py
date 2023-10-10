@@ -51,6 +51,7 @@ class Command(BaseCommand):
 
         for item in os.listdir(export_dir):
             item_path = item
+            logger.info(f"Item path: {item_path}")
             if os.path.isdir(item_path):
                 archive_items.append(item_path)
             if os.path.isfile(item_path) and item_path.endswith('.json'):
