@@ -5,6 +5,8 @@ import subprocess
 import argparse
 import shutil
 from django.core.management.base import BaseCommand, CommandError
+from py7zr import SevenZipFile
+
 from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
 from tools.utils import read_table_names
 from tools.export_db import PostgresDbExport
@@ -49,13 +51,17 @@ class Command(BaseCommand):
         archive_items = []
         remaining_files = []
         os.chdir(os.path.abspath(export_dir))
+
         for item in os.listdir(os.getcwd()):
             item_path = item
             logger.info(f"Item path: {item_path}")
+
             if os.path.isdir(item_path):
                 archive_items.append(item_path)
+
             if os.path.isfile(item_path) and item_path.endswith('.json'):
                 file_size = os.path.getsize(item_path)
+
                 if file_size >= min_size:
                     archive_items.append(item_path)
                 else:
@@ -63,6 +69,7 @@ class Command(BaseCommand):
 
         logger.info(f"Archive items: {archive_items}")
         logger.info(f"Remaining files: {remaining_files}")
+
         # Archive files and subfolders separately
         for archive_item in archive_items:
             self.archive_file(archive_item)
@@ -86,18 +93,24 @@ class Command(BaseCommand):
 
     def archive_file(self, file_path):
         """
-        Archive a single item using 7z
+        Archive a single item using py7zr
         """
-        if os.path.exists(f'{file_path}.7z'):
-            os.remove(f'{file_path}.7z')
-        subprocess.run(['7z', 'a', f'{file_path}.7z', file_path])
+        archive_path = f'{file_path}.7z'
+
+        with SevenZipFile(archive_path, 'w') as archive:
+            archive.writeall(file_path)
 
     def archive_remain(self, export_dir, files):
         """
-        Archive files together using 7z
+        Archive files together using py7zr
         """
-        archive_name = f'{export_dir}.7z'
-        subprocess.run(['7z', 'a', archive_name] + files)
+        export_name = os.path.basename(export_dir)
+        logger.info(f"Export the rest to {export_name}")
+        archive_name = f'{export_name}.7z'
+
+        with SevenZipFile(archive_name, 'w') as archive:
+            for file_path in files:
+                archive.writeall(file_path)
 
     def cleanup(self, items):
         """
