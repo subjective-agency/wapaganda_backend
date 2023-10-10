@@ -3,9 +3,11 @@ import sys
 import argparse
 import logging
 import unicodedata
+
+import supabase.client
 from django.core.management.base import BaseCommand
 from supaword.log_helper import logger
-from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
+from supaword.secure_env import SUPABASE_KEY, SUPABASE_URL
 
 
 def asciify(input_str):
@@ -71,7 +73,7 @@ class Command(BaseCommand):
         # get file name from local_path and filter out non-ascii characters
         file_name = asciify(os.path.basename(local_path))
         logger.info(f'Uploading {file_name} to /{bucket_name}/{storage_path}')
-        connect = supabase.Client(DB_URL, API_KEY)
+        connect = supabase.client.Client(supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
         storage = connect.storage()
         storage_bucket = storage.get_bucket(bucket_name)
         try:
