@@ -48,8 +48,8 @@ class Command(BaseCommand):
         # Create a list for files and subfolders that will be archived
         archive_items = []
         remaining_files = []
-        os.chdir(export_dir)
-        for item in os.listdir(export_dir):
+        os.chdir(os.path.abspath(export_dir))
+        for item in os.listdir(os.getcwd()):
             item_path = item
             logger.info(f"Item path: {item_path}")
             if os.path.isdir(item_path):
