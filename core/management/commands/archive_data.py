@@ -105,8 +105,8 @@ class Command(BaseCommand):
         Archive files together using py7zr
         """
         export_name = os.path.basename(export_dir)
-        logger.info(f"Export the rest to {export_name}")
-        archive_name = f'{export_name}.7z'
+        logger.info(f"Export the rest to public.{export_name}")
+        archive_name = f'public.{export_name}.7z'
 
         with SevenZipFile(archive_name, 'w') as archive:
             for file_path in files:
