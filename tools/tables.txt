@@ -25,6 +25,7 @@ people_bundles
 days_of_war
 telegram_channels
 telegram_authors
+text_media
 printed
 printed_to_people_mapping
 youtube_authors
@@ -40,6 +41,5 @@ msegments_to_rchannels_mapping
 data.transcripts
 data.transcribed_content
 data.transcribed_content_translation_en
-text_media
 data.telegram_channels_stats
 data.telegram_messages
