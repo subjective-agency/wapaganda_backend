@@ -46,7 +46,7 @@ class Command(BaseCommand):
         parser.add_argument('--export-dir', type=str, help='Directory containing exported data')
 
     def handle(self, *args, **options):
-        self.table_names_file = options['table_names_file']
+        self.table_names_file = options['table_names']
         self.export_dir = options['export_dir']
 
         if not os.path.exists(self.table_names_file):
