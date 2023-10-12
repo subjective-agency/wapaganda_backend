@@ -43,7 +43,7 @@ class Command(BaseCommand):
         
     def add_arguments(self, parser):
         parser.add_argument('--table-names', type=str, help='File containing table names')
-        parser.add_argument('export_dir', type=str, help='Directory containing exported data')
+        parser.add_argument('--export-dir', type=str, help='Directory containing exported data')
 
     def handle(self, *args, **options):
         self.table_names_file = options['table_names_file']
