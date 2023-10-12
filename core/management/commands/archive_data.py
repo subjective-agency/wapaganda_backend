@@ -15,7 +15,7 @@ from supaword.log_helper import logger
 
 def on_rm_error(*args):
     """
-    In case the file or directory is read-only and we need to delete it
+    In case the file or directory is read-only, and we need to delete it
     this function will help to remove 'read-only' attribute
     :param args: (func, path, exc_info) tuple
     """
@@ -38,9 +38,15 @@ class Command(BaseCommand):
                             help='Minimum size of file to be archived separately')
         parser.add_argument('--delete-files', action='store_true', default=False, required=False,
                             help='Boolean indicating whether to delete files after archiving')
+        parser.add_argument('--direction', type=str, choices=['pack', 'unpack'], default='pack', required=False,
+                            help='Direction of the operation: pack (default) or unpack')
 
     def handle(self, *args, **kwargs):
         export_dir = kwargs['export_dir']
+        direction = kwargs['direction']
+        if direction == 'unpack':
+            self.unpack_archives(export_dir=export_dir)
+            return
         min_size_str = kwargs['min_size'].upper()
         delete_files = kwargs['delete_files'] == 'true'
 
@@ -121,3 +127,20 @@ class Command(BaseCommand):
                 os.remove(item)
             elif os.path.isdir(item):
                 shutil.rmtree(item, onerror=on_rm_error)
+
+    def unpack_archives(self, export_dir):
+        """
+        Unpack all 7z archives in the specified directory.
+        """
+        os.chdir(os.path.abspath(export_dir))
+        for item in os.listdir(os.getcwd()):
+            item_path = item
+            if item_path.endswith('.7z'):
+                self.unpack_archive(item_path, export_dir)
+
+    def unpack_archive(self, archive_path, extract_path):
+        """
+        Unpack a 7z archive to the specified extract_path.
+        """
+        with SevenZipFile(archive_path, 'r') as archive:
+            archive.extractall(extract_path)
