@@ -9,6 +9,7 @@ We utilize the class from standard Django manage.py script
 SUPABASE_CO = "db.svfizyfozagyqkkjzqdc.supabase.co"
 
 
+# noinspection SqlNoDataSourceInspection
 class PostgresDbImport:
     def __init__(self, dbname: str, user: str, password: str, host: str, port: int):
         self.dbname = dbname
@@ -39,7 +40,7 @@ class PostgresDbImport:
             cursor = self.connection.cursor()
 
             logger.info(f"Importing data from {json_filename} to {table_name}")
-
+            table_name = table_name.replace('.', '_')
             # First pass: Import all records without resolving parent references
             for index, record in enumerate(data, start=1):
                 placeholders = ', '.join(['%s'] * len(record))

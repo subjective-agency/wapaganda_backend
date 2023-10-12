@@ -42,7 +42,7 @@ class Command(BaseCommand):
         db_import.import_tables(table_names=table_names)
         
     def add_arguments(self, parser):
-        parser.add_argument('table_names_file', type=str, help='File containing table names')
+        parser.add_argument('--table-names', type=str, help='File containing table names')
         parser.add_argument('export_dir', type=str, help='Directory containing exported data')
 
     def handle(self, *args, **options):
