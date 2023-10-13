@@ -34,15 +34,11 @@ drop table if exists printed;
 drop table if exists telegram_authors;
 drop table if exists telegram_channels;
 drop table if exists people;
-drop table if exists people_extended;
-
-
+drop table if exists people_extended; // view
 drop table if exists youtube_vids;
 drop table if exists youtube_channels;
 drop table if exists media_segments;
 drop table if exists organizations;
-
-drop table if exists future_rodniki;
 
 drop table if exists data_transcribed_content;
 drop table if exists data_transcribed_content_translation_en;
@@ -58,16 +54,19 @@ drop table if exists enums_isco08_taxonomy_closure;
 drop table if exists enums_orgs_taxonomy_closure;
 drop table if exists enums_isco08_taxonomy;
 drop table if exists enums_bundle_types;
-
 drop table if exists enums_orgs_taxonomy;
+
+drop table if exists future_rodniki;
 
 drop table if exists django_admin_log;
 drop table if exists django_migrations;
 drop table if exists django_session;
+drop table if exists django_content_type;
+
 drop table if exists auth_group_permissions;
 drop table if exists auth_user_groups;
 drop table if exists auth_user_user_permissions;
 drop table if exists auth_group;
 drop table if exists auth_permission;
 drop table if exists auth_user;
-drop table if exists django_content_type;
+
