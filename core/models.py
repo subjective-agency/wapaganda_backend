@@ -14,7 +14,7 @@ You'll have to do the following edits to clean this up manually:
 """
 
 
-class RucrTaxonomy(models.Model):
+class EnumsRucrTaxonomy(models.Model):
     id = models.BigAutoField(primary_key=True)
     content_en = models.TextField()
     content_ru = models.TextField()
@@ -31,7 +31,7 @@ class RucrTaxonomy(models.Model):
         db_table = 'enums_rucr_taxonomy'
 
 
-class BundleTypes(models.Model):
+class EnumsBundleTypes(models.Model):
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField()
     code = models.TextField(blank=True, null=True)
@@ -86,7 +86,7 @@ class EnumsISCOIndex(models.Model):
         db_table = 'enums_isco08_index'
 
 
-class EnumsISCOClosure(models.Model):
+class EnumsIscoTaxonomyClosure(models.Model):
     ancestor = models.ForeignKey(
         'EnumsISCOTaxonomy',
         models.DO_NOTHING,
@@ -128,7 +128,7 @@ class EnumsOrgsTaxonomy(models.Model):
         db_table = 'enums_orgs_taxonomy'
 
 
-class EnumsOrgsClosure(models.Model):
+class EnumsOrgsTaxonomyClosure(models.Model):
     ancestor = models.ForeignKey(
         'EnumsOrgsTaxonomy',
         models.DO_NOTHING,
@@ -151,7 +151,7 @@ class EnumsOrgsClosure(models.Model):
         unique_together = (('ancestor', 'descendant'),)
 
 
-class TheoryTypes(models.Model):
+class EnumsTheoryTypes(models.Model):
     """
     | Name | Type | Constraint type |
     | --- | --- | --- |
@@ -450,7 +450,7 @@ class PeopleBundles(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     bundle_name = models.JSONField(blank=True, null=True)
-    bundle_type = models.ForeignKey(BundleTypes, models.DO_NOTHING)
+    bundle_type = models.ForeignKey(EnumsBundleTypes, models.DO_NOTHING)
     parent_bundle_id = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
@@ -1027,7 +1027,7 @@ class TranscribedContentEn(models.Model):
         db_table = 'data_transcribed_content_translation_en'
 
 
-class Rodniki(models.Model):
+class FutureRodniki(models.Model):
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     type = models.TextField(blank=True, null=True)
