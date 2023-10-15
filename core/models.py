@@ -282,6 +282,7 @@ class NtvEpisodes(models.Model):
     have = models.BooleanField()
     url_is_alive = models.BooleanField()
     duration = models.IntegerField(blank=True, null=True)
+    rutube_id = models.TextField(blank=True, null=True, unique=True)
 
     class Meta:
         managed = False
