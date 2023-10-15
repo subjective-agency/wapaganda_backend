@@ -6,7 +6,7 @@ from django.core.checks import templates
 from django.core.management import templates
 from pathlib import Path
 from .secure_env import SERVER_DEBUG, DJANGO_KEY
-from .secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_USER, POSTGRES_DB
+from .secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
 from .log_helper import logger
 
 __doc__ = """
@@ -31,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = DJANGO_KEY
-DEBUG = SERVER_DEBUG
+DEBUG = True
 ALLOWED_HOSTS = [
     "*",
     "supaword-service-production.up.railway.app",
@@ -114,20 +114,17 @@ WSGI_APPLICATION = 'supaword.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 DATABASES = {
-    # Available backends:
-    # postgresql://postgres:[password]@db.svfizyfozagyqkkjzqdc.supabase.co:5432/postgres
-    # postgresql://postgres:[password]@db.kvbsgqfhjpdovrinmmrs.supabase.co:5432/postgres
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
+        'NAME': POSTGRES_DB,
+        'USER': POSTGRES_USER,
         'PASSWORD': POSTGRES_PASSWORD,
         'HOST': POSTGRES_ADDRESS,
-        'PORT': 5432
+        'PORT': POSTGRES_PORT
     },
     'wapamock': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db-mock.sqlite3',
+        'NAME': BASE_DIR / 'db-mock.sqlite3'
     }
 }
 
@@ -149,7 +146,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -191,8 +187,12 @@ REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'vnd.api+json'
 }
 
+logger.info(f"SERVER_DEBUG: {SERVER_DEBUG}")
 logger.info(f"DEBUG: {DEBUG}")
 logger.info(f"POSTGRES_ADDRESS: {POSTGRES_ADDRESS}")
+logger.info(f"POSTGRES_PORT: {POSTGRES_PORT}")
+logger.info(f"POSTGRES_DB: {POSTGRES_DB}")
+logger.info(f"POSTGRES_USER: {POSTGRES_USER}")
 logger.info(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 logger.info(f"STATIC_URL: {STATIC_URL}")
 logger.info(f"CORS_ALLOW_METHODS: {CORS_ALLOW_METHODS}")

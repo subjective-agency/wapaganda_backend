@@ -7,16 +7,48 @@ You'll have to do the following edits to clean this up manually:
  * Rearrange models' order
  * Make sure each model has one field with primary_key=True
  * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
- * Ensure every model has `managed = False` line, if you wish to forbid Django to create,
+ * Ensure every model has `managed = True` line, if you wish to forbid Django to create,
    modify or delete the table
  * `max_length` must be a positive integer everywhere
  * Feel free to rename the models, but don't rename db_table values or field names
 """
 
 
-##################################### enums ###############################
+class EnumsRucrTaxonomy(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    content_en = models.TextField()
+    content_ru = models.TextField()
+    content_uk = models.TextField()
+    tags = ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
+    xml_id = models.TextField()
+    xml_data = models.JSONField()
+    updated_on = models.DateTimeField()
+    status = models.TextField()
+
+    class Meta:
+        managed = True
+        # enums.rucr_taxonomy
+        db_table = 'enums_rucr_taxonomy'
+
+
+class EnumsBundleTypes(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at = models.DateTimeField()
+    code = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        # enums.bundle_types
+        db_table = 'enums_bundle_types'
+
 
 class EnumsISCOTaxonomy(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     term = models.TextField(blank=True, null=True)
@@ -29,11 +61,17 @@ class EnumsISCOTaxonomy(models.Model):
     skill_level = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'enums.isco08_taxonomy'  # TODO: is this how you indicate a schema?
+        managed = True
+        # enums.isco08_taxonomy
+        db_table = 'enums_isco08_taxonomy'
 
 
 class EnumsISCOIndex(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     isco08 = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
@@ -43,21 +81,40 @@ class EnumsISCOIndex(models.Model):
     appended = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'enums.isco08_index'  # TODO: is this how you indicate a schema?
+        managed = True
+        # enums.isco08_index
+        db_table = 'enums_isco08_index'
 
 
-class EnumsISCOClosure(models.Model):
-    ancestor = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
-    descendant = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
+class EnumsIscoTaxonomyClosure(models.Model):
+    ancestor = models.ForeignKey(
+        'EnumsISCOTaxonomy',
+        models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name='descendants'  # Unique related name for ancestor's descendants
+    )
+    descendant = models.ForeignKey(
+        'EnumsISCOTaxonomy',
+        models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name='ancestors'  # Unique related name for descendant's ancestors
+    )
 
     class Meta:
-        managed = False
-        db_table = 'enums.isco08_taxonomy_closure'  # TODO: is this how you indicate a schema?
+        managed = True
+        # enums.isco08_taxonomy_closure
+        db_table = 'enums_isco08_taxonomy_closure'
         unique_together = (('ancestor', 'descendant'),)
 
 
 class EnumsOrgsTaxonomy(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     term = models.TextField(blank=True, null=True)
@@ -66,21 +123,40 @@ class EnumsOrgsTaxonomy(models.Model):
     notes = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'enums.orgs_taxonomy'  # TODO: is this how you indicate a schema?
+        managed = True
+        # enums.orgs_taxonomy
+        db_table = 'enums_orgs_taxonomy'
 
 
-class EnumsOrgsClosure(models.Model):
-    ancestor = models.ForeignKey(EnumsOrgsTaxonomy, models.DO_NOTHING, blank=True, null=True)
-    descendant = models.ForeignKey(EnumsOrgsTaxonomy, models.DO_NOTHING, blank=True, null=True)
+class EnumsOrgsTaxonomyClosure(models.Model):
+    ancestor = models.ForeignKey(
+        'EnumsOrgsTaxonomy',
+        models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name='descendants'  # Unique related name for ancestor's descendants
+    )
+    descendant = models.ForeignKey(
+        'EnumsOrgsTaxonomy',
+        models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name='ancestors'  # Unique related name for descendant's ancestors
+    )
 
     class Meta:
-        managed = False
-        db_table = 'enums.orgs_taxonomy_closure'  # TODO: is this how you indicate a schema?
+        managed = True
+        # enums.orgs_taxonomy_closure
+        db_table = 'enums_orgs_taxonomy_closure'
         unique_together = (('ancestor', 'descendant'),)
 
 
-class TheoryTypes(models.Model):
+class EnumsTheoryTypes(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     term = models.TextField(blank=True, null=True)
@@ -88,11 +164,11 @@ class TheoryTypes(models.Model):
     notes = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'enums.theory_types'  # TODO: is this how you indicate a schema?
+        managed = True
+        # enums.theory_types
+        db_table = 'enums_theory_types'
 
 
-##################################### public ###############################
 class DaysOfWar(models.Model):
     """
     | Name | Type | Constraint type |
@@ -104,7 +180,7 @@ class DaysOfWar(models.Model):
     day_date = models.DateField(unique=True, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'days_of_war'
 
 
@@ -134,7 +210,7 @@ class KomsoEpisodes(models.Model):
     direct_url = models.TextField(unique=True, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'komso_episodes'
 
 
@@ -155,7 +231,7 @@ class DenTVEpisodes(models.Model):
     direct_url = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     duration = models.JSONField(blank=True, null=True)
-    segment_id =models.ForeignKey('MediaSegments', models.DO_NOTHING, blank=True, null=True)
+    segment_id = models.ForeignKey('MediaSegments', models.DO_NOTHING, blank=True, null=True)
     stats = models.JSONField(blank=True, null=True)
     comments = models.JSONField(blank=True, null=True)
     need = models.BooleanField(blank=True, null=True)
@@ -166,24 +242,8 @@ class DenTVEpisodes(models.Model):
     premium = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'dentv_episodes'
-
-
-# do not need this
-# class MediaCoverageType(models.Model):
-#     """
-#     | Name | Type | Constraint type |
-#     | --- | --- | --- |
-#     | id | bigint | PRIMARY KEY |
-#     | type_name | text | UNIQUE |
-#     """
-#     id = models.BigAutoField(primary_key=True)
-#     type_name = models.TextField(unique=True)
-#
-#     class Meta:
-#         managed = False
-#         db_table = 'media_coverage_type'
 
 
 class MediaRoles(models.Model):
@@ -198,7 +258,7 @@ class MediaRoles(models.Model):
     notes = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'media_roles'
 
 
@@ -213,8 +273,8 @@ class MediaSegments(models.Model):
     | parent_org_id | bigint | FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    name_ru = models.TextField(blank=True, null=True)
     name_en = models.TextField(blank=True, null=True)
+    name_ru = models.TextField(blank=True, null=True)
     name_uk = models.TextField(blank=True, null=True)
     parent_org_id = models.ForeignKey('Organizations', models.DO_NOTHING, blank=True, null=True)
     avg_guest_time = models.SmallIntegerField(blank=True, null=True)
@@ -223,14 +283,14 @@ class MediaSegments(models.Model):
     relevant = models.BooleanField(blank=True, null=True)
     is_defunct = models.BooleanField()
     segment_type = models.TextField(blank=True, null=True)
-    duration_threashold = models.IntegerField(blank=True, null=True)
+    duration_threshold = models.IntegerField(blank=True, null=True)
     latest_episode_date = models.DateTimeField(blank=True, null=True)
     komso_id = models.IntegerField(unique=True, blank=True, null=True)
     rutube_id = models.TextField(unique=True, blank=True, null=True)
     ntv_id = models.JSONField(unique=True, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'media_segments'
 
 
@@ -247,7 +307,7 @@ class MsegmentsToRchannelsMapping(models.Model):
     media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'msegments_to_rchannels_mapping'
 
 
@@ -264,7 +324,7 @@ class MsegmentsToYchannelsMapping(models.Model):
     media_segment_id = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'msegments_to_ychannels_mapping'
 
 
@@ -285,27 +345,8 @@ class NtvEpisodes(models.Model):
     rutube_id = models.TextField(blank=True, null=True, unique=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'ntv_episodes'
-
-
-# Deprecated
-# class OrganizationType(models.Model):
-#     """
-#     | Name | Type | Constraint type |
-#     | --- | --- | --- |
-#     | id | bigint | PRIMARY KEY |
-#     | org_type | text | UNIQUE |
-#     | parent_type | bigint | FOREIGN KEY |
-#     """
-#     id = models.BigAutoField(primary_key=True)
-#     org_type = models.TextField(unique=True, blank=True, null=True)
-#     parent_type = models.ForeignKey('self', models.DO_NOTHING, db_column='parent_type', blank=True, null=True)
-#     note = models.TextField(blank=True, null=True)
-#
-#     class Meta:
-#         managed = False
-#         db_table = 'organization_type'
 
 
 class Organizations(models.Model):
@@ -335,7 +376,7 @@ class Organizations(models.Model):
     relevant = models.BooleanField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'organizations'
 
 
@@ -352,9 +393,11 @@ class People(models.Model):
     id = models.BigAutoField(primary_key=True)
     fullname_en = models.TextField()
     fullname_ru = models.TextField()
+    fullname_uk = models.TextField(blank=True, null=True)
     lastname_en = models.TextField(blank=True, null=True)
     lastname_ru = models.TextField(blank=True, null=True)
     is_onmap = models.BooleanField(blank=True, null=True)
+    sex = models.TextField(blank=True, null=True)
     social = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
     dob = models.DateField(blank=True, null=True)
     is_ttu = models.BooleanField(blank=True, null=True)
@@ -371,9 +414,7 @@ class People(models.Model):
     known_for = models.JSONField(blank=True, null=True)
     wiki_ref = models.JSONField(blank=True, null=True)
     namesake_seq = models.SmallIntegerField(blank=True, null=True)
-    fullname_uk = models.TextField(blank=True, null=True)
     added_on = models.DateTimeField()
-    sex = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = True
@@ -390,13 +431,13 @@ class People3RdprtDetailsRaw(models.Model):
     | url | text | PRIMARY KEY |
     | person_id | integer | FOREIGN KEY |
     """
-    id = models.BigAutoField(unique=True, primary_key=True)
+    id = models.BigAutoField(primary_key=True)
     person = models.OneToOneField(People, models.DO_NOTHING)
     url = models.TextField()
     text_raw = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_3rdprt_details_raw'
         unique_together = (('person', 'url'),)
 
@@ -410,12 +451,12 @@ class PeopleBundles(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     bundle_name = models.JSONField(blank=True, null=True)
-    bundle_type = models.TextField(blank=True, null=True)
+    bundle_type = models.ForeignKey(EnumsBundleTypes, models.DO_NOTHING)
     parent_bundle_id = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_bundles'
 
 
@@ -431,7 +472,7 @@ class PeopleInBundles(models.Model):
     bundle = models.ForeignKey(PeopleBundles, models.DO_NOTHING)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_in_bundles'
         unique_together = (('person', 'bundle'),)
 
@@ -457,46 +498,11 @@ class PeopleInOrgs(models.Model):
     role = models.JSONField()
     year_started = models.SmallIntegerField(blank=True, null=True)
     year_ended = models.SmallIntegerField(blank=True, null=True)
-    role_category = models.IntegerField(blank=True, null=True)
-    role_ref = models.IntegerField(blank=True, null=True)
-    role_details = models.JSONField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_in_orgs'
-        unique_together = (('person', 'org', 'is_active', 'role'),)
-
-# this one is not used anywhere
-# class PeopleInUr(models.Model):
-#     """
-#     | Name | Type | Constraint type |
-#     | --- | --- | --- |
-#     | id | integer | PRIMARY KEY |
-#     | url | text | UNIQUE |
-#     | person_id | integer | FOREIGN KEY |
-#     """
-#     id = models.BigAutoField(primary_key=True)
-#     in_higher_council = models.BooleanField(blank=True, null=True)
-#     in_higher_council_bureau = models.BooleanField(blank=True, null=True)
-#     in_general_council = models.BooleanField(blank=True, null=True)
-#     in_general_council_presidium = models.BooleanField(blank=True, null=True)
-#     in_general_council_presidium_commission = models.BooleanField(blank=True, null=True)
-#     in_central_executive_committee = models.BooleanField(blank=True, null=True)
-#     is_gosduma_deputy = models.BooleanField(blank=True, null=True)
-#     is_senator = models.BooleanField(blank=True, null=True)
-#     in_ethics_commission = models.BooleanField(blank=True, null=True)
-#     in_coordination_councils_leadership = models.BooleanField(blank=True, null=True)
-#     in_central_fans_council = models.BooleanField(blank=True, null=True)
-#     in_central_control_commission = models.BooleanField(blank=True, null=True)
-#     in_international_aff_commission = models.BooleanField(blank=True, null=True)
-#     url = models.TextField(unique=True, blank=True, null=True)
-#     ur_text = models.TextField(blank=True, null=True)
-#     is_secretary = models.BooleanField(blank=True, null=True)
-#     person = models.ForeignKey(People, models.DO_NOTHING)
-#
-#     class Meta:
-#         managed = False
-#         db_table = 'people_in_ur'
+        unique_together = (('person_id', 'org_id', 'is_active', 'role'),)
 
 
 class PeopleOnPhotos(models.Model):
@@ -512,7 +518,7 @@ class PeopleOnPhotos(models.Model):
     photo = models.ForeignKey('Photos', models.DO_NOTHING)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_on_photos'
         unique_together = (('person', 'photo'),)
 
@@ -532,7 +538,7 @@ class PeopleOnSmotrim(models.Model):
     media_role = models.ForeignKey(MediaRoles, models.DO_NOTHING)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_on_smotrim'
         unique_together = (('person', 'episode', 'media_role'),)
 
@@ -552,7 +558,7 @@ class PeopleOnYoutube(models.Model):
     media_role = models.ForeignKey(MediaRoles, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_on_youtube'
 
 
@@ -569,7 +575,7 @@ class PeopleToMsegmentsMapping(models.Model):
     media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'people_to_msegments_mapping'
 
 
@@ -613,7 +619,7 @@ class Printed(models.Model):
     int_review = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'printed'
 
 
@@ -633,7 +639,7 @@ class PrintedToPeopleMapping(models.Model):
     printed_piece_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'printed_to_people_mapping'
 
 
@@ -653,44 +659,44 @@ class Quotes(models.Model):
     date = models.DateField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'quotes'
 
-# these are not integrated
-# class RutubeChannels(models.Model):
-#     """
-#     | Name | Type | Constraint type |
-#     | --- | --- | --- |
-#     | id | integer | PRIMARY KEY |
-#     | rutube_channel_id | text | UNIQUE |
-#     """
-#     id = models.BigAutoField(primary_key=True)
-#     name = models.TextField(blank=True, null=True)
-#     rutube_channel_id = models.TextField(unique=True, blank=True, null=True)
-#     rutube_channel_alias = models.TextField(blank=True, null=True)
-#
-#     class Meta:
-#         managed = False
-#         db_table = 'rutube_channels'
 
-# same thing
-# class RutubeVids(models.Model):
-#     """
-#     | Name | Type | Constraint type |
-#     | --- | --- | --- |
-#     | id | bigint | PRIMARY KEY |
-#     | media_segment_id | integer | FOREIGN KEY |
-#     | rutube_channel_id | integer | FOREIGN KEY |
-#     """
-#     id = models.BigAutoField(primary_key=True)
-#     title = models.TextField(blank=True, null=True)
-#     rutube_id = models.TextField(blank=True, null=True)
-#     rutube_channel = models.ForeignKey(RutubeChannels, models.DO_NOTHING, blank=True, null=True)
-#     media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
-#
-#     class Meta:
-#         managed = False
-#         db_table = 'rutube_vids'
+class RutubeChannels(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | integer | PRIMARY KEY |
+    | rutube_channel_id | text | UNIQUE |
+    """
+    id = models.BigAutoField(primary_key=True)
+    name = models.TextField(blank=True, null=True)
+    rutube_channel_id = models.TextField(unique=True, blank=True, null=True)
+    rutube_channel_alias = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'rutube_channels'
+
+
+class RutubeVids(models.Model):
+    """
+    | Name | Type | Constraint type |
+    | --- | --- | --- |
+    | id | bigint | PRIMARY KEY |
+    | media_segment_id | integer | FOREIGN KEY |
+    | rutube_channel_id | integer | FOREIGN KEY |
+    """
+    id = models.BigAutoField(primary_key=True)
+    title = models.TextField(blank=True, null=True)
+    rutube_id = models.TextField(blank=True, null=True)
+    rutube_channel = models.ForeignKey(RutubeChannels, models.DO_NOTHING, blank=True, null=True)
+    media_segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'rutube_vids'
 
 
 class SmotrimEpisodes(models.Model):
@@ -713,7 +719,7 @@ class SmotrimEpisodes(models.Model):
     need = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'smotrim_episodes'
 
 
@@ -729,7 +735,7 @@ class TelegramAuthors(models.Model):
     channel = models.ForeignKey('TelegramChannels', models.DO_NOTHING)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'telegram_authors'
         unique_together = (('person', 'channel'),)
 
@@ -762,7 +768,7 @@ class TelegramChannels(models.Model):
     history_count = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'telegram_channels'
 
 
@@ -780,7 +786,7 @@ class TextMedia(models.Model):
     additional_data = models.JSONField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'text_media'
 
 
@@ -793,9 +799,10 @@ class Theory(models.Model):
     content = models.JSONField(blank=True, null=True)
     original_content_metadata = ArrayField(models.JSONField(), blank=True, null=True)
     added_at = models.DateTimeField(blank=True, null=True)
+    publish_date = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'theory'
 
 
@@ -808,15 +815,9 @@ class Websites(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     url = models.TextField(unique=True)
-    alive = models.BooleanField(blank=True, null=True)
-    api_url = models.TextField(blank=True, null=True)
-    included = models.BooleanField(blank=True, null=True)
-    item_selector = models.TextField(blank=True, null=True)
-    categories = ArrayField(models.TextField(), blank=True, null=True)
-    cats_suffix = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'websites'
 
 
@@ -833,7 +834,7 @@ class YoutubeAuthors(models.Model):
     person_id = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'youtube_authors'
 
 
@@ -857,7 +858,7 @@ class YoutubeChannels(models.Model):
     status = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'youtube_channels'
 
 
@@ -886,7 +887,7 @@ class YoutubeVids(models.Model):
     private = models.BooleanField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'youtube_vids'
 
 
@@ -900,6 +901,7 @@ class PeopleExtended(models.Model):
     fullname_ru = models.TextField()
     lastname_en = models.TextField(blank=True, null=True)
     lastname_ru = models.TextField(blank=True, null=True)
+    sex = models.TextField(blank=True, null=True)
     social = ArrayField(models.TextField(), blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     is_ttu = models.BooleanField(blank=True, null=True)
@@ -918,17 +920,16 @@ class PeopleExtended(models.Model):
     external_links = ArrayField(models.TextField(), blank=True, null=True)
     bundles = ArrayField(models.JSONField(), blank=True, null=True)
     thumb = models.TextField(blank=True, null=True)
-    added_on = models.DateTimeField()
-    sex = models.TextField(blank=True, null=True)
     orgs = ArrayField(models.JSONField(), blank=True, null=True)
     telegram_channels = ArrayField(models.JSONField(), blank=True, null=True)
     youtube_channels = ArrayField(models.JSONField(), blank=True, null=True)
+    added_on = models.DateTimeField()
 
     class Meta:
         db_table = 'people_extended'
-        managed = False
+        managed = True
 
-##################################### data ###############################
+
 class PrintedContent(models.Model):
     id = models.BigAutoField(primary_key=True)
     printed_id = models.ForeignKey(Printed, models.DO_NOTHING, blank=True, null=True)
@@ -939,8 +940,8 @@ class PrintedContent(models.Model):
     parsed_content = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'data.printed_content' # TODO: is this how you indicate a schema?
+        managed = True
+        db_table = 'data_printed_content'
         unique_together = (('printed_id', 'int_sequence'),)
 
 
@@ -951,8 +952,8 @@ class TelegramChannelsStats(models.Model):
     stats = models.JSONField(blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'data.telegram_channels_stats'  # TODO: is this how you indicate a schema?
+        managed = True
+        db_table = 'data_telegram_channels_stats'
         unique_together = (('day_date', 'channel_id'),)
 
 
@@ -973,8 +974,9 @@ class TelegramMessages(models.Model):
     signature = models.JSONField(blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'data.telegram_messages'  # TODO: is this how you indicate a schema?
+        managed = True
+        # data.telegram_messages
+        db_table = 'data_telegram_messages'
 
 
 class Transcripts(models.Model):
@@ -995,10 +997,9 @@ class Transcripts(models.Model):
     partial_last_second = models.IntegerField(blank=True, null=True)
     partial_en_last_second = models.IntegerField(blank=True, null=True)
 
-
     class Meta:
-        managed = False
-        db_table = 'data.transcripts'  # TODO: is this how you indicate a schema?
+        managed = True
+        db_table = 'data_transcripts'
 
 
 class TranscribedContent(models.Model):
@@ -1010,8 +1011,8 @@ class TranscribedContent(models.Model):
     content = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'data.transcribed_content'  # TODO: is this how you indicate a schema?
+        managed = True
+        db_table = 'data_transcribed_content'
 
 
 class TranscribedContentEn(models.Model):
@@ -1023,5 +1024,27 @@ class TranscribedContentEn(models.Model):
     content = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'data.transcribed_content_translation_en'  # TODO: is this how you indicate a schema?
+        managed = True
+        db_table = 'data_transcribed_content_translation_en'
+
+
+class FutureRodniki(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    type = models.TextField(blank=True, null=True)
+    title = models.TextField(blank=True, null=True)
+    author = models.TextField(blank=True, null=True)
+    date = models.DateField(blank=True, null=True)
+    url = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    tags = models.TextField(blank=True, null=True)
+    photo = models.TextField(blank=True, null=True)
+    author_origin_id = models.IntegerField(blank=True, null=True)
+    have = models.BooleanField()
+    duration = models.IntegerField(blank=True, null=True)
+    url_is_alive = models.BooleanField()
+    available = models.BooleanField()
+
+    class Meta:
+        managed = True
+        db_table = 'future_rodniki'

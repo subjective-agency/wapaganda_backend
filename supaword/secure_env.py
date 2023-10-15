@@ -39,10 +39,14 @@ DB_CONNECTION_STRING = CREDENTIALS.get('CONNECTION_STRING', '') or environment_v
 API_KEY = CREDENTIALS.get('SUPABASE_KEY', '') or environment_value('SUPABASE_KEY')
 DB_URL = CREDENTIALS.get('SUPABASE_URL', '') or environment_value('SUPABASE_URL')
 
+SUPABASE_KEY = CREDENTIALS.get('SUPABASE_KEY', '') or environment_value('SUPABASE_KEY')
+SUPABASE_URL = CREDENTIALS.get('SUPABASE_URL', '') or environment_value('SUPABASE_URL')
+
 # Postgres
 POSTGRES_PASSWORD = CREDENTIALS.get('POSTGRES_PASSWORD', '') or environment_value('POSTGRES_PASSWORD')
 POSTGRES_ADDRESS = CREDENTIALS.get('POSTGRES_ADDRESS', '') or environment_value('POSTGRES_ADDRESS')
 POSTGRES_USER = CREDENTIALS.get('POSTGRES_USER', '') or environment_value('POSTGRES_USER')
+POSTGRES_PORT = int(CREDENTIALS.get('POSTGRES_PORT', 5432)) or int(environment_value('POSTGRES_PORT'))
 POSTGRES_DB = CREDENTIALS.get('POSTGRES_DB', '') or environment_value('POSTGRES_DB')
 
 # Snaplet

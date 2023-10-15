@@ -1,10 +1,6 @@
-import re
-from abc import abstractmethod
-
 from . import models
 from . import fields
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 
 class TheorySerializer(serializers.Serializer):
@@ -16,6 +12,8 @@ class TheorySerializer(serializers.Serializer):
     type = serializers.CharField(allow_blank=True, allow_null=True)
     excerpt = serializers.JSONField(allow_null=True)
     content = serializers.JSONField(allow_null=True)
+    original_content_metadata = serializers.JSONField(allow_null=True)
+    publish_date = serializers.DateTimeField(allow_null=True)
 
     def create(self, validated_data):
         """
@@ -36,7 +34,8 @@ class TheorySerializer(serializers.Serializer):
             'title',
             'type',
             'excerpt',
-            'content'
+            'content',
+            'original_content_metadata'
         )
 
 
@@ -266,45 +265,4 @@ class OrganizationSerializer(serializers.Serializer):
             'org_form',
             'international',
             'relevant'
-        )
-
-
-class PeopleInOrgsSerializer(serializers.Serializer):
-    """
-    Serializer for model PeopleInOrgs
-    """
-    id = serializers.IntegerField()
-    org = serializers.SerializerMethodField()
-    is_active = serializers.BooleanField(allow_null=True)
-    media_segment = serializers.IntegerField(allow_null=True)
-    notes = serializers.CharField(allow_blank=True, allow_null=True)
-    is_in_control = serializers.BooleanField(allow_null=True)
-    role = serializers.JSONField(allow_null=True)
-    year_started = serializers.IntegerField(allow_null=True)
-    year_ended = serializers.IntegerField(allow_null=True)
-
-    def create(self, validated_data):
-        """
-        We do not manage the creation of the data
-        """
-        pass
-
-    def update(self, instance, validated_data):
-        """
-        We do not manage the update of the data
-        """
-        pass
-
-    class Meta:
-        model = models.PeopleInOrgs
-        fields = (
-            'id',
-            'org',
-            'is_active',
-            'media_segment',
-            'notes',
-            'is_in_control',
-            'role',
-            'year_started',
-            'year_ended'
         )

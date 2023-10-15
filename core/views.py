@@ -4,6 +4,7 @@ from functools import reduce
 from django.db.models import Q, Max
 from django.http import HttpResponseBadRequest
 from django.conf import settings
+from django.utils.dateparse import parse_date
 
 from rest_framework import generics
 from rest_framework import status
@@ -13,12 +14,12 @@ from rest_framework.exceptions import ValidationError
 
 from core.search import search_model_fulltext
 from supaword import settings
+from supaword.log_helper import logger
 from core import models
 from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer
-from core.serializers import OrganizationSerializer
 from core.serializers import TheorySerializer
-from core.requests import PagingRequestSerializer
-from core.models import PeopleExtended, PeopleInOrgs, Organizations, Theory
+from core.requests import PagingRequestSerializer, TheoryRequestSerializer
+from core.models import PeopleExtended, Theory
 from core.pagination import CustomPostPagination
 
 
@@ -79,14 +80,17 @@ class SupawordAPIView(generics.CreateAPIView):
         Version of POST without exception handling
         """
         if not isinstance(request.data, dict):
+            logger.error(f'Invalid request data: {request.data}')
             return Response({'error': 'Invalid request data'}, status=status.HTTP_400_BAD_REQUEST)
 
         if (request_type := request.data.get('type', '')) == '':
+            logger.error(f'No request type specified in request data: {request.data}')
             return Response({'error': 'No request type specified'}, status=status.HTTP_400_BAD_REQUEST)
 
         if handler := self.request_handler.get(request_type):
             return handler(request)
         else:
+            logger.error(f'Invalid request type: {request_type}')
             return Response({'error': 'Invalid request type'}, status=status.HTTP_400_BAD_REQUEST)
 
     def _post_protected(self, request, *args, **kwargs):
@@ -96,6 +100,7 @@ class SupawordAPIView(generics.CreateAPIView):
         try:
             return self._post(request, *args, **kwargs)
         except Exception as e:
+            logger.error(f'Exception in _post_protected: {str(e)}')
             return Response({'Server error:': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, *args, **kwargs):
@@ -139,12 +144,15 @@ class PeopleExtendedAPIView(SupawordAPIView):
         Return data for caching
         """
         if request.data.get('type', '') != 'cache':
+            logger.error(f'Invalid request type: {request.data.get("type", "")}')
             return Response({'error': 'Invalid request type, "cache" expected'}, status=status.HTTP_400_BAD_REQUEST)
+
         request_data = request.data
+        logger.info(f'Cache request: {request_data}')
         created_after = request_data.get('timestamp', 0) + 1
         created_after_datetime = datetime.fromtimestamp(created_after, tz=timezone.utc)
 
-        # All records created after the specified timestamp
+        logger.info(f"All records created after the specified timestamp: {created_after_datetime}")
         people = PeopleExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')
         serializer = CacheSerializer(people, many=True)
 
@@ -170,14 +178,19 @@ class PeopleExtendedAPIView(SupawordAPIView):
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as error:
+            logger.error(f'Invalid request data: {request.data}: {str(error)}')
             return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
         people = PeopleExtended.objects.all()
+        logger.info(f'Page request: {request.data}')
 
         # Apply filtering
         filter_value = request.data.get('filter', '')
-        age_filter = request.data.get('age', None)
-        age_direction = request.data.get('age_direction', None)
+        age_min = request.data.get('age_min', 1)
+        age_max = request.data.get('age_max', 99)
+        age_min = age_min if age_min is not None else 1
+        age_max = age_max if age_max is not None else 99
+
         sex_filter = request.data.get('sex', None)
 
         # Tristate filters: True, False, None
@@ -196,20 +209,11 @@ class PeopleExtendedAPIView(SupawordAPIView):
         if sex_filter is not None:
             people = people.filter(sex=sex_filter)
 
-        if age_filter is not None and age_direction == 'below':
-            today = datetime.now().date()
-            birth_date_limit = today - timedelta(days=int(age_filter) * 365)
-            people = people.filter(dob__gte=birth_date_limit)
-        elif age_filter is not None and age_direction == 'above':
-            today = datetime.now().date()
-            birth_date_limit = today - timedelta(days=(int(age_filter) + 1) * 365)
-            people = people.filter(dob__lt=birth_date_limit)
-        elif age_filter is not None and age_direction is None:
-            today = datetime.now().date()
-            birth_date_limit = today - timedelta(days=int(age_filter) * 365)
-            people = people.filter(dob__gte=birth_date_limit)
-        elif age_filter is None and age_direction is not None:
-            return Response({'error': 'Invalid age filter'}, status=status.HTTP_400_BAD_REQUEST)
+        today = datetime.now().date()
+        birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+        birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+        logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+        people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
 
         if traitors_filter is not None:
             people = people.filter(is_ttu=traitors_filter)
@@ -221,6 +225,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         sort_by = request.data.get('sort_by', 'fullname_en')
         sort_direction = request.data.get('sort_direction', 'asc')
         sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
+        logger.info(f'Sorting condition {sort_by}')
         people = people.order_by(sort_by)
 
         paginator = CustomPostPagination()
@@ -237,6 +242,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         """
         request_data = request.data
         values = request_data.get('values', [])
+        logger.info(f'Search request: {request_data}')
         people = PeopleExtended.objects.filter(reduce(lambda x, y: x | y, [
             Q(fullname_en=value) |
             Q(fullname_ru=value) |
@@ -251,9 +257,9 @@ class PeopleExtendedAPIView(SupawordAPIView):
         :param request: Object of type rest_framework.request.Request
         :return: JSON response
         """
-
         request_data = request.data
         values = request_data.get('values', [])
+        logger.info(f'Fulltext search request: {request_data}')
         people = search_model_fulltext(model=PeopleExtended,
                                        fields=['fullname_en', 'fullname_ru', 'fullname_uk'],
                                        values=values)
@@ -274,9 +280,11 @@ class PeopleExtendedAPIView(SupawordAPIView):
         try:
             person = PeopleExtended.objects.get(id=person_id)
         except PeopleExtended.DoesNotExist:
+            logger.error(f'Person with id={person_id} does not exist')
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         # Serialize the person and organizations data
+        logger.info(f'Person data request: {request_data}')
         person_serializer = PeopleExtendedSerializer(person)
         # Combine the serialized data and return the response
         response_data = person_serializer.data
@@ -297,67 +305,71 @@ class TheoryAPIView(SupawordAPIView):
         Initialize the class
         """
         super().__init__(request_handler={
-            'all': self.return_all
+            'general': self.return_general,
+            'article': self.return_article
         })
 
     @staticmethod
-    def return_all(request):
+    def return_general(request):
         """
-        Return all publications
+        Return filtered publications based on request parameters
         """
-        if request.data.get('type', '') != 'all':
-            return Response({'error': 'Invalid request type, "all" expected'}, status=status.HTTP_400_BAD_REQUEST)
-        theory = Theory.objects.all()
+        serializer = TheoryRequestSerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            logger.error(f'Invalid request data: {request.data}: {str(error)}')
+            return Response({'error': f"Theory.return_general() {str(error)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        logger.info(f'General articles request: {request.data}')
+
+        # Fetch all articles from the database and convert to a Python list
+        articles = Theory.objects.all()
+
+        # Filter articles by "publish_date" between "date_min" and "date_max"
+        date_min_str = request.data.get('date_min', '01.01.1970')
+        date_max_str = request.data.get('date_max', '31.12.2099')
+        logger.info(f'Request date range [{date_min_str}; {date_max_str}]')
+
+        try:
+            date_min = datetime.strptime(date_min_str, '%d.%m.%Y')
+            date_max = datetime.strptime(date_max_str, '%d.%m.%Y')
+        except ValueError:
+            logger.error(f'Invalid date format: {date_min_str} or {date_max_str}')
+            return Response({'error': 'Invalid date format. Use DD.MM.YYYY format'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Use Q objects to filter articles by date range
+        articles = articles.filter(Q(publish_date__gte=date_min) & Q(publish_date__lte=date_max))
+
         sort_by = request.data.get('sort_by', 'title')
         sort_direction = request.data.get('sort_direction', 'asc')
         sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
-        theory = theory.order_by(sort_by)
-        serializer = TheorySerializer(theory, many=True)
-        return Response(data=serializer.data)
+        logger.info(f'Sorting condition {sort_by}')
+        articles = articles.order_by(sort_by)
 
-
-class OrganizationsAPIView(SupawordAPIView):
-    """
-    API view to handle Organizations
-    """
-    queryset = models.Organizations.objects.all()
-    serializer_class = OrganizationSerializer
-    parser_classes = [JSONParser]
-    pagination_class = CustomPostPagination
-
-    def __init__(self):
-        """
-        Initialize the class
-        """
-        super().__init__(request_handler={
-            'all': self.return_all_organizations,
-            'person': self.person_organization_data
-        })
-
-    @staticmethod
-    def return_all_organizations(request):
-        """
-        :param request:
-        :return:
-        """
-        organizations = Organizations.objects.all().order_by('id')[:20]
-        serializer = OrganizationSerializer(organizations, many=True)
+        serializer = TheorySerializer(articles, many=True)
         return Response(data=serializer.data)
 
     @staticmethod
-    def person_organization_data(request):
-        request_data = request.data
-        person_id = request_data.get('id')
+    def return_article(request):
+        """
+        Return single article
+        """
+        logger.info(f'Article request: {request.data}')
+        article_id = request.data.get('id', None)
+        if article_id is None:
+            logger.error(f'Article id is not specified')
+            return Response({'error': 'Article id is not specified'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get all the organization IDs where the person is registered
-        orgs = PeopleInOrgs.objects.filter(person=person_id)
-        orgs_ids = [org.id for org in orgs]
+        try:
+            article = Theory.objects.get(id=article_id)
+        except Theory.DoesNotExist:
+            logger.error(f'Article id={article_id} does not exist')
+            return Response({'error': 'Article not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Get all the organizations with the IDs
-        organizations = Organizations.objects.filter(id__in=orgs_ids)
-        organizations_serializer = OrganizationSerializer(organizations, many=True)
-
-        return Response(data=organizations_serializer.data)
+        serializer = TheorySerializer(article)
+        return Response(data=serializer.data)
 
 
 def bad_request(request):
