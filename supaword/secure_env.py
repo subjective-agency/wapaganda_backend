@@ -35,13 +35,6 @@ CREDENTIALS = from_credentials_file()
 # General
 DB_CONNECTION_STRING = CREDENTIALS.get('CONNECTION_STRING', '') or environment_value('CONNECTION_STRING')
 
-# Supabase
-API_KEY = CREDENTIALS.get('SUPABASE_KEY', '') or environment_value('SUPABASE_KEY')
-DB_URL = CREDENTIALS.get('SUPABASE_URL', '') or environment_value('SUPABASE_URL')
-
-SUPABASE_KEY = CREDENTIALS.get('SUPABASE_KEY', '') or environment_value('SUPABASE_KEY')
-SUPABASE_URL = CREDENTIALS.get('SUPABASE_URL', '') or environment_value('SUPABASE_URL')
-
 # Postgres
 POSTGRES_PASSWORD = CREDENTIALS.get('POSTGRES_PASSWORD', '') or environment_value('POSTGRES_PASSWORD')
 POSTGRES_ADDRESS = CREDENTIALS.get('POSTGRES_ADDRESS', '') or environment_value('POSTGRES_ADDRESS')
@@ -50,18 +43,17 @@ POSTGRES_PORT = int(CREDENTIALS.get('POSTGRES_PORT', 5432)) or int(environment_v
 POSTGRES_DB = CREDENTIALS.get('POSTGRES_DB', '') or environment_value('POSTGRES_DB')
 
 # Snaplet
-SNAPLET_SOURCE_DATABASE_URL = CREDENTIALS.get('SNAPLET_SOURCE_DATABASE_URL', '') or environment_value(
-    'SNAPLET_SOURCE_DATABASE_URL')
-SNAPLET_DATABASE_URL = CREDENTIALS.get('SNAPLET_DATABASE_URL', '') or environment_value(
-    'SNAPLET_DATABASE_URL')
+SNAPLET_SOURCE_DATABASE_URL = DB_CONNECTION_STRING
+SNAPLET_DATABASE_URL = DB_CONNECTION_STRING
 
 # Django
 DJANGO_KEY = CREDENTIALS.get('DJANGO_KEY', '') or environment_value('DJANGO_KEY')
 
 # Debug
 SERVER_DEBUG = CREDENTIALS.get('DEBUG', '0') or environment_value('DEBUG')
+SERVER_DEBUG = SERVER_DEBUG.strip()
 assert SERVER_DEBUG in (0, 1, "0", "1"), f"DEBUG must be 1 or 0, instead of '{SERVER_DEBUG}'"
-SERVER_DEBUG = True if SERVER_DEBUG in (1, "1") else False
+SERVER_DEBUG = int(SERVER_DEBUG)
 
 assert len(DB_CONNECTION_STRING) > 0, "Connection string is empty"
 assert len(POSTGRES_USER) > 0, "Database username is empty"

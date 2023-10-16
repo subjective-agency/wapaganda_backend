@@ -34,10 +34,10 @@ public.websites
 public.youtube_authors
 public.youtube_channels
 public.youtube_vids
-enums.bundle_typesenums
-enums.isco08_indexenums
-enums.isco08_taxonomyenums
-enums.isco08_taxonomy_closureenums
+enums.bundle_types
+enums.isco08_index
+enums.isco08_taxonomy
+enums.isco08_taxonomy_closure
 enums.orgs_taxonomy
 enums.orgs_taxonomy_closure
 enums.rucr_taxonomy
