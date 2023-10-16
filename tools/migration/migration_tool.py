@@ -89,7 +89,10 @@ def main():
         target_credentials = json.load(target_file)
 
     with open('tables.txt', 'r') as tables_list_file:
-        table_list = tables_list_file.read().splitlines()
+        table_list = tables_list_file.readlines()
+
+    # filter out empty lines
+    table_list = [table.strip() for table in table_list if table.strip()]
 
     print(f"Table list: {table_list}")
     wrapper = SnapletWrapper(
