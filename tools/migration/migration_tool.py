@@ -12,6 +12,7 @@ class SnapletWrapper:
         creds = self.source_credentials
         source_db_url = (f"postgresql://{creds['POSTGRES_USER']}:{creds['POSTGRES_PASSWORD']}@"
                          f"{creds['POSTGRES_ADDRESS']}:{creds['POSTGRES_PORT']}/{creds['POSTGRES_DB']}")
+        print(f"Capturing snapshot from {source_db_url}")
         cmd_export_and_capture = (f'export SNAPLET_SOURCE_DATABASE_URL="{source_db_url}" && snaplet snapshot capture '
                                   f'--transform-mode unsafe')
 
@@ -21,6 +22,7 @@ class SnapletWrapper:
         creds = self.target_credentials
         target_db_url = (f"postgresql://{creds['POSTGRES_USER']}:{creds['POSTGRES_PASSWORD']}@"
                          f"{creds['POSTGRES_ADDRESS']}:{creds['POSTGRES_PORT']}/{creds['POSTGRES_DB']}")
+        print(f"Restoring snapshot to {target_db_url}")
         cmd_export_target = f'export SNAPLET_DATABASE_URL="{target_db_url}"'
         cmd_restore = f'snaplet snapshot restore --tables {" ".join(self.table_list)}'
 
