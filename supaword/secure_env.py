@@ -52,7 +52,7 @@ DJANGO_KEY = CREDENTIALS.get('DJANGO_KEY', '') or environment_value('DJANGO_KEY'
 # Debug
 SERVER_DEBUG = CREDENTIALS.get('DEBUG', '0') or environment_value('DEBUG')
 SERVER_DEBUG = SERVER_DEBUG.strip()
-assert SERVER_DEBUG in (0, 1, "0", "1"), f"DEBUG must be 1 or 0, instead of '{SERVER_DEBUG}'"
+assert SERVER_DEBUG in (0, 1, "0", "1"), f"DEBUG must be 1 or 0, instead of '{SERVER_DEBUG}, type {type(SERVER_DEBUG)}'"
 SERVER_DEBUG = int(SERVER_DEBUG)
 
 assert len(DB_CONNECTION_STRING) > 0, "Connection string is empty"
