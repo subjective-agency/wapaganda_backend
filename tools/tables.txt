@@ -5,6 +5,8 @@ enums.isco08_taxonomy_closure
 enums.orgs_taxonomy
 enums.orgs_taxonomy_closure
 enums.theory_types
+enums.bundle_types
+
 organization_type
 organizations
 media_segments

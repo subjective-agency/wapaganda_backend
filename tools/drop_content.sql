@@ -49,9 +49,9 @@ drop table if exists enums_isco08_index;
 drop table if exists enums_theory_types;
 drop table if exists enums_isco08_taxonomy_closure;
 drop table if exists enums_orgs_taxonomy_closure;
+drop table if exists enums_orgs_taxonomy;
 drop table if exists enums_isco08_taxonomy;
 drop table if exists enums_bundle_types;
-drop table if exists enums_orgs_taxonomy;
 
 drop table if exists future_rodniki;
 
