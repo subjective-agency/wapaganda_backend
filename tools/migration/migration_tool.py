@@ -1,6 +1,7 @@
 import subprocess
 import json
 import argparse
+from pathlib import Path
 
 
 class SnapletWrapper:
@@ -38,10 +39,11 @@ def main():
     args = parser.parse_args()
 
     # Load credentials from JSON files
-    with open('/Users/atatat/.supaword/credentials_prod.json', 'r') as source_file:
+    home_dir = str(Path.home())
+    with open(f'{home_dir}/.supaword/credentials_prod.json', 'r') as source_file:
         source_credentials = json.load(source_file)
 
-    with open('/Users/atatat/.supaword/credentials_srv.json', 'r') as target_file:
+    with open(f'{home_dir}/.supaword/credentials_srv.json', 'r') as target_file:
         target_credentials = json.load(target_file)
 
     table_list = [
