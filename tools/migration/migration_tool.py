@@ -43,7 +43,7 @@ def main():
     with open(f'{home_dir}/.supaword/credentials_prod.json', 'r') as source_file:
         source_credentials = json.load(source_file)
 
-    with open(f'{home_dir}/.supaword/credentials_srv.json', 'r') as target_file:
+    with open(f'{home_dir}/.supaword/credentials_hetz.json', 'r') as target_file:
         target_credentials = json.load(target_file)
 
     table_list = [
