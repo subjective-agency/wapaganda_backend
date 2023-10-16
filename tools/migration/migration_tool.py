@@ -12,6 +12,7 @@ class SnapletWrapper:
 
     def capture(self):
         creds = self.source_credentials
+        print(f"Source credentials: {creds}")
         source_db_url = (f"postgresql://{creds['POSTGRES_USER']}:{creds['POSTGRES_PASSWORD']}@"
                          f"{creds['POSTGRES_ADDRESS']}:{creds['POSTGRES_PORT']}/{creds['POSTGRES_DB']}")
         print(f"Capturing snapshot from {source_db_url}")
@@ -22,6 +23,7 @@ class SnapletWrapper:
 
     def restore(self):
         creds = self.target_credentials
+        print(f"Target credentials: {creds}")
         target_db_url = (f"postgresql://{creds['POSTGRES_USER']}:{creds['POSTGRES_PASSWORD']}@"
                          f"{creds['POSTGRES_ADDRESS']}:{creds['POSTGRES_PORT']}/{creds['POSTGRES_DB']}")
         print(f"Restoring snapshot to {target_db_url}")
