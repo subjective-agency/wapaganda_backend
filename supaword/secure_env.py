@@ -36,6 +36,7 @@ CREDENTIALS = from_credentials_file()
 DB_CONNECTION_STRING = CREDENTIALS.get('CONNECTION_STRING', '') or environment_value('CONNECTION_STRING')
 
 # Postgres
+PROFILE_TYPE = CREDENTIALS.get('PROFILE_TYPE', '') or environment_value('PROFILE_TYPE')
 POSTGRES_PASSWORD = CREDENTIALS.get('POSTGRES_PASSWORD', '') or environment_value('POSTGRES_PASSWORD')
 POSTGRES_ADDRESS = CREDENTIALS.get('POSTGRES_ADDRESS', '') or environment_value('POSTGRES_ADDRESS')
 POSTGRES_USER = CREDENTIALS.get('POSTGRES_USER', '') or environment_value('POSTGRES_USER')
@@ -57,6 +58,7 @@ assert SERVER_DEBUG in (0, 1, "0", "1"), f"DEBUG must be 1 or 0, instead of '{SE
 SERVER_DEBUG = int(SERVER_DEBUG)
 
 # Check that all required environment variables are set
+assert PROFILE_TYPE in ("prod", "dev"), f"PROFILE_TYPE must be 'prod' or 'dev', instead of '{PROFILE_TYPE}'"
 assert len(DB_CONNECTION_STRING) > 0, "Connection string is empty"
 assert len(POSTGRES_USER) > 0, "Database username is empty"
 assert len(POSTGRES_DB) > 0, "Database name is empty"

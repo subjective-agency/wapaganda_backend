@@ -6,7 +6,7 @@ from django.core.checks import templates
 from django.core.management import templates
 from pathlib import Path
 from .secure_env import SERVER_DEBUG, DJANGO_KEY
-from .secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
+from .secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB, PROFILE_TYPE
 from .log_helper import logger
 
 __doc__ = """
@@ -182,6 +182,8 @@ REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'vnd.api+json'
 }
 
+
+logger.info(f"PROFILE_TYPE: {PROFILE_TYPE}")
 logger.info(f"SERVER_DEBUG: {SERVER_DEBUG}")
 logger.info(f"DEBUG: {DEBUG}")
 logger.info(f"POSTGRES_ADDRESS: {POSTGRES_ADDRESS}")
