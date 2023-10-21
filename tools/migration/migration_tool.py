@@ -75,6 +75,9 @@ class SnapletWrapper:
 
 
 def main():
+    """
+    :return: system exit code
+    """
     parser = argparse.ArgumentParser(description="Snaplet Capture and Restore")
     parser.add_argument("--capture", action="store_true", help="Capture a snapshot")
     parser.add_argument("--restore", action="store_true", help="Restore a snapshot")
@@ -111,6 +114,8 @@ def main():
         wrapper.capture()
         wrapper.restore()
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
