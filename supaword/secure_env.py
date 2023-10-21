@@ -55,6 +55,7 @@ SERVER_DEBUG = SERVER_DEBUG.strip()
 assert SERVER_DEBUG in (0, 1, "0", "1"), f"DEBUG must be 1 or 0, instead of '{SERVER_DEBUG}, type {type(SERVER_DEBUG)}'"
 SERVER_DEBUG = int(SERVER_DEBUG)
 
+# Check that all required environment variables are set
 assert len(DB_CONNECTION_STRING) > 0, "Connection string is empty"
 assert len(POSTGRES_USER) > 0, "Database username is empty"
 assert len(POSTGRES_DB) > 0, "Database name is empty"
