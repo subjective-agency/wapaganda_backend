@@ -40,9 +40,9 @@ POSTGRES_PASSWORD = CREDENTIALS.get('POSTGRES_PASSWORD', '') or environment_valu
 POSTGRES_ADDRESS = CREDENTIALS.get('POSTGRES_ADDRESS', '') or environment_value('POSTGRES_ADDRESS')
 POSTGRES_USER = CREDENTIALS.get('POSTGRES_USER', '') or environment_value('POSTGRES_USER')
 
-print(f"Port debug 1: [{CREDENTIALS.get('POSTGRES_PORT', 0)}]")
-print(f"Port debug 2: [{environment_value('POSTGRES_PORT')}]")
-POSTGRES_PORT = int(CREDENTIALS.get('POSTGRES_PORT', 0)) or int(environment_value('POSTGRES_PORT'))
+print(f"Port debug 1: [{int(CREDENTIALS.get('POSTGRES_PORT', 0))}]")
+print(f"Port debug 2: [{int(environment_value('POSTGRES_PORT'))}]")
+POSTGRES_PORT = int(CREDENTIALS.get('POSTGRES_PORT', 6002)) or int(environment_value('POSTGRES_PORT'))
 POSTGRES_DB = CREDENTIALS.get('POSTGRES_DB', '') or environment_value('POSTGRES_DB')
 
 # Snaplet
