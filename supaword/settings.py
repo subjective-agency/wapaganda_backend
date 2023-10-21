@@ -32,12 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = DJANGO_KEY
 DEBUG = True
-ALLOWED_HOSTS = [
-    "*",
-    "supaword-service-production.up.railway.app",
-    "*.supaword-service-production.up.railway.app",
-    "*.railway.app"
-]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
