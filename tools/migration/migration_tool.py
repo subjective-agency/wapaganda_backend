@@ -33,9 +33,7 @@ class SnapletWrapper:
         target_db_url = (f"postgresql://{creds['POSTGRES_USER']}:{creds['POSTGRES_PASSWORD']}@"
                          f"{creds['POSTGRES_ADDRESS']}:{creds['POSTGRES_PORT']}/{creds['POSTGRES_DB']}")
         print(f"Restoring snapshot to {target_db_url}")
-        cmd_export_target = f'export SNAPLET_DATABASE_URL="{target_db_url}"'
-
-        cmd_restore = 'snaplet snapshot restore'
+        cmd_restore = 'export SNAPLET_TARGET_DATABASE_URL="{target_db_url}" && snaplet snapshot restore'
         if self.table_list:
             cmd_restore += f' --tables {" ".join(self.table_list)}'
 
