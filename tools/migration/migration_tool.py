@@ -68,7 +68,11 @@ class SnapletWrapper:
                          f"{creds['POSTGRES_ADDRESS']}:{creds['POSTGRES_PORT']}/{creds['POSTGRES_DB']}")
         print(f"Restoring snapshot to {target_db_url}")
         cmd_export_target = f'export SNAPLET_DATABASE_URL="{target_db_url}"'
-        cmd_restore = f'snaplet snapshot restore --tables {" ".join(self.table_list)}'
+
+        if self.table_list:
+            cmd_restore = f'snaplet snapshot restore --tables {" ".join(self.table_list)}'
+        else:
+            cmd_restore = 'snaplet snapshot restore'
 
         subprocess.run(cmd_export_target, shell=True, check=True)
         subprocess.run(cmd_restore, shell=True, check=True)
@@ -81,6 +85,7 @@ def main():
     parser = argparse.ArgumentParser(description="Snaplet Capture and Restore")
     parser.add_argument("--capture", action="store_true", help="Capture a snapshot")
     parser.add_argument("--restore", action="store_true", help="Restore a snapshot")
+    parser.add_argument("--tables", help="File with tables list to capture/restore")
     args = parser.parse_args()
 
     # Load credentials from JSON files
@@ -91,13 +96,14 @@ def main():
     with open(f'{home_dir}/.supaword/credentials_hetz.json', 'r') as target_file:
         target_credentials = json.load(target_file)
 
-    with open('tables.txt', 'r') as tables_list_file:
-        table_list = tables_list_file.readlines()
+    table_list = None
+    if args.tables:
+        with open('tables.txt', 'r') as tables_list_file:
+            table_list = tables_list_file.readlines()
+            # filter out empty lines
+            table_list = [table.strip() for table in table_list if table.strip()]
+            print(f"Table list: {table_list}")
 
-    # filter out empty lines
-    table_list = [table.strip() for table in table_list if table.strip()]
-
-    print(f"Table list: {table_list}")
     wrapper = SnapletWrapper(
         source_credentials=source_credentials,
         target_credentials=target_credentials,
