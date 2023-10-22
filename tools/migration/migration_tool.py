@@ -6,7 +6,12 @@ from pathlib import Path
 
 
 class SnapletWrapper:
-    def __init__(self, source_credentials, target_credentials, table_list):
+    def __init__(self, source_credentials: dict, target_credentials: dict, table_list):
+        """
+        :param source_credentials:
+        :param target_credentials:
+        :param table_list:
+        """
         self.source_credentials = source_credentials
         self.target_credentials = target_credentials
         self.table_list = table_list
@@ -30,10 +35,9 @@ class SnapletWrapper:
         print(f"Restoring snapshot to {target_db_url}")
         cmd_export_target = f'export SNAPLET_DATABASE_URL="{target_db_url}"'
 
+        cmd_restore = 'snaplet snapshot restore'
         if self.table_list:
-            cmd_restore = f'snaplet snapshot restore --tables {" ".join(self.table_list)}'
-        else:
-            cmd_restore = 'snaplet snapshot restore'
+            cmd_restore += f' --tables {" ".join(self.table_list)}'
 
         subprocess.run(cmd_export_target, shell=True, check=True)
         subprocess.run(cmd_restore, shell=True, check=True)
@@ -57,7 +61,7 @@ def main():
     with open(f'{home_dir}/.supaword/credentials_hetz.json', 'r') as target_file:
         target_credentials = json.load(target_file)
 
-    table_list = None
+    table_list = []
     if args.tables:
         with open('tables.txt', 'r') as tables_list_file:
             table_list = tables_list_file.readlines()
