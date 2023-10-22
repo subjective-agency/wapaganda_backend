@@ -37,7 +37,6 @@ class SnapletWrapper:
         if self.table_list:
             cmd_restore += f' --tables {" ".join(self.table_list)}'
 
-        subprocess.run(cmd_export_target, shell=True, check=True)
         subprocess.run(cmd_restore, shell=True, check=True)
 
 
