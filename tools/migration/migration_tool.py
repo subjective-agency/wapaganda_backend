@@ -5,46 +5,6 @@ import argparse
 from pathlib import Path
 
 
-TABLE_LIST = [
-        "days_of_war",
-        "dentv_episodes",
-        "komso_episodes",
-        "media_coverage_type",
-        "media_roles",
-        "media_segments",
-        "msegments_to_rchannels_mapping",
-        "msegments_to_ychannels_mapping",
-        "ntv_episodes",
-        "organization_type",
-        "organizations",
-        "people",
-        "people_3rdprt_details_raw",
-        "people_bundles",
-        "people_in_bundles",
-        "people_in_orgs",
-        "people_in_ur",
-        "people_on_photos",
-        "people_on_smotrim",
-        "people_on_youtube",
-        "people_to_msegments_mapping",
-        "photos",
-        "printed",
-        "printed_to_people_mapping",
-        "quotes",
-        "rutube_channels",
-        "rutube_vids",
-        "smotrim_episodes",
-        "telegram_authors",
-        "telegram_channels",
-        "text_media",
-        "theory",
-        "websites",
-        "youtube_authors",
-        "youtube_channels",
-        "youtube_vids"
-    ]
-
-
 class SnapletWrapper:
     def __init__(self, source_credentials, target_credentials, table_list):
         self.source_credentials = source_credentials
