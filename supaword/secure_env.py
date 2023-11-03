@@ -59,7 +59,7 @@ HETZ_STORAGE_ADDR = CREDENTIALS.get('HETZ_STORAGE_ADDR', '') or environment_valu
 
 # Debug
 SERVER_DEBUG = CREDENTIALS.get('DEBUG', '0') or environment_value('DEBUG')
-SERVER_DEBUG = SERVER_DEBUG.strip()
+SERVER_DEBUG = SERVER_DEBUG.strip() if isinstance(SERVER_DEBUG, str) else int(SERVER_DEBUG)
 assert SERVER_DEBUG in (0, 1, "0", "1"), f"DEBUG must be 1 or 0, instead of '{SERVER_DEBUG}, type {type(SERVER_DEBUG)}'"
 SERVER_DEBUG = int(SERVER_DEBUG)
 
