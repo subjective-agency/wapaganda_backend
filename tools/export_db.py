@@ -13,7 +13,7 @@ class PostgresDbExport:
     BATCH_SIZE = 100000
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, dbname: str, user: str, password: str, host: str, port: int):
+    def __init__(self, export_dir: str, dbname: str, user: str, password: str, host: str, port: int):
         """
         Initialize database connection and do basic validation
         """
@@ -28,7 +28,7 @@ class PostgresDbExport:
         self.host = host
         self.port = port
         self.connection = None
-        self.export_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'export')
+        self.export_dir = os.path.abspath(export_dir)
         if not os.path.exists(self.export_dir):
             logger.info(f"Creating export directory {self.export_dir}")
             os.makedirs(self.export_dir)

@@ -14,24 +14,45 @@ class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.table_names_file = []
+        self.export_dir = ""
         self.bool_rewrite_tables = False
         self.bool_continue_export = False
         self.skip_export = False
 
     def add_arguments(self, parser):
-        parser.add_argument('table_names_file', type=str, help='File containing table names')
-        parser.add_argument('--rewrite-tables', type=str, choices=['true', 'false'], default='false', required=False,
+        parser.add_argument('table_names_file',
+                            type=str,
+                            help='File containing table names')
+        parser.add_argument('--rewrite-tables',
+                            type=str,
+                            choices=['true', 'false'],
+                            default='false',
+                            required=False,
                             help='Boolean indicating whether to rewrite tables')
-        parser.add_argument('--continue-export', type=str, choices=['true', 'false'], default='false', required=False,
+        parser.add_argument('--continue-export',
+                            type=str,
+                            choices=['true', 'false'],
+                            default='false',
+                            required=False,
                             help='Boolean indicating whether to continue paused export')
-        parser.add_argument('--skip-export', type=str, choices=['true', 'false'], default='false', required=False,
+        parser.add_argument('--skip-export',
+                            type=str,
+                            choices=['true', 'false'],
+                            default='false',
+                            required=False,
                             help='Boolean indicating whether to skip export if the table up-to-date')
+        parser.add_argument('--export-dir',
+                            type=str,
+                            required=False,
+                            default='tools/export',
+                            help='Directory to store exported data')
 
     def export_data(self):
         """
         Export data from Postgres database to JSON files
         """
         db_export = PostgresDbExport(
+            export_dir=self.export_dir,
             dbname=POSTGRES_DB,
             user=POSTGRES_USER,
             password=POSTGRES_PASSWORD,
@@ -46,6 +67,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.table_names_file = options['table_names_file']
+        self.export_dir = options['export_dir']
         # Convert to boolean
         self.bool_rewrite_tables = options['rewrite_tables'] == 'true'
         self.bool_continue_export = options['continue_export'] == 'true'

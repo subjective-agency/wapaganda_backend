@@ -14,13 +14,14 @@ class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.table_names_file = None
-        self.export_dir = None
+        self.import_dir = None
 
     def import_data(self):
         """
         Import data from JSON files to Postgres database
         """
         db_import = PostgresDbImport(
+            import_dir=self.import_dir,
             dbname=POSTGRES_DB,
             user=POSTGRES_USER,
             password=POSTGRES_PASSWORD,
@@ -42,21 +43,27 @@ class Command(BaseCommand):
         db_import.import_tables(table_names=table_names)
         
     def add_arguments(self, parser):
-        parser.add_argument('--table-names', type=str, help='File containing table names')
-        parser.add_argument('--export-dir', type=str, help='Directory containing exported data')
+        parser.add_argument('--table-names',
+                            type=str,
+                            help='File containing table names')
+        parser.add_argument('--import-dir',
+                            type=str,
+                            required=False,
+                            default='tools/export',
+                            help='Directory containing data for import')
 
     def handle(self, *args, **options):
         self.table_names_file = options['table_names']
-        self.export_dir = options['export_dir']
+        self.import_dir = options['import_dir']
 
         if not os.path.exists(self.table_names_file):
             raise CommandError(f"The specified file '{self.table_names_file}' does not exist.")
 
-        if not os.path.exists(self.export_dir):
-            raise CommandError(f"The specified directory '{self.export_dir}' does not exist.")
+        if not os.path.exists(self.import_dir):
+            raise CommandError(f"The specified directory '{self.import_dir}' does not exist.")
 
         self.import_data()
         self.stdout.write(self.style.SUCCESS(
             f'Successfully imported data into tables specified in file: {self.table_names_file}, '
-            f'from exported data directory: {self.export_dir}'
+            f'from exported data directory: {self.import_dir}'
         ))

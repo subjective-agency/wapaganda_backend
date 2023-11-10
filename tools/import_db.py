@@ -1,4 +1,6 @@
 import os.path
+import sys
+
 import psycopg2
 import json
 from supaword.log_helper import logger
@@ -9,15 +11,27 @@ We utilize the class from standard Django manage.py script
 SUPABASE_CO = "db.svfizyfozagyqkkjzqdc.supabase.co"
 
 
-# noinspection SqlNoDataSourceInspection
+# noinspection SqlNoDataSourceInspection,SqlResolve
 class PostgresDbImport:
-    def __init__(self, dbname: str, user: str, password: str, host: str, port: int):
+    def __init__(self, import_dir: str, dbname: str, user: str, password: str, host: str, port: int):
+        """
+        Initialize database connection and do basic validation
+        """
+        assert len(dbname) > 0, "Database name is empty"
+        assert len(user) > 0, "Database username is empty"
+        assert len(password) > 0, "Database password is empty"
+        assert len(host) > 0, "Database host is empty"
+        assert port > 0, "Database port is empty"
         self.dbname = dbname
         self.user = user
         self.password = password
         self.host = host
         self.port = port
         self.connection = None
+        self.import_dir = os.path.abspath(import_dir)
+        if not os.path.exists(self.import_dir):
+            logger.error(f"Import directory {self.import_dir} does not exist")
+            sys.exit(1)
 
     @staticmethod
     def _serialize_value(value):
@@ -69,7 +83,9 @@ class PostgresDbImport:
         for index, record in enumerate(data, start=1):
             if 'parent_organization' in record:
                 parent_org_name = record['parent_organization']
-                query = f"UPDATE {table_name} SET parent_organization_id = (SELECT id FROM {table_name} WHERE name = %s) WHERE name = %s"
+                query = (f"UPDATE {table_name} "
+                         f"SET parent_organization_id = (SELECT id FROM {table_name} WHERE name = %s) "
+                         f"WHERE name = %s")
                 try:
                     cursor.execute(query, (parent_org_name, record['name']))
                     self.connection.commit()
@@ -84,7 +100,7 @@ class PostgresDbImport:
         Import data from JSON files to Postgres database
         """
         json_files = [
-            os.path.join(os.path.abspath("tools/import"), f"{table_name}.json") for table_name in table_names
+            os.path.join(self.import_dir, f"{table_name}.json") for table_name in table_names
         ]
         logger.info(f"Importing data from JSON files: {json_files}")
 
