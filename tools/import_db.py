@@ -9,6 +9,7 @@ __doc__ = """Import data from JSON files to Postgres database
 We utilize the class from standard Django manage.py script
 """
 SUPABASE_CO = "db.svfizyfozagyqkkjzqdc.supabase.co"
+SUBJECTIVE_AGENCY = "server.subjective.agency"
 
 
 # noinspection SqlNoDataSourceInspection,SqlResolve
@@ -105,7 +106,7 @@ class PostgresDbImport:
         logger.info(f"Importing data from JSON files: {json_files}")
 
         # Define the production Postgres host name
-        if self.host == SUPABASE_CO:
+        if self.host == SUPABASE_CO or self.host == SUBJECTIVE_AGENCY:
             logger.error("Error: Import into the production database is not allowed.")
             return
 
