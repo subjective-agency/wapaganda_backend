@@ -41,9 +41,7 @@ POSTGRES_PASSWORD = CREDENTIALS.get('POSTGRES_PASSWORD', '') or environment_valu
 POSTGRES_ADDRESS = CREDENTIALS.get('POSTGRES_ADDRESS', '') or environment_value('POSTGRES_ADDRESS')
 POSTGRES_USER = CREDENTIALS.get('POSTGRES_USER', '') or environment_value('POSTGRES_USER')
 POSTGRES_DB = CREDENTIALS.get('POSTGRES_DB', '') or environment_value('POSTGRES_DB')
-
-# TODO: This is temporary workaround, investigate why the port is not set correctly
-POSTGRES_PORT = 6002 if PROFILE_TYPE == "dev" else 5432
+POSTGRES_PORT = CREDENTIALS.get('POSTGRES_PORT', '') or environment_value('POSTGRES_PORT')
 
 # Snaplet
 SNAPLET_SOURCE_DATABASE_URL = DB_CONNECTION_STRING
