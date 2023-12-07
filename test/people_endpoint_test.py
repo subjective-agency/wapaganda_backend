@@ -79,11 +79,13 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
         """
         for _ in range(10):
             request_data = self.generate_simple_data()
+            url = '/people'
+            full_url = self.client.post(url, request_data, format='json').request.get_full_path()
             response = self.client.post('/people', request_data, format='json')
 
             # Ensure the response is successful (status code 200)
             # Add more assertions based on your specific requirements
-            self.print_request(url='/people', method='POST', request_data=request_data)
+            self.print_request(url=full_url, method='POST', request_data=request_data)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.print_response(response=response)
 
