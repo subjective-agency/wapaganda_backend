@@ -64,9 +64,12 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
         }
 
     @staticmethod
-    def print_request_response(url, method, request_data, response):
+    def print_request(url, method, request_data):
         print(f"\n\nRequest: {method} {url}")
         print(f"Request Data: {request_data}")
+
+    @staticmethod
+    def print_response(response):
         print(f"Response Status Code: {response.status_code}")
         print(f"Response Data: {response.data}\n\n")
 
@@ -80,8 +83,9 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
 
             # Ensure the response is successful (status code 200)
             # Add more assertions based on your specific requirements
+            self.print_request(url='/people', method='POST', request_data=request_data)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.print_request_response('/people', 'POST', request_data, response)
+            self.print_response(response=response)
 
     def test_invalid_page_request(self):
         """
@@ -96,5 +100,6 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
 
             # Ensure the response is a bad request (status code 400)
             # Add more assertions based on your specific requirements for invalid requests
+            self.print_request(url='/people', method='POST', request_data=request_data)
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.print_request_response('/people', 'POST', request_data, response)
+            self.print_response(response=response)
