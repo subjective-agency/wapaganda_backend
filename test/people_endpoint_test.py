@@ -81,7 +81,7 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
             request_data = self.generate_simple_data()
             url = '/people'
             response = self.client.post('/people', request_data, format='json')
-            print(f"Full URL: {response.request.get_full_path()}")
+            print(f"Full URL: {response.url}")
 
             # Ensure the response is successful (status code 200)
             # Add more assertions based on your specific requirements
