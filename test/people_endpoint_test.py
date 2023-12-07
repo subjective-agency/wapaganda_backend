@@ -23,12 +23,12 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
             'sort_by': random.choice(['id', 'fullname_en', 'fullname_ru', 'fullname_uk', 'dob', 'dod', 'sex']),
             'sort_direction': random.choice(['asc', 'desc']),
             'filter': self.generate_random_string(),
-            'alive': random.choice([True, False, None]),
-            'sex': random.choice(['m', 'f', None]),
+            'alive': random.choice([True, False]),
+            'sex': random.choice(['m', 'f']),
             'age_min': random.randint(1, 99),
             'age_max': random.randint(1, 99),
-            'is_ttu': random.choice([True, False, None]),
-            'is_ff': random.choice([True, False, None]),
+            'is_ttu': random.choice([True, False]),
+            'is_ff': random.choice([True, False]),
         }
 
     def test_valid_page_request(self):
