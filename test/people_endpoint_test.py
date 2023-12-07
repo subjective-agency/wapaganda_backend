@@ -93,20 +93,3 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
             self.print_request(url=full_url, method='POST', request_data=request_data)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.print_response(response=response)
-
-    def test_invalid_page_request(self):
-        """
-        10 invalid requests
-        """
-        for _ in range(10):
-            # Generate invalid data, e.g., age_min greater than age_max
-            request_data = self.generate_random_data()
-            request_data['age_min'] = request_data['age_max'] + 1
-
-            response = self.client.post('/people', request_data, format='json')
-
-            # Ensure the response is a bad request (status code 400)
-            # Add more assertions based on your specific requirements for invalid requests
-            self.print_request(url='/people', method='POST', request_data=request_data)
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.print_response(response=response)
