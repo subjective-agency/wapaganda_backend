@@ -8,9 +8,6 @@ from .models import PeopleExtended
 from django.test import TestCase
 
 # In this example, we are using Hypothesis to generate random dictionaries with keys of type string and values of type integer. These dictionaries are used as the data for the POST request. The `given` decorator is used to specify the input data for the test.
-#
-# Please replace `YourViewSet` and `YourModel` with the actual ViewSet and Model you are using in your project. Also, replace `/api/your_endpoint/` with the actual endpoint you are testing.
-#
 # Remember to run your tests with a command like `python manage.py test`.
 
 
