@@ -51,6 +51,13 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
             'page_size': random.randint(10, 20)
         }
 
+    @staticmethod
+    def print_request_response(url, method, request_data, response):
+        print(f"\n\nRequest: {method} {url}")
+        print(f"Request Data: {request_data}")
+        print(f"Response Status Code: {response.status_code}")
+        print(f"Response Data: {response.data}\n\n")
+
     def test_valid_page_request(self):
         """
         10 valid requests
@@ -62,6 +69,7 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
             # Ensure the response is successful (status code 200)
             # Add more assertions based on your specific requirements
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.print_request_response('/people', 'POST', request_data, response)
 
     def test_invalid_page_request(self):
         """
@@ -77,3 +85,4 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
             # Ensure the response is a bad request (status code 400)
             # Add more assertions based on your specific requirements for invalid requests
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.print_request_response('/people', 'POST', request_data, response)
