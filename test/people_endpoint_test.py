@@ -22,6 +22,7 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
         Set up your test data or any other necessary setup
         """
         self.client = Client()
+        os.environ['DJANGO_LIVE_TEST_SERVER_ADDRESS'] = 'wapaganda-backend-production.up.railway.app'
 
     @staticmethod
     def generate_random_string(length=10):
