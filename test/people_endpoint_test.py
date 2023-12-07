@@ -80,7 +80,7 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
         for _ in range(10):
             request_data = self.generate_simple_data()
             url = '/people'
-            full_url = self.client.post(url, request_data, format='json').request.get_full_path()
+            full_url = f"{url}?{'&'.join([f'{key}={value}' for key, value in request_data.items()])}"
             print(f"Full URL: {full_url}")
             response = self.client.post('/people', request_data, format='json')
 
