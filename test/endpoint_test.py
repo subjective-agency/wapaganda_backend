@@ -15,14 +15,14 @@ TODO: Maximum number of pages comes from database
 class PeopleExtendedApiTestCase(unittest.TestCase):
     """
     Endpoint example:
-    https://wapaganda-backend-production.up.railway.app/people/
+    https://wapaganda-backend-development.up.railway.app/people/
     """
     def setUp(self):
         """
         Set up your test data or any other necessary setup
         """
         self.client = Client()
-        os.environ['DJANGO_LIVE_TEST_SERVER_ADDRESS'] = 'wapaganda-backend-production.up.railway.app'
+        os.environ['DJANGO_LIVE_TEST_SERVER_ADDRESS'] = 'wapaganda-backend-development.up.railway.app'
 
     @staticmethod
     def generate_random_string(length=10):
