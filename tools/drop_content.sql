@@ -72,3 +72,6 @@ drop table if exists auth_group cascade;
 drop table if exists auth_permission cascade;
 drop table if exists auth_user cascade;
 drop table if exists django_admin_log cascade;
+
+dropdb -U postgres -h roundhouse.proxy.rlwy.net -p 36030 --if-exists railway;
+createdb -U postgres -h roundhouse.proxy.rlwy.net -p 36030 railway;
