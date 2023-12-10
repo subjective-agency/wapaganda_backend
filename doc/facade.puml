@@ -1,0 +1,51 @@
+@startuml
+
+package "User API" {
+  class UserFacade {
+    + performAction(): void
+  }
+}
+
+package "Web Service" {
+  class ComponentA {
+    + operationA(): void
+  }
+
+  class ComponentB {
+    + operationB(): void
+  }
+
+  class ComponentC {
+    + operationC(): void
+  }
+}
+
+package "Developer API" {
+  class InterfaceA {
+    + operationA(): void
+  }
+
+  class InterfaceB {
+    + InterfaceB(): void
+  }
+
+  class InterfaceC {
+    + operationC(): void
+  }
+}
+
+UserFacade --|> ComponentA
+
+UserFacade --|> ComponentC
+
+ComponentA --|> InterfaceA
+
+ComponentB --|> InterfaceB
+
+ComponentC --|> InterfaceC
+
+
+UserFacade -[hidden]-> ComponentA: uses
+UserFacade -[hidden]-> ComponentC: uses
+
+@enduml
