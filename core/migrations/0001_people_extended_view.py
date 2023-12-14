@@ -22,9 +22,8 @@ class Migration(migrations.Migration):
     View comprises data on the relevant patients, both from the people table,
     and elsewhere in the DB
     """
-    
+
     dependencies = [
-        'organization_type',
         'organizations',
         'media_segments',
         'youtube_channels',
