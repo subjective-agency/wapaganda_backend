@@ -23,10 +23,6 @@ class Migration(migrations.Migration):
     and elsewhere in the DB
     """
 
-    dependencies = [
-        'people',
-        'photos',
-        'people_on_photos'
-    ]
+    dependencies = []
 
     operations = create_migration(SQL_DIR)
