@@ -927,7 +927,7 @@ class PeopleExtended(models.Model):
 
     class Meta:
         db_table = 'people_extended'
-        managed = True
+        managed = False
 
 
 class PrintedContent(models.Model):
