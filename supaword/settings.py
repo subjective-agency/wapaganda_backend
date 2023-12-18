@@ -37,6 +37,9 @@ ALLOWED_HOSTS = ["*"]
 
 # Application definition
 INSTALLED_APPS = [
+    # support for PostgreSQL composite types
+    'postgres_composite_types'
+    
     # Django administrative interface
     'django.contrib.admin',
     'django.contrib.auth',

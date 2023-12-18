@@ -1,6 +1,6 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-
+from postgres_composite_types import CompositeType
 
 __doc__ = """This file based on auto-generated Django ORM models from the database.
 You'll have to do the following edits to clean this up manually:
@@ -14,11 +14,20 @@ You'll have to do the following edits to clean this up manually:
 """
 
 
+class TripleLang(CompositeType):
+    # https://github.com/danni/django-postgres-composite-types
+    """Text value in 3 languages: en, uk, ru"""
+    en = models.CharField()
+    ru = models.CharField()
+    uk = models.CharField()
+
+    class Meta:
+        db_type = 'triple_lang'
+
+
 class EnumsRucrTaxonomy(models.Model):
     id = models.BigAutoField(primary_key=True)
-    content_en = models.TextField()
-    content_ru = models.TextField()
-    content_uk = models.TextField()
+    content = TripleLang.Field()
     tags = ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
     xml_id = models.TextField()
     xml_data = models.JSONField()
@@ -35,7 +44,7 @@ class EnumsBundleTypes(models.Model):
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField()
     code = models.TextField(blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
+    description = TripleLang.Field(blank=True, null=True)
 
     class Meta:
         managed = True
@@ -51,7 +60,7 @@ class EnumsISCOTaxonomy(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
-    term = models.TextField(blank=True, null=True)
+    term = TripleLang.Field(blank=True, null=True)
     isco_code = models.TextField(blank=True, null=True)
     definition = models.TextField(blank=True, null=True)
     tasks_include = models.TextField(blank=True, null=True)
@@ -75,9 +84,7 @@ class EnumsISCOIndex(models.Model):
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
     isco08 = models.ForeignKey(EnumsISCOTaxonomy, models.DO_NOTHING, blank=True, null=True)
-    name_en = models.TextField(blank=True, null=True)
-    name_ru = models.TextField(blank=True, null=True)
-    name_uk = models.TextField(blank=True, null=True)
+    name = TripleLang.Field(blank=True, null=True)
     appended = models.BooleanField(blank=True, null=True)
 
     class Meta:
@@ -117,7 +124,7 @@ class EnumsOrgsTaxonomy(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
-    term = models.TextField(blank=True, null=True)
+    term = TripleLang.Field(blank=True, null=True)
     code = models.TextField(blank=True, null=True)
     definition = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
@@ -159,7 +166,7 @@ class EnumsTheoryTypes(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(blank=True, null=True)
-    term = models.TextField(blank=True, null=True)
+    term = TripleLang.Field(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
@@ -259,7 +266,7 @@ class MediaRoles(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'media_roles'
+        db_table = 'enums_media_roles'
 
 
 class MediaSegments(models.Model):
@@ -273,9 +280,7 @@ class MediaSegments(models.Model):
     | parent_org_id | bigint | FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    name_en = models.TextField(blank=True, null=True)
-    name_ru = models.TextField(blank=True, null=True)
-    name_uk = models.TextField(blank=True, null=True)
+    name = TripleLang.Field()
     parent_org_id = models.ForeignKey('Organizations', models.DO_NOTHING, blank=True, null=True)
     avg_guest_time = models.SmallIntegerField(blank=True, null=True)
     smotrim_id = models.IntegerField(unique=True, blank=True, null=True)
@@ -361,14 +366,12 @@ class Organizations(models.Model):
     | region | bigint | FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    name_en = models.TextField(blank=True, null=True)
-    name_ru = models.TextField(blank=True, null=True)
-    name_uk = models.TextField(blank=True, null=True)
+    name = TripleLang.Field(blank=True, null=True)
     parent_org_id = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
     region = models.BigIntegerField(blank=True, null=True)
     source_url = models.TextField(unique=True, blank=True, null=True)
     org_type = models.ForeignKey(EnumsOrgsTaxonomy, models.DO_NOTHING, blank=True, null=True)
-    short_name = models.JSONField(blank=True, null=True)
+    short_name = TripleLang.Field(blank=True, null=True)
     state_affiliated = models.BooleanField(blank=True, null=True)
     org_form_raw = models.TextField(blank=True, null=True)
     org_form = models.JSONField(blank=True, null=True)
@@ -391,27 +394,21 @@ class People(models.Model):
     | namesake_seq | smallint | UNIQUE |
     """
     id = models.BigAutoField(primary_key=True)
-    fullname_en = models.TextField()
-    fullname_ru = models.TextField()
-    fullname_uk = models.TextField(blank=True, null=True)
-    lastname_en = models.TextField(blank=True, null=True)
-    lastname_ru = models.TextField(blank=True, null=True)
-    is_onmap = models.BooleanField(blank=True, null=True)
+    fullname = TripleLang.Field()
+    lastname = TripleLang.Field(blank=True, null=True)
     sex = models.TextField(blank=True, null=True)
     social = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
     dob = models.DateField(blank=True, null=True)
-    is_ttu = models.BooleanField(blank=True, null=True)
-    is_ff = models.BooleanField(blank=True, null=True)
     relevant = models.BooleanField()
     contact = models.JSONField(blank=True, null=True)
     address = ArrayField(models.TextField(), blank=True, null=True)
     associates = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
     additional = ArrayField(models.JSONField(), blank=True, null=True)
     aliases = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
-    info = models.JSONField(blank=True, null=True)
+    info = TripleLang.Field(blank=True, null=True)
     dod = models.DateField(blank=True, null=True)
     cod = models.CharField(max_length=255, blank=True, null=True)
-    known_for = models.JSONField(blank=True, null=True)
+    known_for = TripleLang.Field(blank=True, null=True)
     wiki_ref = models.JSONField(blank=True, null=True)
     namesake_seq = models.SmallIntegerField(blank=True, null=True)
     added_on = models.DateTimeField()
@@ -419,7 +416,7 @@ class People(models.Model):
     class Meta:
         managed = True
         db_table = 'people'
-        unique_together = (('fullname_en', 'namesake_seq'),)
+        unique_together = (('fullname', 'namesake_seq'),)
         verbose_name_plural = "Person"
 
 
@@ -450,7 +447,7 @@ class PeopleBundles(models.Model):
     | parent_bundle_id | bigint | FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    bundle_name = models.JSONField(blank=True, null=True)
+    name = TripleLang.Field(blank=True, null=True)
     bundle_type = models.ForeignKey(EnumsBundleTypes, models.DO_NOTHING)
     parent_bundle_id = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -605,9 +602,7 @@ class Printed(models.Model):
     | storage_ref | uuid | UNIQUE |
     """
     id = models.BigAutoField(primary_key=True)
-    title_ru = models.TextField(blank=True, null=True)
-    title_en = models.TextField(blank=True, null=True)
-    title_uk = models.TextField(blank=True, null=True)
+    title = TripleLang.Field()
     relevant = models.BooleanField(blank=True, null=True)
     type = models.TextField(blank=True, null=True)
     year = models.SmallIntegerField(blank=True, null=True)
@@ -653,7 +648,7 @@ class Quotes(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     person = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
-    content = models.JSONField()
+    content = TripleLang.Field()
     source = models.ForeignKey(Organizations, models.DO_NOTHING, blank=True, null=True)
     source_url = models.TextField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
@@ -792,9 +787,9 @@ class TextMedia(models.Model):
 
 class Theory(models.Model):
     id = models.BigAutoField(primary_key=True)
-    title = models.JSONField(blank=True, null=True)
+    title = TripleLang.Field(blank=True, null=True)
     type = models.TextField(blank=True, null=True)
-    excerpt = models.JSONField(blank=True, null=True)
+    excerpt = TripleLang.Field(blank=True, null=True)
     images = ArrayField(models.TextField(), blank=True, null=True)
     content = models.JSONField(blank=True, null=True)
     original_content_metadata = ArrayField(models.JSONField(), blank=True, null=True)
@@ -896,25 +891,20 @@ class PeopleExtended(models.Model):
     See People Extended view
     """
     id = models.BigAutoField(primary_key=True)
-    fullname_uk = models.TextField(blank=True, null=True)
-    fullname_en = models.TextField()
-    fullname_ru = models.TextField()
-    lastname_en = models.TextField(blank=True, null=True)
-    lastname_ru = models.TextField(blank=True, null=True)
+    fullname = TripleLang.Field(blank=True, null=True)
+    lastname = TripleLang.Field(blank=True, null=True)
     sex = models.TextField(blank=True, null=True)
     social = ArrayField(models.TextField(), blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
-    is_ttu = models.BooleanField(blank=True, null=True)
-    is_ff = models.BooleanField(blank=True, null=True)
     contact = models.JSONField(blank=True, null=True)
     address = ArrayField(models.TextField(), blank=True, null=True)
     associates = ArrayField(models.JSONField(), blank=True, null=True)
     additional = models.JSONField(blank=True, null=True)
     aliases = ArrayField(models.JSONField(), blank=True, null=True)
-    info = models.JSONField(blank=True, null=True)
+    info = TripleLang.Field(blank=True, null=True)
     dod = models.DateField(blank=True, null=True)
     cod = models.TextField(max_length=255, blank=True, null=True)
-    known_for = models.JSONField(blank=True, null=True)
+    known_for = TripleLang.Field(blank=True, null=True)
     wiki_ref = models.JSONField(blank=True, null=True)
     photo = models.TextField(blank=True, null=True)
     external_links = ArrayField(models.TextField(), blank=True, null=True)
