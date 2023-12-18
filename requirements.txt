@@ -4,6 +4,7 @@ django-extensions==3.2.1
 django-filter==22.1
 djangorestframework==3.14.0
 djangorestframework-jsonapi==6.0.0
+django-postgres-composite-types==0.4.2
 inflection==0.5.1
 python-dotenv==0.21.0
 pytz==2022.6
