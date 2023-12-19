@@ -203,12 +203,12 @@ class PeopleExtendedAPIView(WAPIView):
         # traitors_filter = WAPIView.tristate_param(request.data.get('is_ttu', None))
         # foreign_friends_filter = WAPIView.tristate_param(request.data.get('is_ff', None))
 
-        if filter_value != '':
-            people = people.filter(
-                Q(fullname_en__icontains=filter_value) |
-                Q(fullname_ru__icontains=filter_value) |
-                Q(fullname_uk__icontains=filter_value)
-            )
+        # if filter_value != '':
+        #     people = people.filter(
+        #         Q(fullname_en__icontains=filter_value) |
+        #         Q(fullname_ru__icontains=filter_value) |
+        #         Q(fullname_uk__icontains=filter_value)
+        #     )
         people = people.filter(dod__isnull=alive_filter) if alive_filter is not None else people
 
         if sex_filter is not None:
@@ -248,10 +248,11 @@ class PeopleExtendedAPIView(WAPIView):
         request_data = request.data
         values = request_data.get('values', [])
         logger.info(f'Search request: {request_data}')
-        people = PeopleExtended.objects.filter(reduce(lambda x, y: x | y, [
-            Q(fullname_en=value) |
-            Q(fullname_ru=value) |
-            Q(fullname_uk=value) for value in values]))
+        people = PeopleExtended.objects.all()
+        # people = PeopleExtended.objects.filter(reduce(lambda x, y: x | y, [
+        #     Q(fullname_en=value) |
+        #     Q(fullname_ru=value) |
+        #     Q(fullname_uk=value) for value in values]))
         serializer = PeopleExtendedBriefSerializer(people, many=True)
         return Response(serializer.data)
 
