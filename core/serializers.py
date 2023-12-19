@@ -3,14 +3,14 @@ from . import fields
 from rest_framework import serializers
 
 
-class TripleLangSerializer(serializers.ModelSerializer):
+class TripleLangSerializer(serializers.Serializer):
     en = serializers.CharField(allow_null=True)
     ru = serializers.CharField(allow_null=True)
     uk = serializers.CharField(allow_null=True)
 
     class Meta:
         model = models.TripleLang
-        fields = '__all__'
+        fields = ('en', 'ru', 'uk')
 
 
 class TheorySerializer(serializers.Serializer):
@@ -18,9 +18,9 @@ class TheorySerializer(serializers.Serializer):
     Serializer for Theory table, containing relatively large articles
     """
     id = serializers.IntegerField()
-    title = serializers.JSONField(allow_null=True)
+    title = TripleLangSerializer()
     type = serializers.CharField(allow_blank=True, allow_null=True)
-    excerpt = serializers.JSONField(allow_null=True)
+    excerpt = TripleLangSerializer(allow_null=True)
     content = serializers.JSONField(allow_null=True)
     original_content_metadata = serializers.JSONField(allow_null=True)
     publish_date = serializers.DateTimeField(allow_null=True)
@@ -56,16 +56,17 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
     """
 
     id = serializers.IntegerField()
-    fullname_en = serializers.CharField()
-    fullname_ru = serializers.CharField()
-    fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
+    fullname = TripleLangSerializer()
+    # fullname_en = serializers.CharField()
+    # fullname_ru = serializers.CharField()
+    # fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
     dob = serializers.DateField(allow_null=True)
     dod = serializers.DateField(allow_null=True)
     photo = serializers.CharField(allow_blank=True, allow_null=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
     sex = serializers.CharField(allow_blank=True, allow_null=True)
-    is_ttu = serializers.BooleanField(allow_null=True)
-    is_ff = serializers.BooleanField(allow_null=True)
+    # is_ttu = serializers.BooleanField(allow_null=True)
+    # is_ff = serializers.BooleanField(allow_null=True)
 
     def create(self, validated_data):
         """
@@ -83,9 +84,9 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
         model = models.PeopleExtended
         fields = (
             'id',
-            'fullname_en',
-            'fullname_ru',
-            'fullname_uk',
+            'fullname',
+            # 'fullname_ru',
+            # 'fullname_uk',
             'dob',
             'dod',
             'photo',
@@ -100,9 +101,10 @@ class CacheSerializer(serializers.Serializer):
     This one is a brief version of the serializer, returning only the most important fields
     """
     id = serializers.IntegerField()
-    fullname_en = serializers.CharField()
-    fullname_ru = serializers.CharField()
-    fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
+    fullname = TripleLangSerializer()
+    # fullname_en = serializers.CharField()
+    # fullname_ru = serializers.CharField()
+    # fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
     added_on = fields.UnixTimestampField()
 
     def create(self, validated_data):
@@ -121,9 +123,10 @@ class CacheSerializer(serializers.Serializer):
         model = models.PeopleExtended
         fields = (
             'id',
-            'fullname_en',
-            'fullname_ru',
-            'fullname_uk'
+            'fullname',
+            # 'fullname_en',
+            # 'fullname_ru',
+            # 'fullname_uk'
         )
 
 
@@ -132,24 +135,26 @@ class PeopleExtendedSerializer(serializers.Serializer):
     Full serializer to return almost all fields
     """
     id = serializers.IntegerField()
-    fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
-    fullname_en = serializers.CharField()
-    fullname_ru = serializers.CharField()
-    lastname_en = serializers.CharField(allow_blank=True, allow_null=True)
-    lastname_ru = serializers.CharField(allow_blank=True, allow_null=True)
+    fullname = TripleLangSerializer()
+    # fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
+    # fullname_en = serializers.CharField()
+    # fullname_ru = serializers.CharField()
+    lastname = TripleLangSerializer()
+    # lastname_en = serializers.CharField(allow_blank=True, allow_null=True)
+    # lastname_ru = serializers.CharField(allow_blank=True, allow_null=True)
     social = serializers.CharField(allow_blank=True, allow_null=True)
     dob = serializers.DateField(allow_null=True)
-    is_ttu = serializers.BooleanField(allow_null=True)
-    is_ff = serializers.BooleanField(allow_null=True)
+    # is_ttu = serializers.BooleanField(allow_null=True)
+    # is_ff = serializers.BooleanField(allow_null=True)
     contact = serializers.JSONField(allow_null=True)
     address = serializers.CharField(allow_blank=True, allow_null=True)
     associates = serializers.JSONField(allow_null=True)
     additional = serializers.JSONField(allow_null=True)
     aliases = serializers.JSONField(allow_null=True)
-    info = serializers.JSONField(allow_null=True)
+    info = TripleLangSerializer()
     dod = serializers.DateField(allow_null=True)
     cod = serializers.CharField(allow_blank=True, allow_null=True)
-    known_for = serializers.JSONField(allow_null=True)
+    known_for = TripleLangSerializer()
     wiki_ref = serializers.JSONField(allow_null=True)
     photo = serializers.CharField(allow_blank=True, allow_null=True)
     external_links = serializers.CharField(allow_blank=True, allow_null=True)
@@ -177,15 +182,16 @@ class PeopleExtendedSerializer(serializers.Serializer):
         model = models.PeopleExtended
         fields = (
             'id',
-            'fullname_en',
-            'fullname_ru',
-            'fullname_uk',
+            'fullname',
+            # 'fullname_en',
+            # 'fullname_ru',
+            # 'fullname_uk',
             'dob',
             'photo',
             'thumb',
             'social',
-            'is_ttu',
-            'is_ff',
+            # 'is_ttu',
+            # 'is_ff',
             'contact',
             'address',
             'associates',
@@ -209,15 +215,16 @@ class OrganizationSerializer(serializers.Serializer):
     Serializer for model Organizations
     """
     id = serializers.IntegerField()
-    name_en = serializers.CharField()
-    name_ru = serializers.CharField()
-    name_uk = serializers.CharField(allow_blank=True, allow_null=True)
+    name = TripleLangSerializer()
+    # name_en = serializers.CharField()
+    # name_ru = serializers.CharField()
+    # name_uk = serializers.CharField(allow_blank=True, allow_null=True)
     parent_org = serializers.IntegerField(allow_null=True)
     region = serializers.IntegerField(allow_null=True)
     source_url = serializers.CharField(allow_blank=True, allow_null=True)
     org_type = serializers.IntegerField(allow_null=True)
     coverage_type = serializers.IntegerField(allow_null=True)
-    short_name = serializers.JSONField(allow_null=True)
+    short_name = TripleLangSerializer()
     state_affiliated = serializers.BooleanField(allow_null=True)
     org_form_raw = serializers.CharField(allow_blank=True, allow_null=True)
     org_form = serializers.JSONField(allow_null=True)
@@ -240,9 +247,10 @@ class OrganizationSerializer(serializers.Serializer):
         # create a dictionary with the fields to be serialized
         representation = {
             'id': instance.id,
-            'name_en': instance.name_en,
-            'name_ru': instance.name_ru,
-            'name_uk': instance.name_uk,
+            'name': instance.name,
+            # 'name_en': instance.name_en,
+            # 'name_ru': instance.name_ru,
+            # 'name_uk': instance.name_uk,
             'parent_org': instance.parent_org,
             'region': instance.region,
             'source_url': instance.source_url,
@@ -261,9 +269,10 @@ class OrganizationSerializer(serializers.Serializer):
         model = models.Organizations
         fields = (
             'id',
-            'name_en',
-            'name_ru',
-            'name_uk',
+            'name',
+            # 'name_en',
+            # 'name_ru',
+            # 'name_uk',
             'parent_org',
             'region',
             'source_url',
