@@ -28,7 +28,7 @@ class TripleLangViewSet(viewsets.ModelViewSet):  #  does this make sense?
     serializer_class = TripleLangSerializer
 
 
-class SupawordAPIView(generics.CreateAPIView):
+class WAPIView(generics.CreateAPIView):
     """
     Base class for all API views
     """
@@ -123,7 +123,7 @@ class SupawordAPIView(generics.CreateAPIView):
             return self._post_protected(request, *args, **kwargs)
 
 
-class PeopleExtendedAPIView(SupawordAPIView):
+class PeopleExtendedAPIView(WAPIView):
     """
     API view to handle PeopleExtended data
     """
@@ -199,9 +199,9 @@ class PeopleExtendedAPIView(SupawordAPIView):
         sex_filter = request.data.get('sex', None)
 
         # Tristate filters: True, False, None
-        alive_filter = SupawordAPIView.tristate_param(request.data.get('alive', None))
-        traitors_filter = SupawordAPIView.tristate_param(request.data.get('is_ttu', None))
-        foreign_friends_filter = SupawordAPIView.tristate_param(request.data.get('is_ff', None))
+        alive_filter = WAPIView.tristate_param(request.data.get('alive', None))
+        # traitors_filter = WAPIView.tristate_param(request.data.get('is_ttu', None))
+        # foreign_friends_filter = WAPIView.tristate_param(request.data.get('is_ff', None))
 
         if filter_value != '':
             people = people.filter(
@@ -220,14 +220,14 @@ class PeopleExtendedAPIView(SupawordAPIView):
         logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
         people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
 
-        if traitors_filter is not None:
-            people = people.filter(is_ttu=traitors_filter)
-
-        if foreign_friends_filter is not None:
-            people = people.filter(is_ff=foreign_friends_filter)
+        # if traitors_filter is not None:
+        #     people = people.filter(is_ttu=traitors_filter)
+        #
+        # if foreign_friends_filter is not None:
+        #     people = people.filter(is_ff=foreign_friends_filter)
 
         # Apply sorting
-        sort_by = request.data.get('sort_by', 'fullname_en')
+        sort_by = request.data.get('sort_by', 'fullname.en')
         sort_direction = request.data.get('sort_direction', 'asc')
         sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
         logger.info(f'Sorting condition {sort_by}')
@@ -266,7 +266,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         values = request_data.get('values', [])
         logger.info(f'Fulltext search request: {request_data}')
         people = search_model_fulltext(model=PeopleExtended,
-                                       fields=['fullname_en', 'fullname_ru', 'fullname_uk'],
+                                       fields=['fullname'],
                                        values=values)
 
         serializer = PeopleExtendedBriefSerializer(people, many=True)
@@ -297,7 +297,7 @@ class PeopleExtendedAPIView(SupawordAPIView):
         return Response(response_data)
 
 
-class TheoryAPIView(SupawordAPIView):
+class TheoryAPIView(WAPIView):
     """
     API view to handle Theory table
     """

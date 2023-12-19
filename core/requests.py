@@ -80,7 +80,7 @@ class PagingRequestSerializer(CommonRequestSerializer):
         """
         pass
 
-    allowed_fields = ['id', 'fullname_en', 'fullname_ru', 'fullname_uk', 'dob', 'dod', 'sex']
+    allowed_fields = ['id', 'fullname', 'dob', 'dod', 'sex']
     type = serializers.CharField(required=True)
     page = serializers.IntegerField(required=True, min_value=0)
     page_size = serializers.IntegerField(required=True, min_value=8, max_value=120)
@@ -91,8 +91,8 @@ class PagingRequestSerializer(CommonRequestSerializer):
     age_min = serializers.IntegerField(required=False, min_value=1, max_value=99, allow_null=True)
     age_max = serializers.IntegerField(required=False, min_value=1, max_value=99, allow_null=True)
     alive = serializers.BooleanField(required=False, allow_null=True)
-    is_ttu = serializers.BooleanField(required=False, allow_null=True)
-    is_ff = serializers.BooleanField(required=False, allow_null=True)
+    # is_ttu = serializers.BooleanField(required=False, allow_null=True)
+    # is_ff = serializers.BooleanField(required=False, allow_null=True)
 
     def validate(self, data):
         """
