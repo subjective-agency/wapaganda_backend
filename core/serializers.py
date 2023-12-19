@@ -3,6 +3,16 @@ from . import fields
 from rest_framework import serializers
 
 
+class TripleLangSerializer(serializers.ModelSerializer):
+    en = serializers.CharField(allow_null=True)
+    ru = serializers.CharField(allow_null=True)
+    uk = serializers.CharField(allow_null=True)
+
+    class Meta:
+        model = models.TripleLang
+        fields = '__all__'
+
+
 class TheorySerializer(serializers.Serializer):
     """
     Serializer for Theory table, containing relatively large articles
