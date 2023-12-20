@@ -32,16 +32,14 @@ class TestPeopleExtendedAPIView(TestCase):
             else:
                 self.assertIsInstance(response.data['cache'], dict)
 
-    @given(text(), integers(), integers(), text(), booleans(), booleans(), booleans(), text(), text())
-    def test_return_page(self, filter, age_min, age_max, sex, alive, is_ttu, is_ff, sort_by, sort_direction):
+    @given(text(), integers(), integers(), text(), booleans(), text(), text())
+    def test_return_page(self, filter, age_min, age_max, sex, alive, sort_by, sort_direction):
         request = self.factory.post(self.uri, {
             'filter': filter,
             'age_min': age_min,
             'age_max': age_max,
             'sex': sex,
             'alive': alive,
-            'is_ttu': is_ttu,
-            'is_ff': is_ff,
             'sort_by': sort_by,
             'sort_direction': sort_direction
         }, format='json')

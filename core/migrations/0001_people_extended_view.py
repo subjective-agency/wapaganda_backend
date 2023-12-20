@@ -5,18 +5,6 @@ from django.db import migrations
 SQL_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "sql")
 
 
-# class Migration(migrations.Migration):
-#
-#     operations = [
-#         # Registers the type
-#         address.Address.Operation(),
-#         migrations.AddField(
-#             model_name='person',
-#             name='address',
-#             field=address.Address.Field(blank=True, null=True),
-#         ),
-#     ]
-
 def create_migration(directory):
     operations = []
     # Iterate over SQL files in the specified directory

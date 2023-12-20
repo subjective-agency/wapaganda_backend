@@ -44,15 +44,15 @@ class PeopleExtendedApiTestCase(unittest.TestCase):
             'type': 'page',
             'page': random.randint(0, 10),
             'page_size': random.randint(10, 20),
-            'sort_by': random.choice(['id', 'fullname_en', 'fullname_ru', 'fullname_uk', 'dob', 'dod', 'sex']),
+            'sort_by': random.choice(['id', 'fullname', 'dob', 'dod', 'sex']),
             'sort_direction': random.choice(['asc', 'desc']),
             'filter': self.generate_random_string(),
             'alive': random.choice([True, False]),
             'sex': random.choice(['m', 'f']),
             'age_min': random.randint(1, 99),
             'age_max': random.randint(1, 99),
-            'is_ttu': random.choice([True, False]),
-            'is_ff': random.choice([True, False]),
+            # 'is_ttu': random.choice([True, False]),
+            # 'is_ff': random.choice([True, False]),
         }
 
     def generate_simple_data(self):

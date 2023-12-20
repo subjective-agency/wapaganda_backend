@@ -134,17 +134,17 @@ class PagingRequestSerializer(CommonRequestSerializer):
         """
         return self.tristate_param(value)
 
-    def validate_is_ttu(self, value):
-        """
-        Convert a parameter to tristate value (True, False, None)
-        """
-        return self.tristate_param(value)
-
-    def validate_is_ff(self, value):
-        """
-        Convert a parameter to tristate value (True, False, None)
-        """
-        return self.tristate_param(value)
+    # def validate_is_ttu(self, value):
+    #     """
+    #     Convert a parameter to tristate value (True, False, None)
+    #     """
+    #     return self.tristate_param(value)
+    #
+    # def validate_is_ff(self, value):
+    #     """
+    #     Convert a parameter to tristate value (True, False, None)
+    #     """
+    #     return self.tristate_param(value)
 
     def to_internal_value(self, data):
         """
