@@ -37,6 +37,8 @@ class CommonRequestSerializer(serializers.Serializer):
             return None
         if isinstance(param, bool):
             return param
+        if isinstance(param, int) and param in (0, 1):
+            return bool(param)
         if isinstance(param, str) and param.lower() in ['true', 'false']:
             return param.lower() == 'true'
         raise ValueError(f'Invalid tristate value [{param}]')
@@ -49,10 +51,10 @@ class PagingRequestSerializer(CommonRequestSerializer):
     * Alive: If the value `alive: true` or `alive: false` is defined, we perform the respective query.
       In other words, if we define `alive: true`, we return only alive people, if `alive: false`,
       we return only dead people, if we don't define `alive`, we return everyone.
-    * Traitor to Ukraine: If the value `is_ttu: true` or `is_ttu: false` is defined, we perform the respective query.
-      If undefined, we return everyone
-    * Foreign Friend: If the value `is_ff: true` or `is_ff: false` is defined, we perform the respective query.
-      If undefined, we return everyone
+    # * Traitor to Ukraine: If the value `is_ttu: true` or `is_ttu: false` is defined, we perform the respective query.
+    #   If undefined, we return everyone
+    # * Foreign Friend: If the value `is_ff: true` or `is_ff: false` is defined, we perform the respective query.
+    #   If undefined, we return everyone
     * Sex (gender): If the value `sex: "M"` or `sex: "F"` is defined, we perform the respective query.
       If undefined, we return both men and women
     * Full name: If the filter value in wildcard format is defined, we perform the respective query.
