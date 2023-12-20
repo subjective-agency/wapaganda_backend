@@ -2,14 +2,14 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from supaword.log_helper import logger
+from wganda.log_helper import logger
 
 
 def main():
     """
     Run administrative tasks
     """
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'supaword.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wganda.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

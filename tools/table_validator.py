@@ -1,5 +1,5 @@
 import psycopg2
-from supaword.log_helper import logger
+from wganda.log_helper import logger
 
 
 # noinspection SqlNoDataSourceInspection,SqlResolve

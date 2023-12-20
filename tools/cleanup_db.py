@@ -1,7 +1,7 @@
 import os.path
 import psycopg2
 import json
-from supaword.log_helper import logger
+from wganda.log_helper import logger
 from datetime import datetime, date
 
 __doc__ = """

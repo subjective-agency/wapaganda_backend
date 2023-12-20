@@ -87,7 +87,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_METHODS = ['POST', 'GET', 'OPTIONS']
 
-ROOT_URLCONF = 'supaword.urls'
+ROOT_URLCONF = 'wganda.urls'
 
 
 # noinspection PyUnresolvedReferences
@@ -106,7 +106,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'supaword.wsgi.application'
+WSGI_APPLICATION = 'wganda.wsgi.application'
 
 
 # Database

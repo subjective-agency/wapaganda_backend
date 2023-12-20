@@ -1,7 +1,7 @@
 import time
 import os.path
 import psycopg2
-from supaword.log_helper import logger
+from wganda.log_helper import logger
 from tools.postgres_table import PostgresTableExport
 
 __doc__ = """Export data from Postgres database to JSON files

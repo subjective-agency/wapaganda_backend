@@ -3,7 +3,7 @@ import sys
 
 import psycopg2
 import json
-from supaword.log_helper import logger
+from wganda.log_helper import logger
 
 __doc__ = """Import data from JSON files to Postgres database
 We utilize the class from standard Django manage.py script

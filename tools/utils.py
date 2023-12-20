@@ -3,7 +3,7 @@ import json
 from datetime import datetime, date
 from uuid import UUID
 
-from supaword.log_helper import logger
+from wganda.log_helper import logger
 
 
 def read_table_names(table_names_file):

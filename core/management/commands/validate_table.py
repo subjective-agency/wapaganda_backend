@@ -2,9 +2,9 @@
 """Django's command-line utility for administrative tasks"""
 import os
 from django.core.management.base import BaseCommand, CommandError
-from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
+from wganda.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
 from tools.table_validator import TableValidator
-from supaword.log_helper import logger
+from wganda.log_helper import logger
 
 
 class Command(BaseCommand):

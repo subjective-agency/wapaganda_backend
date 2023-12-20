@@ -7,10 +7,10 @@ import shutil
 from django.core.management.base import BaseCommand, CommandError
 from py7zr import SevenZipFile
 
-from supaword.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
+from wganda.secure_env import POSTGRES_PASSWORD, POSTGRES_ADDRESS, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB
 from tools.utils import read_table_names
 from tools.export_db import PostgresDbExport
-from supaword.log_helper import logger
+from wganda.log_helper import logger
 
 
 def on_rm_error(*args):

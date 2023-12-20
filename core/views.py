@@ -13,8 +13,8 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
 from core.search import search_model_fulltext
-from supaword import settings
-from supaword.log_helper import logger
+from wganda import settings
+from wganda.log_helper import logger
 from core import models
 from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer
 from core.serializers import TheorySerializer

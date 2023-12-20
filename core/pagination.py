@@ -1,6 +1,6 @@
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from supaword import settings
+from wganda import settings
 
 
 class CustomPostPagination(PageNumberPagination):

@@ -4,7 +4,7 @@ import json
 import pathlib
 
 HOME_DIR = os.path.join(pathlib.Path.home())
-CREDENTIALS_FILE = os.path.join(HOME_DIR, '.supaword', 'credentials.json')
+CREDENTIALS_FILE = os.path.join(HOME_DIR, '.wganda', 'credentials.json')
 
 __doc__ = """Constants for accessing Supabase database"""
 

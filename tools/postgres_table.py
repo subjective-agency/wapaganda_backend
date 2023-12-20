@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 import os.path
 from collections import OrderedDict
-from supaword.log_helper import logger
+from wganda.log_helper import logger
 from tools.utils import CustomJSONEncoder, PostgresExportHelper
 
 
