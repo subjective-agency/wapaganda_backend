@@ -57,16 +57,11 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
 
     id = serializers.IntegerField()
     fullname = TripleLangSerializer()
-    # fullname_en = serializers.CharField()
-    # fullname_ru = serializers.CharField()
-    # fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
     dob = serializers.DateField(allow_null=True)
     dod = serializers.DateField(allow_null=True)
     photo = serializers.CharField(allow_blank=True, allow_null=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
     sex = serializers.CharField(allow_blank=True, allow_null=True)
-    # is_ttu = serializers.BooleanField(allow_null=True)
-    # is_ff = serializers.BooleanField(allow_null=True)
 
     def create(self, validated_data):
         """
@@ -85,8 +80,6 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
         fields = (
             'id',
             'fullname',
-            # 'fullname_ru',
-            # 'fullname_uk',
             'dob',
             'dod',
             'photo',
@@ -102,9 +95,6 @@ class CacheSerializer(serializers.Serializer):
     """
     id = serializers.IntegerField()
     fullname = TripleLangSerializer()
-    # fullname_en = serializers.CharField()
-    # fullname_ru = serializers.CharField()
-    # fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
     added_on = fields.UnixTimestampField()
 
     def create(self, validated_data):
@@ -124,9 +114,6 @@ class CacheSerializer(serializers.Serializer):
         fields = (
             'id',
             'fullname',
-            # 'fullname_en',
-            # 'fullname_ru',
-            # 'fullname_uk'
         )
 
 
@@ -136,16 +123,9 @@ class PeopleExtendedSerializer(serializers.Serializer):
     """
     id = serializers.IntegerField()
     fullname = TripleLangSerializer()
-    # fullname_uk = serializers.CharField(allow_blank=True, allow_null=True)
-    # fullname_en = serializers.CharField()
-    # fullname_ru = serializers.CharField()
     lastname = TripleLangSerializer()
-    # lastname_en = serializers.CharField(allow_blank=True, allow_null=True)
-    # lastname_ru = serializers.CharField(allow_blank=True, allow_null=True)
     social = serializers.CharField(allow_blank=True, allow_null=True)
     dob = serializers.DateField(allow_null=True)
-    # is_ttu = serializers.BooleanField(allow_null=True)
-    # is_ff = serializers.BooleanField(allow_null=True)
     contact = serializers.JSONField(allow_null=True)
     address = serializers.CharField(allow_blank=True, allow_null=True)
     associates = serializers.JSONField(allow_null=True)
@@ -183,15 +163,10 @@ class PeopleExtendedSerializer(serializers.Serializer):
         fields = (
             'id',
             'fullname',
-            # 'fullname_en',
-            # 'fullname_ru',
-            # 'fullname_uk',
             'dob',
             'photo',
             'thumb',
             'social',
-            # 'is_ttu',
-            # 'is_ff',
             'contact',
             'address',
             'associates',
@@ -216,9 +191,6 @@ class OrganizationSerializer(serializers.Serializer):
     """
     id = serializers.IntegerField()
     name = TripleLangSerializer()
-    # name_en = serializers.CharField()
-    # name_ru = serializers.CharField()
-    # name_uk = serializers.CharField(allow_blank=True, allow_null=True)
     parent_org = serializers.IntegerField(allow_null=True)
     region = serializers.IntegerField(allow_null=True)
     source_url = serializers.CharField(allow_blank=True, allow_null=True)
@@ -248,9 +220,6 @@ class OrganizationSerializer(serializers.Serializer):
         representation = {
             'id': instance.id,
             'name': instance.name,
-            # 'name_en': instance.name_en,
-            # 'name_ru': instance.name_ru,
-            # 'name_uk': instance.name_uk,
             'parent_org': instance.parent_org,
             'region': instance.region,
             'source_url': instance.source_url,
@@ -270,9 +239,6 @@ class OrganizationSerializer(serializers.Serializer):
         fields = (
             'id',
             'name',
-            # 'name_en',
-            # 'name_ru',
-            # 'name_uk',
             'parent_org',
             'region',
             'source_url',

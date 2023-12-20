@@ -22,11 +22,6 @@ from core.requests import PagingRequestSerializer, TheoryRequestSerializer
 from core.models import PeopleExtended, Theory
 from core.pagination import CustomPostPagination
 
-#
-# class TripleLangViewSet(viewsets.ModelViewSet):
-#     # queryset = TripleLang.objects.all()
-#     serializer_class = TripleLangSerializer
-
 
 class WAPIView(generics.CreateAPIView):
     """
