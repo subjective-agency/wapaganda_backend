@@ -24,7 +24,7 @@ from core.pagination import CustomPostPagination
 
 
 class TripleLangViewSet(viewsets.ModelViewSet):  #  does this make sense?
-    queryset = TripleLang.objects.all()
+    # queryset = TripleLang.objects.all()
     serializer_class = TripleLangSerializer
 
 
