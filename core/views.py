@@ -7,7 +7,7 @@ from django.conf import settings
 from django.utils.dateparse import parse_date
 
 from rest_framework import generics
-from rest_framework import status, viewsets
+from rest_framework import status
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
@@ -17,15 +17,15 @@ from supaword import settings
 from supaword.log_helper import logger
 from core import models
 from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer
-from core.serializers import TheorySerializer, TripleLangSerializer
+from core.serializers import TheorySerializer
 from core.requests import PagingRequestSerializer, TheoryRequestSerializer
-from core.models import PeopleExtended, Theory, TripleLang
+from core.models import PeopleExtended, Theory
 from core.pagination import CustomPostPagination
 
-
-class TripleLangViewSet(viewsets.ModelViewSet):  #  does this make sense?
-    # queryset = TripleLang.objects.all()
-    serializer_class = TripleLangSerializer
+#
+# class TripleLangViewSet(viewsets.ModelViewSet):
+#     # queryset = TripleLang.objects.all()
+#     serializer_class = TripleLangSerializer
 
 
 class WAPIView(generics.CreateAPIView):
