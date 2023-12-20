@@ -91,8 +91,6 @@ class PagingRequestSerializer(CommonRequestSerializer):
     age_min = serializers.IntegerField(required=False, min_value=1, max_value=99, allow_null=True)
     age_max = serializers.IntegerField(required=False, min_value=1, max_value=99, allow_null=True)
     alive = serializers.BooleanField(required=False, allow_null=True)
-    # is_ttu = serializers.BooleanField(required=False, allow_null=True)
-    # is_ff = serializers.BooleanField(required=False, allow_null=True)
 
     def validate(self, data):
         """
