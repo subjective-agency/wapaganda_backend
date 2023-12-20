@@ -1,12 +1,12 @@
 from django.urls import path, include
 from django.contrib import admin
-from core.views import TripleLangViewSet
+# from core.views import TripleLangViewSet
 
 from core import views as core_views
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register('triple_lang', TripleLangViewSet)
+# router.register('triple_lang', TripleLangViewSet)
 
 urlpatterns = [
     path('', core_views.bad_request),
