@@ -82,7 +82,7 @@ class PagingRequestSerializer(CommonRequestSerializer):
         """
         pass
 
-    allowed_fields = ['id', 'fullname', 'dob', 'dod', 'sex']
+    allowed_fields = ['id', 'fullname', 'dob', 'dod', 'sex', 'lastname', 'bundles']
     type = serializers.CharField(required=True)
     page = serializers.IntegerField(required=True, min_value=0)
     page_size = serializers.IntegerField(required=True, min_value=8, max_value=120)
@@ -93,6 +93,9 @@ class PagingRequestSerializer(CommonRequestSerializer):
     age_min = serializers.IntegerField(required=False, min_value=1, max_value=99, allow_null=True)
     age_max = serializers.IntegerField(required=False, min_value=1, max_value=99, allow_null=True)
     alive = serializers.BooleanField(required=False, allow_null=True)
+    # bundles_n = serializers.CharField(required=False, allow_null=True)
+    # bundles_o = serializers.CharField(required=False, allow_null=True)
+    # bundles_e = serializers.CharField(required=False, allow_null=True)
 
     def validate(self, data):
         """
@@ -133,6 +136,11 @@ class PagingRequestSerializer(CommonRequestSerializer):
         Convert a parameter to tristate value (True, False, None)
         """
         return self.tristate_param(value)
+
+    # def validate_bundles_n(self, value):
+    #     if value is None:
+    #         return
+    #
 
     # def validate_is_ttu(self, value):
     #     """
