@@ -167,6 +167,7 @@ class PeopleExtendedAPIView(WAPIView):
         }
         return Response(response_data)
 
+
     @staticmethod
     def return_page(request):
         """
@@ -205,14 +206,16 @@ class PeopleExtendedAPIView(WAPIView):
                 Q(fullname_ru__icontains=filter_value) |
                 Q(fullname_uk__icontains=filter_value)
             )
-        people = people.filter(dod__isnull=alive_filter) if alive_filter else people
-        people = people.filter(sex=sex_filter) if sex_filter else people
+        if alive_filter is not None:
+            people = people.filter(dod__isnull=alive_filter)
+        if sex_filter is not None:
+            people = people.filter(sex=sex_filter)
 
         today = datetime.now().date()
         birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
         birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
         logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
-        people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+        # people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
         logger.info(f"After filtering: {len(people)}")
 
         # if traitors_filter is not None:
