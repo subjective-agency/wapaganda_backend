@@ -167,6 +167,7 @@ class PeopleExtendedAPIView(WAPIView):
         }
         return Response(response_data)
 
+
     @staticmethod
     def return_page(request):
         """
@@ -175,7 +176,7 @@ class PeopleExtendedAPIView(WAPIView):
         :return: Paginated and filtered data in short JSON format
         """
         serializer = PagingRequestSerializer(data=request.data)
-        logger.debug(f"Received {len(request.data)} items")
+        logger.info(f"Received {len(request.data)} items")
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as error:
@@ -183,14 +184,13 @@ class PeopleExtendedAPIView(WAPIView):
             return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
         people = PeopleExtended.objects.all()
-        logger.info(f'Page request: {request.data}')
+        logger.info(f'Before filtering: {len(people)}')
 
         # Apply filtering
         filter_value = request.data.get('filter', '')
         age_min = request.data.get('age_min', 1)
         age_max = request.data.get('age_max', 99)
-        age_min = age_min if age_min is not None else 1
-        age_max = age_max if age_max is not None else 99
+        logger.info(f"Before: Age min is {age_min}, Age max is {age_max}")
 
         sex_filter = request.data.get('sex', None)
 
@@ -205,15 +205,28 @@ class PeopleExtendedAPIView(WAPIView):
                 Q(fullname_ru__icontains=filter_value) |
                 Q(fullname_uk__icontains=filter_value)
             )
-        people = people.filter(dod__isnull=alive_filter) if alive_filter else people
-        people = people.filter(sex=sex_filter) if sex_filter else people
+        if alive_filter is not None:
+            people = people.filter(dod__isnull=alive_filter)
+        if sex_filter is not None:
+            people = people.filter(sex=sex_filter)
 
         today = datetime.now().date()
-        birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
-        birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
-        logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
-        people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
-        logger.info(f"Left after filtering: {len(people)}")
+        if age_min and age_max:
+            birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+            birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+            logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+            people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+        elif age_min and not age_max:
+            birth_date_limit_min = today - timedelta(days=99 * 365)
+            birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+            logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+            people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+        elif age_max and not age_min:
+            birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+            birth_date_limit_max = today
+            logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+            people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+        logger.info(f"After filtering: {len(people)}")
 
         # if traitors_filter is not None:
         #     people = people.filter(is_ttu=traitors_filter)
