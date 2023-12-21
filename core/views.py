@@ -175,7 +175,7 @@ class PeopleExtendedAPIView(WAPIView):
         :return: Paginated and filtered data in short JSON format
         """
         serializer = PagingRequestSerializer(data=request.data)
-        logger.debug(f"Received {len(request.data)} items")
+        logger.info(f"Received {len(request.data)} items")
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as error:
@@ -183,7 +183,7 @@ class PeopleExtendedAPIView(WAPIView):
             return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
         people = PeopleExtended.objects.all()
-        logger.info(f'Page request: {request.data}')
+        logger.info(f'Before filtering: {len(people)}')
 
         # Apply filtering
         filter_value = request.data.get('filter', '')
@@ -213,7 +213,7 @@ class PeopleExtendedAPIView(WAPIView):
         birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
         logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
         people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
-        logger.info(f"Left after filtering: {len(people)}")
+        logger.info(f"After filtering: {len(people)}")
 
         # if traitors_filter is not None:
         #     people = people.filter(is_ttu=traitors_filter)

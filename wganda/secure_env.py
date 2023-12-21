@@ -6,7 +6,7 @@ import pathlib
 HOME_DIR = os.path.join(pathlib.Path.home())
 CREDENTIALS_FILE = os.path.join(HOME_DIR, '.wganda', 'credentials.json')
 
-__doc__ = """Constants for accessing Supabase database"""
+__doc__ = """Constants for accessing database"""
 
 
 def environment_value(environment_name):
