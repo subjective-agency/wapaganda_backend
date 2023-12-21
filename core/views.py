@@ -191,9 +191,6 @@ class PeopleExtendedAPIView(WAPIView):
         age_min = request.data.get('age_min', 1)
         age_max = request.data.get('age_max', 99)
         logger.info(f"Before: Age min is {age_min}, Age max is {age_max}")
-        # age_min = age_min if age_min is not None else 1
-        # age_max = age_max if age_max is not None else 99
-
 
         sex_filter = request.data.get('sex', None)
 
@@ -214,18 +211,18 @@ class PeopleExtendedAPIView(WAPIView):
             people = people.filter(sex=sex_filter)
 
         today = datetime.now().date()
-        if age_max and age_min:
-            birth_date_limit_min = today - timedelta(days=int(age_max) * 365)  # 30
-            birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)  # 20
+        if age_min and age_max:
+            birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+            birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
             logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
             people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
         elif age_min and not age_max:
             birth_date_limit_min = today - timedelta(days=99 * 365)
-            birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)  # 20
+            birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
             logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
             people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
         elif age_max and not age_min:
-            birth_date_limit_min = today - timedelta(days=int(age_max) * 365)  # 30
+            birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
             birth_date_limit_max = today
             logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
             people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
