@@ -404,7 +404,7 @@ class People(models.Model):
     address = ArrayField(models.TextField(), blank=True, null=True)
     associates = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
     additional = ArrayField(models.JSONField(), blank=True, null=True)
-    aliases = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
+    aliases = ArrayField(TripleLang.Field(), blank=True, null=True)
     info = TripleLang.Field(blank=True, null=True)
     dod = models.DateField(blank=True, null=True)
     cod = models.CharField(max_length=255, blank=True, null=True)
@@ -900,7 +900,7 @@ class PeopleExtended(models.Model):
     address = ArrayField(models.TextField(), blank=True, null=True)
     associates = ArrayField(models.JSONField(), blank=True, null=True)
     additional = models.JSONField(blank=True, null=True)
-    aliases = ArrayField(models.JSONField(), blank=True, null=True)
+    aliases = ArrayField(TripleLang.Field(), blank=True, null=True)
     info = TripleLang.Field(blank=True, null=True)
     dod = models.DateField(blank=True, null=True)
     cod = models.TextField(max_length=255, blank=True, null=True)

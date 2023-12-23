@@ -130,7 +130,7 @@ class PeopleExtendedSerializer(serializers.Serializer):
     address = serializers.CharField(allow_blank=True, allow_null=True)
     associates = serializers.JSONField(allow_null=True)
     additional = serializers.JSONField(allow_null=True)
-    aliases = serializers.JSONField(allow_null=True)
+    aliases = TripleLangSerializer(allow_null=True)
     info = TripleLangSerializer()
     dod = serializers.DateField(allow_null=True)
     cod = serializers.CharField(allow_blank=True, allow_null=True)
