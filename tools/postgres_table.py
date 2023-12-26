@@ -7,13 +7,19 @@ from wganda.log_helper import logger
 from tools.utils import CustomJSONEncoder, PostgresExportHelper
 
 
+# TODO: add method to collect row IDs, operation types, and change timestamps from service.volatility (+deleted_data if operation = 'delete')
+# TODO: add method for parsing _deleted_data_ into a backup record
+# TODO: add method to parse collected items into a list of row IDs to backup
+# TODO: update relevant methods
+# TODO: add method for truncating service.volatility
+
 # noinspection SqlNoDataSourceInspection,SqlResolve
 class PostgresTableExport:
     """
     Abstraction of PostgresTable in context of table export
     """
 
-    def __init__(self, connection, table_name, export_dir, batch_size, rewrite, restore, skip_export):
+    def __init__(self, connection, table_name, export_dir, batch_size, rewrite, resume, skip_export):
         """
         Initialize a PostgresTable instance.
         :param connection: An existing PostgresSQL database connection.
@@ -21,7 +27,7 @@ class PostgresTableExport:
         :param export_dir: The directory where JSON files will be exported.
         :param batch_size: Number of records to export in each batch.
         :param rewrite: If True, rewrite already exported tables
-        :param restore: If True, resume exporting from the last completed batch
+        :param resume: If True, resume exporting from the last completed batch
         :param skip_export: If True, skip exporting the table if it is up-to-date
         """
         self.connection = connection
@@ -35,8 +41,8 @@ class PostgresTableExport:
         self.export_dir = os.path.abspath(export_dir)
         self.batch_size = batch_size
         self.rewrite = rewrite
-        self.restore = restore
-        self.skip_export = skip_export
+        self.resume = resume
+        # self.skip_export = skip_export  # not required anymore
 
         # OrderedDict of batch information dicts batch_num = {size, offset, filename}
         self.batches = OrderedDict()
@@ -60,7 +66,7 @@ class PostgresTableExport:
         self.is_batches = False
 
         # If table is up-to-date, we can skip export
-        self.up_to_date = False
+        # self.up_to_date = False
 
         self._preprocess()
         logger.info(f"Create PostgresTable {self.schema_name}.{self.table_name} with batch_size {batch_size}")
@@ -69,13 +75,17 @@ class PostgresTableExport:
         """
         Preprocess information about the table before exporting.
         What we actually do:
+        === check if volatility has records for this table
+        === if there are records, check if batch approach is necessary, if yes, check for existing batches, get latest if any
+        === get data types
+
         - check if table has 'id' column
         - get column data types
         - check if table has enough records to export in batches
         - get last completed batch
         - check if table is up-to-date and we can skip export
         """
-        # Check if the table is up-to-date and we can skip export
+        # Check if the table is up-to-date and we can skip export   TODO: check if volatility has records for this table
         if not self.rewrite and self.skip_export:
             last_data_timestamp = self._last_data_timestamp()
             if last_data_timestamp:
@@ -90,12 +100,12 @@ class PostgresTableExport:
                 self.up_to_date = True
                 return
 
-        # Check if the table has an 'id' column to sort by
-        self.id_column_exists = self._check_id_column_exists()
-        if self.id_column_exists:
-            logger.info(f"Table {self.fully_qualified_name} has an 'id' column")
-
-        self.column_data_types = self._get_column_data_types()
+        # Check if the table has an 'id' column to sort by   === If they are present in volatility, they definitely do have 'id'
+        # self.id_column_exists = self._check_id_column_exists()
+        # if self.id_column_exists:
+        #     logger.info(f"Table {self.fully_qualified_name} has an 'id' column")
+        #
+        # self.column_data_types = self._get_column_data_types()
 
         # Check if the table has enough records to export in batches
         if self.get_count() > self.batch_size:
@@ -115,9 +125,9 @@ class PostgresTableExport:
             self.batches = self._split_table()
             logger.info(f"Number of batches for {self.fully_qualified_name}: {len(self.batches)}")
 
-        # Check if we need to restore from the last completed batch
-        logger.debug(f"self.restore={self.restore} self.is_batches={self.is_batches}")
-        if self.restore and self.is_batches:
+        # Check if we need to resume from the last completed batch
+        logger.debug(f"self.restore={self.resume} self.is_batches={self.is_batches}")
+        if self.resume and self.is_batches:
             table_dir = os.path.join(self.export_dir, self.fully_qualified_name)
             logger.info(f"Table directory for {self.fully_qualified_name}: {table_dir}")
 
@@ -187,7 +197,7 @@ class PostgresTableExport:
                 batch_index_str = f"{batch_num:0{self.num_leading_zeros}d}"
                 json_filenames.append(f"{self.json_filename_base}{batch_index_str}.json")
         else:
-            # If exporting as a single table, use the main JSON filename
+            # If exporting as a single batch, use the main JSON filename
             json_filenames.append(f"{self.fully_qualified_name}.json")
 
         # Directory where JSON data files are located
@@ -328,7 +338,7 @@ class PostgresTableExport:
 
         cursor = self.connection.cursor()
         logger.info(f"Export batches: rewrite={self.rewrite}")
-        logger.info(f"Export batches: restore={self.restore}")
+        logger.info(f"Export batches: restore={self.resume}")
         logger.info(f"Export batches: skip_export={self.skip_export}")
 
         if self.rewrite:
