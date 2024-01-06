@@ -63,7 +63,7 @@ class PostgresDbExport:
         if self.connection is None:
             self.create_connection()
         return PostgresTableExport(connection=self.connection, table_name=table_name, export_dir=self.export_dir,
-                                   batch_size=self.BATCH_SIZE, rewrite=rewrite, restore=restore, skip_export=False)
+                                   batch_size=self.BATCH_SIZE, rewrite=rewrite, resume=restore, skip_export=False)
 
     def export_to_json(self, table_names: list, rewrite: bool, restore: bool):
         """
