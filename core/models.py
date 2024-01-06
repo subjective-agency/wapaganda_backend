@@ -791,10 +791,12 @@ class Theory(models.Model):
     type = models.TextField(blank=True, null=True)
     excerpt = TripleLang.Field(blank=True, null=True)
     images = ArrayField(models.TextField(), blank=True, null=True)
-    content = models.JSONField(blank=True, null=True)
+    content = TripleLang.Field(blank=True, null=True)
     original_content_metadata = ArrayField(models.JSONField(), blank=True, null=True)
     added_at = models.DateTimeField(blank=True, null=True)
     publish_date = models.DateTimeField(blank=True, null=True)
+    translated_by = models.JSONField(blank=True, null=True)
+    updated_on = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = True
@@ -810,6 +812,13 @@ class Websites(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     url = models.TextField(unique=True)
+    alive = models.BooleanField(blank=True, null=True)
+    api_url = models.TextField(unique=True)
+    included = models.BooleanField(blank=True, null=True)
+    item_selector = models.TextField(unique=True)
+    categories = ArrayField(models.TextField())
+    cats_suffix = models.TextField(unique=True)
+    last_scanned_on = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = True

@@ -21,9 +21,13 @@ class TheorySerializer(serializers.Serializer):
     title = TripleLangSerializer()
     type = serializers.CharField(allow_blank=True, allow_null=True)
     excerpt = TripleLangSerializer(allow_null=True)
-    content = serializers.JSONField(allow_null=True)
+    content = TripleLangSerializer(allow_null=True)
     original_content_metadata = serializers.JSONField(allow_null=True)
     publish_date = serializers.DateTimeField(allow_null=True)
+    images = serializers.CharField(allow_blank=True, allow_null=True)
+    added_at = serializers.DateTimeField(allow_null=False)
+    translated_by = serializers.JSONField(allow_null=True)
+    updated_on = serializers.DateTimeField(allow_null=True)
 
     def create(self, validated_data):
         """
@@ -46,6 +50,10 @@ class TheorySerializer(serializers.Serializer):
             'excerpt',
             'content',
             'original_content_metadata'
+            'images',
+            'added_at',
+            'updated_on',
+            'translated_by'
         )
 
 
