@@ -448,13 +448,13 @@ class PeopleBundles(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     name = TripleLang.Field(blank=True, null=True)
-    bundle_type = models.ForeignKey(EnumsBundleTypes, models.DO_NOTHING)
+    bundle_type_id = models.ForeignKey(EnumsBundleTypes, models.DO_NOTHING)
     parent_bundle_id = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = True
-        db_table = 'people_bundles'
+        db_table = 'bundles'
 
 
 class PeopleInBundles(models.Model):
