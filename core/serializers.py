@@ -70,6 +70,7 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
     photo = serializers.CharField(allow_blank=True, allow_null=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
     sex = serializers.CharField(allow_blank=True, allow_null=True)
+    known_for = TripleLangSerializer()
 
     def create(self, validated_data):
         """
