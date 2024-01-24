@@ -33,7 +33,7 @@ def from_credentials_file():
 CREDENTIALS = from_credentials_file()
 
 # General
-DB_CONNECTION_STRING = CREDENTIALS.get('CONNECTION_STRING', '') or environment_value('CONNECTION_STRING')
+# DB_CONNECTION_STRING = CREDENTIALS.get('CONNECTION_STRING', '') or environment_value('CONNECTION_STRING')
 
 # Postgres
 PROFILE_TYPE = CREDENTIALS.get('PROFILE_TYPE', '') or environment_value('PROFILE_TYPE')
@@ -44,8 +44,8 @@ POSTGRES_DB = CREDENTIALS.get('POSTGRES_DB', '') or environment_value('POSTGRES_
 POSTGRES_PORT = CREDENTIALS.get('POSTGRES_PORT', '') or environment_value('POSTGRES_PORT')
 
 # Snaplet
-SNAPLET_SOURCE_DATABASE_URL = DB_CONNECTION_STRING
-SNAPLET_DATABASE_URL = DB_CONNECTION_STRING
+# SNAPLET_SOURCE_DATABASE_URL = DB_CONNECTION_STRING
+# SNAPLET_DATABASE_URL = DB_CONNECTION_STRING
 
 # Django
 DJANGO_KEY = CREDENTIALS.get('DJANGO_KEY', '') or environment_value('DJANGO_KEY')
@@ -58,7 +58,7 @@ SERVER_DEBUG = int(SERVER_DEBUG)
 
 # Check that all required environment variables are set
 assert PROFILE_TYPE in ("prod", "dev"), f"PROFILE_TYPE must be 'prod' or 'dev', instead of '{PROFILE_TYPE}'"
-assert len(DB_CONNECTION_STRING) > 0, "Connection string is empty"
+# assert len(DB_CONNECTION_STRING) > 0, "Connection string is empty"
 assert len(POSTGRES_USER) > 0, "Database username is empty"
 assert len(POSTGRES_DB) > 0, "Database name is empty"
 assert len(POSTGRES_PASSWORD) > 0, "Database password is empty"
@@ -66,5 +66,5 @@ assert len(POSTGRES_ADDRESS) > 0, "Postgres address is empty"
 
 assert len(DJANGO_KEY) > 0, "Django key is empty"
 
-assert (DB_CONNECTION_STRING.startswith("postgresql://") or DB_CONNECTION_STRING.startswith("postgres://")), \
-    f"Connection string must start with postgresql://, '{DB_CONNECTION_STRING}' instead"
+# assert (DB_CONNECTION_STRING.startswith("postgresql://") or DB_CONNECTION_STRING.startswith("postgres://")), \
+#     f"Connection string must start with postgresql://, '{DB_CONNECTION_STRING}' instead"
