@@ -57,6 +57,16 @@ class TheorySerializer(serializers.Serializer):
         )
 
 
+class FiltersSerializer(serializers.Serializer):
+    bundles_e_options = TripleLangSerializer()
+    bundles_f_options = TripleLangSerializer()
+    bundles_g_options = TripleLangSerializer()
+    age_options = serializers.CharField()
+    sex_options = serializers.CharField()
+    status_options = serializers.CharField()
+
+
+
 class PeopleExtendedBriefSerializer(serializers.Serializer):
     """
     Serializer to send a response back to user.

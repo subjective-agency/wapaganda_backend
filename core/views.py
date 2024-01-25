@@ -16,10 +16,9 @@ from core.search import search_model_fulltext
 from wganda import settings
 from wganda.log_helper import logger
 from core import models
-from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer
-from core.serializers import TheorySerializer
+from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer, FiltersSerializer, TheorySerializer
 from core.requests import PagingRequestSerializer, TheoryRequestSerializer
-from core.models import PeopleExtended, Theory
+from core.models import PeopleExtended, Theory, PeopleBundles
 from core.pagination import CustomPostPagination
 
 
@@ -118,11 +117,53 @@ class WAPIView(generics.CreateAPIView):
             return self._post_protected(request, *args, **kwargs)
 
 
+class FiltersAPIView(WAPIView):
+    bundles = PeopleBundles.objects.all()
+    serializer_class = FiltersSerializer
+    parser_classes = [JSONParser]
+
+    def return_filters(self, request):
+        # request_serializer = FiltersRequestSerializer(data=request.data)
+        bundles_e, bundles_f, bundles_g = [] * 3
+        for b in self.bundles:
+            match b.bundle_type_id:
+                case 1:
+                    bundles_e.append(b)
+                case 2:
+                    ...
+                case 3:
+                    bundles_f.append(b)
+                case 4:
+                    bundles_g.append(b)
+
+        age_options = [
+            {"value": "all", "label": "all"},
+            {"value": [None, 20], "label": "<20"},
+            {"value": [20, 30], "label": "20-30"},
+            {"value": [30, 50], "label": "30-50"},
+            {"value": [50, 70], "label": "50-70"},
+            {"value": [70, None], "label": "70+"},
+        ]
+        sex_options = [
+            {"value": "all", "label": "all"},
+            {"value": "m", "label": "male"},
+            {"value": "f", "label": "female"}
+        ]
+        status_options = [
+            {"value": "all", "label": "all"},
+            {"value": "true", "label": "alive"},
+            {"value": "false", "label": "dead"},
+        ]
+
+        serializer = FiltersSerializer([bundles_e, bundles_f, bundles_g, age_options, sex_options, status_options])
+        return serializer
+
+
 class PeopleExtendedAPIView(WAPIView):
     """
     API view to handle PeopleExtended data
     """
-    queryset = models.PeopleExtended.objects.all()
+    # queryset = models.PeopleExtended.objects.all()
     serializer_class = PeopleExtendedSerializer
     parser_classes = [JSONParser]
     pagination_class = CustomPostPagination
