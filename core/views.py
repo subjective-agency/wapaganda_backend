@@ -130,14 +130,16 @@ class BundlesAPIView(WAPIView):
     parser_classes = [JSONParser]
 
     def return_filters(self, request):
-        # request_serializer = FiltersRequestSerializer(data=request.data)
         bundles_experts, bundles_flags, bundles_groups = [] * 3
-        bundles_options = {bundle_type.name: [] for bundle_type in BundleType}
+        bundles_options_raw = {bundle_type.value: [] for bundle_type in BundleType}
         for b in self.bundles:
             bundle_type_id = b.get("bundle_type_id")
             if bundle_type_id in BundleType.__members__:
                 bundle_type = BundleType(bundle_type_id)
-                bundles_options[bundle_type.name].append(b)
+                bundles_options_raw[bundle_type.value].append(b)
+
+                ##  TODO: Need to convert into the same structure as other options
+
 
         age_options = [
             {"value": "all", "label": "all"},
@@ -158,7 +160,7 @@ class BundlesAPIView(WAPIView):
             {"value": "false", "label": "dead"},
         ]
 
-        serializer = FiltersSerializer([bundles_options, age_options, sex_options, status_options])
+        serializer = FiltersSerializer([bundles_experts, bundles_flags, bundles_groups, age_options, sex_options, status_options])
         return serializer
 
 
