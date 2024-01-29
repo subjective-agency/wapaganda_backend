@@ -58,9 +58,9 @@ class TheorySerializer(serializers.Serializer):
 
 
 class FiltersSerializer(serializers.Serializer):
-    bundles_expert_options = TripleLangSerializer()
-    bundles_flags_options = TripleLangSerializer()
-    bundles_groups_options = TripleLangSerializer()
+    bundles_expert_options = ...  # TripleLangSerializer()
+    bundles_flags_options = ...  # TripleLangSerializer()
+    bundles_groups_options = ...  # TripleLangSerializer()
     age_options = serializers.CharField()
     sex_options = serializers.CharField()
     status_options = serializers.CharField()
