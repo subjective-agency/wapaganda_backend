@@ -1,5 +1,6 @@
 from datetime import timezone, datetime, timedelta
 from functools import reduce
+from enum import Enum
 
 from django.db.models import Q, Max
 from django.http import HttpResponseBadRequest
@@ -20,6 +21,12 @@ from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerial
 from core.requests import PagingRequestSerializer, TheoryRequestSerializer
 from core.models import PeopleExtended, Theory, PeopleBundles
 from core.pagination import CustomPostPagination
+
+
+class BundleType(Enum):
+    ExpertBundles = 1
+    FlagsBundles = 3
+    GroupsBundles = 4
 
 
 class WAPIView(generics.CreateAPIView):
@@ -117,24 +124,20 @@ class WAPIView(generics.CreateAPIView):
             return self._post_protected(request, *args, **kwargs)
 
 
-class FiltersAPIView(WAPIView):
+class BundlesAPIView(WAPIView):
     bundles = PeopleBundles.objects.all()
     serializer_class = FiltersSerializer
     parser_classes = [JSONParser]
 
     def return_filters(self, request):
         # request_serializer = FiltersRequestSerializer(data=request.data)
-        bundles_e, bundles_f, bundles_g = [] * 3
+        bundles_experts, bundles_flags, bundles_groups = [] * 3
+        bundles_options = {bundle_type.name: [] for bundle_type in BundleType}
         for b in self.bundles:
-            match b.bundle_type_id:
-                case 1:
-                    bundles_e.append(b)
-                case 2:
-                    ...
-                case 3:
-                    bundles_f.append(b)
-                case 4:
-                    bundles_g.append(b)
+            bundle_type_id = b.get("bundle_type_id")
+            if bundle_type_id in BundleType.__members__:
+                bundle_type = BundleType(bundle_type_id)
+                bundles_options[bundle_type.name].append(b)
 
         age_options = [
             {"value": "all", "label": "all"},
@@ -155,7 +158,7 @@ class FiltersAPIView(WAPIView):
             {"value": "false", "label": "dead"},
         ]
 
-        serializer = FiltersSerializer([bundles_e, bundles_f, bundles_g, age_options, sex_options, status_options])
+        serializer = FiltersSerializer([bundles_options, age_options, sex_options, status_options])
         return serializer
 
 
