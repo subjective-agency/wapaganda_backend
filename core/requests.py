@@ -44,10 +44,6 @@ class CommonRequestSerializer(serializers.Serializer):
         raise ValueError(f'Invalid tristate value [{param}]')
 
 
-class FiltersRequestSerializer(serializers.Serializer):
-    ...
-
-
 # noinspection PyMethodMayBeStatic
 class PagingRequestSerializer(CommonRequestSerializer):
     """

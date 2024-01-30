@@ -17,7 +17,7 @@ from core.search import search_model_fulltext
 from wganda import settings
 from wganda.log_helper import logger
 from core import models
-from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer, FiltersSerializer, TheorySerializer
+from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer, BundleSerializer, TheorySerializer
 from core.requests import PagingRequestSerializer, TheoryRequestSerializer
 from core.models import PeopleExtended, Theory, PeopleBundles
 from core.pagination import CustomPostPagination
@@ -124,22 +124,19 @@ class WAPIView(generics.CreateAPIView):
             return self._post_protected(request, *args, **kwargs)
 
 
-class BundlesAPIView(WAPIView):
+class FiltersAPIView(WAPIView):
     bundles = PeopleBundles.objects.all()
-    serializer_class = FiltersSerializer
+    serializer_class = BundleSerializer
     parser_classes = [JSONParser]
 
     def return_filters(self, request):
-        bundles_experts, bundles_flags, bundles_groups = [] * 3
         bundles_options_raw = {bundle_type.value: [] for bundle_type in BundleType}
         for b in self.bundles:
             bundle_type_id = b.get("bundle_type_id")
             if bundle_type_id in BundleType.__members__:
                 bundle_type = BundleType(bundle_type_id)
                 bundles_options_raw[bundle_type.value].append(b)
-
-                ##  TODO: Need to convert into the same structure as other options
-
+        serialized_bundles = {x: BundleSerializer(y, many=True).data for x, y in bundles_options_raw.items()}
 
         age_options = [
             {"value": "all", "label": "all"},
@@ -159,9 +156,7 @@ class BundlesAPIView(WAPIView):
             {"value": "true", "label": "alive"},
             {"value": "false", "label": "dead"},
         ]
-
-        serializer = FiltersSerializer([bundles_experts, bundles_flags, bundles_groups, age_options, sex_options, status_options])
-        return serializer
+        return Response(data=[serialized_bundles, age_options, sex_options, status_options])
 
 
 class PeopleExtendedAPIView(WAPIView):

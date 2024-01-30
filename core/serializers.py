@@ -57,14 +57,13 @@ class TheorySerializer(serializers.Serializer):
         )
 
 
-class FiltersSerializer(serializers.Serializer):
-    bundles_expert_options = ...  # TripleLangSerializer()
-    bundles_flags_options = ...  # TripleLangSerializer()
-    bundles_groups_options = ...  # TripleLangSerializer()
-    age_options = ...  # serializers.CharField()
-    sex_options = ...  # serializers.CharField()
-    status_options = ...  # serializers.CharField()
-
+class BundleSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = TripleLangSerializer()
+    bundle_type_id = serializers.IntegerField()
+    description = serializers.CharField(allow_null=True)
+    updated_on = serializers.DateTimeField(allow_null=True)
+    parent_bundle_id = serializers.IntegerField(allow_null=True)
 
 
 class PeopleExtendedBriefSerializer(serializers.Serializer):
