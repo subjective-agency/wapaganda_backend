@@ -57,6 +57,16 @@ class TheorySerializer(serializers.Serializer):
         )
 
 
+class AirtimeSerializer(serializers.Serializer):
+    episode_id = serializers.IntegerField()
+    episode_title = serializers.CharField()
+    episode_duration = serializers.IntegerField(allow_null=True)
+    episode_date = serializers.DateField()
+    media_segment_id = serializers.IntegerField(allow_null=True)
+    media_segment_name = TripleLangSerializer(allow_null=True)
+    role = serializers.CharField(allow_null=True)
+
+
 class PeopleExtendedBriefSerializer(serializers.Serializer):
     """
     Serializer to send a response back to user.
@@ -124,6 +134,9 @@ class CacheSerializer(serializers.Serializer):
             'id',
             'fullname',
         )
+
+
+
 
 
 class PeopleExtendedSerializer(serializers.Serializer):

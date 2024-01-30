@@ -16,10 +16,11 @@ from core.search import search_model_fulltext
 from wganda import settings
 from wganda.log_helper import logger
 from core import models
-from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer
+from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer, AirtimeSerializer
 from core.serializers import TheorySerializer
 from core.requests import PagingRequestSerializer, TheoryRequestSerializer
 from core.models import PeopleExtended, Theory
+from core.models import PeopleOnSmotrim, PeopleOnYoutube, MediaSegments, YoutubeVids, SmotrimEpisodes, MediaRoles
 from core.pagination import CustomPostPagination
 
 
@@ -116,6 +117,78 @@ class WAPIView(generics.CreateAPIView):
             return self._post(request, *args, **kwargs)
         else:
             return self._post_protected(request, *args, **kwargs)
+
+
+class AirtimeAPIView(WAPIView):
+    """
+    API view to shape data related to patient's appearances on air
+    """
+    serializer_class = AirtimeSerializer
+    parser_classes = [JSONParser]
+
+    def __init__(self):
+        super().__init__(request_handler={
+            'on_smotrim': self.collect_smotrim,
+            'on_youtube': self.collect_youtube
+        })
+
+    @staticmethod
+    def collect_smotrim(request):
+        queryset = PeopleOnSmotrim.objects.filter(person_id=request.data["person_id"])
+        episodes = []
+        for q in queryset:
+            role_data = MediaRoles.objects.filter(id=q.role_id).first()
+            episode_data = SmotrimEpisodes.objects.filter(id=q.episode_id).first()
+            segment_data = MediaSegments.objects.filter(id=episode_data.segment_id).first()
+            obj = {
+                "episode_id": q.episode_id,
+                "episode_title": episode_data.title,
+                "episode_duration": episode_data.duration,
+                "episode_date": episode_data.timestamp_aired,
+                "media_segment_id": episode_data.media_segment_id,
+                "media_segment_name": segment_data.name,
+                "role": role_data.role,
+            }
+            episodes.append(obj)
+        serialized = AirtimeSerializer(episodes, many=True)
+
+        return Response(data={
+            "total": {
+                "appearances_count": len(episodes),
+                "roles": list(set([x.get("role") for x in episodes])),
+                # "segments": list(set([x.get("media_segment_name") for x in serialized]))
+            },
+            "episodes": serialized
+        })
+
+    @staticmethod
+    def collect_youtube(self):
+        queryset = PeopleOnYoutube.objects.filter(person_id=request.data["person_id"])
+        episodes = []
+        for q in queryset:
+            role_data = MediaRoles.objects.filter(id=q.role_id).first()
+            episode_data = YoutubeVids.objects.filter(id=q.episode_id).first()
+            segment_data = MediaSegments.objects.filter(id=episode_data.segment_id).first()
+            obj = {
+                "episode_id": q.episode_id,
+                "episode_title": episode_data.title,
+                "episode_duration": episode_data.duration,
+                "episode_date": episode_data.timestamp_aired,
+                "media_segment_id": episode_data.media_segment_id,
+                "media_segment_name": segment_data.name,
+                "role": role_data.role,
+            }
+            episodes.append(obj)
+        serialized = AirtimeSerializer(episodes, many=True)
+
+        return Response(data={
+            "total": {
+                "appearances_count": len(episodes),
+                "roles": list(set([x.get("role") for x in episodes])),
+                # "segments": list(set([x.get("media_segment_name") for x in serialized]))
+            },
+            "episodes": serialized
+        })
 
 
 class PeopleExtendedAPIView(WAPIView):
