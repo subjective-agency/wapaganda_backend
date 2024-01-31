@@ -57,6 +57,15 @@ class TheorySerializer(serializers.Serializer):
         )
 
 
+class BundleSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = TripleLangSerializer()
+    bundle_type_id = serializers.IntegerField()
+    description = serializers.CharField(allow_null=True)
+    updated_on = serializers.DateTimeField(allow_null=True)
+    parent_bundle_id = serializers.IntegerField(allow_null=True)
+
+
 class PeopleExtendedBriefSerializer(serializers.Serializer):
     """
     Serializer to send a response back to user.
