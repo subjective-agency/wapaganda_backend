@@ -1,4 +1,4 @@
-asgiref==3.5.2
+asgiref
 Django==4.2.9
 django-extensions
 django-filter
