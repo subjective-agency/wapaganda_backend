@@ -1047,3 +1047,16 @@ class FutureRodniki(models.Model):
     class Meta:
         managed = True
         db_table = 'future_rodniki'
+
+
+class PopularStats(models.Model):
+    count_total = models.IntegerField()
+    count_female = models.IntegerField()
+    count_male = models.IntegerField()
+    avg_age_total = models.DurationField()
+    avg_age_female = models.DurationField()
+    avg_age_male = models.DurationField()
+
+    class Meta:
+        managed = True
+        db_table = 'public_popular_stats'
