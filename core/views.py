@@ -136,12 +136,12 @@ class AirtimeAPIView(WAPIView):
     def collect_smotrim(request):
         queryset = PeopleOnSmotrim.objects.filter(person_id=request.data["person_id"])
         episodes = []
-        for q in queryset:
-            role_data = MediaRoles.objects.filter(id=q.role_id).first()
-            episode_data = SmotrimEpisodes.objects.filter(id=q.episode_id).first()
+        for query in queryset:
+            role_data = MediaRoles.objects.filter(id=query.role_id).first()
+            episode_data = SmotrimEpisodes.objects.filter(id=query.episode_id).first()
             segment_data = MediaSegments.objects.filter(id=episode_data.segment_id).first()
             obj = {
-                "episode_id": q.episode_id,
+                "episode_id": query.episode_id,
                 "episode_title": episode_data.title,
                 "episode_duration": episode_data.duration,
                 "episode_date": episode_data.timestamp_aired,
@@ -165,12 +165,12 @@ class AirtimeAPIView(WAPIView):
     def collect_youtube(self):
         queryset = PeopleOnYoutube.objects.filter(person_id=request.data["person_id"])
         episodes = []
-        for q in queryset:
-            role_data = MediaRoles.objects.filter(id=q.role_id).first()
-            episode_data = YoutubeVids.objects.filter(id=q.episode_id).first()
+        for query in queryset:
+            role_data = MediaRoles.objects.filter(id=query.role_id).first()
+            episode_data = YoutubeVids.objects.filter(id=query.episode_id).first()
             segment_data = MediaSegments.objects.filter(id=episode_data.segment_id).first()
             obj = {
-                "episode_id": q.episode_id,
+                "episode_id": query.episode_id,
                 "episode_title": episode_data.title,
                 "episode_duration": episode_data.duration,
                 "episode_date": episode_data.timestamp_aired,
