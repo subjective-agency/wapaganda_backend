@@ -154,79 +154,6 @@ class PopularStatsAPIView(WAPIView):
         return Response(data=serialzed)
 
 
-
-class AirtimeAPIView(WAPIView):
-    """
-    API view to shape data related to patient's appearances on air
-    """
-    serializer_class = AirtimeSerializer
-    parser_classes = [JSONParser]
-
-    def __init__(self):
-        super().__init__(request_handler={
-            'on_smotrim': self.collect_smotrim,
-            'on_youtube': self.collect_youtube
-        })
-
-    @staticmethod
-    def collect_smotrim(request):
-        queryset = PeopleOnSmotrim.objects.filter(person_id=request.data["person_id"])
-        episodes = []
-        for query in queryset:
-            role_data = MediaRoles.objects.filter(id=query.role_id).first()
-            episode_data = SmotrimEpisodes.objects.filter(id=query.episode_id).first()
-            segment_data = MediaSegments.objects.filter(id=episode_data.segment_id).first()
-            obj = {
-                "episode_id": query.episode_id,
-                "episode_title": episode_data.title,
-                "episode_duration": episode_data.duration,
-                "episode_date": episode_data.timestamp_aired,
-                "media_segment_id": episode_data.media_segment_id,
-                "media_segment_name": segment_data.name,
-                "role": role_data.role,
-            }
-            episodes.append(obj)
-        serialized = AirtimeSerializer(episodes, many=True)
-
-        return Response(data={
-            "total": {
-                "appearances_count": len(episodes),
-                "roles": list(set([x.get("role") for x in episodes])),
-                # "segments": list(set([x.get("media_segment_name") for x in serialized]))
-            },
-            "episodes": serialized
-        })
-
-    @staticmethod
-    def collect_youtube(request):
-        queryset = PeopleOnYoutube.objects.filter(person_id=request.data["person_id"])
-        episodes = []
-        for query in queryset:
-            role_data = MediaRoles.objects.filter(id=query.role_id).first()
-            episode_data = YoutubeVids.objects.filter(id=query.episode_id).first()
-            segment_data = MediaSegments.objects.filter(id=episode_data.segment_id).first()
-            obj = {
-                "episode_id": query.episode_id,
-                "episode_title": episode_data.title,
-                "episode_duration": episode_data.duration,
-                "episode_date": episode_data.timestamp_aired,
-                "media_segment_id": episode_data.media_segment_id,
-                "media_segment_name": segment_data.name,
-                "role": role_data.role,
-            }
-            episodes.append(obj)
-        serialized = AirtimeSerializer(episodes, many=True)
-
-        return Response(data={
-            "total": {
-                "appearances_count": len(episodes),
-                "roles": list(set([x.get("role") for x in episodes])),
-                # "segments": list(set([x.get("media_segment_name") for x in serialized]))
-            },
-            "episodes": serialized
-        })
-
-      
 class FiltersAPIView(WAPIView):
     bundles = PeopleBundles.objects.all()
     serializer_class = BundleSerializer
@@ -430,8 +357,8 @@ class PeopleExtendedAPIView(WAPIView):
         serializer = PeopleExtendedBriefSerializer(people, many=True)
         return Response(serializer.data)
 
-    @staticmethod
-    def return_person_data(request):
+    # @staticmethod
+    def return_person_data(self, request):
         """
         Return person data
         :param request: Object of type rest_framework.request.Request
@@ -449,10 +376,81 @@ class PeopleExtendedAPIView(WAPIView):
         # Serialize the person and organizations data
         logger.info(f'Person data request: {request_data}')
         person_serializer = PeopleExtendedSerializer(person)
-        # Combine the serialized data and return the response
+
+        airtime_data = {
+            "on_smotrim": self.collect_smotrim(person_id),
+            "on_youtube": self.collect_youtube(person_id)
+        }
         response_data = person_serializer.data
+
+        # Combine the serialized data and return the response
+        response_data['airtime'] = airtime_data
         # TODO: Serialize Organizations
         return Response(response_data)
+
+    @staticmethod
+    def collect_smotrim(person_id):
+        queryset = PeopleOnSmotrim.objects.filter(person_id=person_id)
+        if not queryset:
+            return
+
+        episodes = []
+        for query in queryset:
+            role_data = MediaRoles.objects.filter(id=query.role_id).first()
+            episode_data = SmotrimEpisodes.objects.filter(id=query.episode_id).first()
+            segment_data = MediaSegments.objects.filter(id=episode_data.segment_id).first()
+            obj = {
+                "episode_id": query.episode_id,
+                "episode_title": episode_data.title,
+                "episode_duration": episode_data.duration,
+                "episode_date": episode_data.timestamp_aired,
+                "media_segment_id": episode_data.media_segment_id,
+                "media_segment_name": segment_data.name,
+                "role": role_data.role,
+            }
+            episodes.append(obj)
+        serialized = AirtimeSerializer(episodes, many=True)
+
+        return {
+            "total": {
+                "appearances_count": len(episodes),
+                "roles": list(set([x.get("role") for x in episodes])),
+                # "segments": list(set([x.get("media_segment_name") for x in serialized]))
+            },
+            "episodes": serialized
+        }
+
+    @staticmethod
+    def collect_youtube(person_id):
+        queryset = PeopleOnYoutube.objects.filter(person_id=person_id)
+        if not queryset:
+            return
+
+        episodes = []
+        for query in queryset:
+            role_data = MediaRoles.objects.filter(id=query.role_id).first()
+            episode_data = YoutubeVids.objects.filter(id=query.episode_id).first()
+            segment_data = MediaSegments.objects.filter(id=episode_data.segment_id).first()
+            obj = {
+                "episode_id": query.episode_id,
+                "episode_title": episode_data.title,
+                "episode_duration": episode_data.duration,
+                "episode_date": episode_data.timestamp_aired,
+                "media_segment_id": episode_data.media_segment_id,
+                "media_segment_name": segment_data.name,
+                "role": role_data.role,
+            }
+            episodes.append(obj)
+        serialized = AirtimeSerializer(episodes, many=True)
+
+        return {
+            "total": {
+                "appearances_count": len(episodes),
+                "roles": list(set([x.get("role") for x in episodes])),
+                # "segments": list(set([x.get("media_segment_name") for x in serialized]))
+            },
+            "episodes": serialized
+        }
 
 
 class TheoryAPIView(WAPIView):
