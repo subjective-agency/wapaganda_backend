@@ -266,7 +266,7 @@ class MediaRoles(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'enums_media_roles'
+        db_table = 'enums.media_roles'
 
 
 class MediaSegments(models.Model):
