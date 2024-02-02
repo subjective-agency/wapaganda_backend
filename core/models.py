@@ -530,9 +530,9 @@ class PeopleOnSmotrim(models.Model):
     | media_role_id | bigint | PRIMARY KEY, FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    person = models.OneToOneField(People, models.DO_NOTHING)
-    episode = models.ForeignKey('SmotrimEpisodes', models.DO_NOTHING)
-    media_role = models.ForeignKey(MediaRoles, models.DO_NOTHING)
+    person_id = models.OneToOneField(People, models.DO_NOTHING)
+    episode_id = models.ForeignKey('SmotrimEpisodes', models.DO_NOTHING)
+    media_role_id = models.ForeignKey(MediaRoles, models.DO_NOTHING)
 
     class Meta:
         managed = True
@@ -550,9 +550,9 @@ class PeopleOnYoutube(models.Model):
     | person_id | integer | FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    person = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
-    episode = models.ForeignKey('YoutubeVids', models.DO_NOTHING, blank=True, null=True)
-    media_role = models.ForeignKey(MediaRoles, models.DO_NOTHING, blank=True, null=True)
+    person_id = models.ForeignKey(People, models.DO_NOTHING, blank=True, null=True)
+    episode_id = models.ForeignKey('YoutubeVids', models.DO_NOTHING, blank=True, null=True)
+    media_role_id = models.ForeignKey(MediaRoles, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = True
@@ -1047,3 +1047,16 @@ class FutureRodniki(models.Model):
     class Meta:
         managed = True
         db_table = 'future_rodniki'
+
+
+class PopularStats(models.Model):
+    count_total = models.IntegerField()
+    count_female = models.IntegerField()
+    count_male = models.IntegerField()
+    avg_age_total = models.DurationField()
+    avg_age_female = models.DurationField()
+    avg_age_male = models.DurationField()
+
+    class Meta:
+        managed = True
+        db_table = 'public_popular_stats'
