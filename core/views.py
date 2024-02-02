@@ -411,7 +411,7 @@ class PeopleExtendedAPIView(WAPIView):
                 "episode_title": episode_data.title,
                 "episode_duration": episode_data.duration,
                 "episode_date": episode_data.timestamp_aired,
-                "media_segment_id": episode_data.media_segment_id,
+                "media_segment_id": episode_data.segment_id,
                 "media_segment_name": segment_data.name,
                 "role": role_data.role,
             }
@@ -443,7 +443,7 @@ class PeopleExtendedAPIView(WAPIView):
                 "episode_title": episode_data.title,
                 "episode_duration": episode_data.duration,
                 "episode_date": episode_data.timestamp_aired,
-                "media_segment_id": episode_data.media_segment_id,
+                "media_segment_id": episode_data.segment_id,
                 "media_segment_name": segment_data.name,
                 "role": role_data.role,
             }
