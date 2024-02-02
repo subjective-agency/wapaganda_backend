@@ -397,12 +397,12 @@ class People(models.Model):
     fullname = TripleLang.Field()
     lastname = TripleLang.Field(blank=True, null=True)
     sex = models.TextField(blank=True, null=True)
-    social = ArrayField(models.TextField(), blank=True, null=True)  # This field type is a guess.
+    social = ArrayField(models.TextField(), blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     relevant = models.BooleanField()
     contact = models.JSONField(blank=True, null=True)
     address = ArrayField(models.TextField(), blank=True, null=True)
-    associates = ArrayField(models.JSONField(), blank=True, null=True)  # This field type is a guess.
+    associates = ArrayField(models.JSONField(), blank=True, null=True)
     additional = ArrayField(models.JSONField(), blank=True, null=True)
     aliases = ArrayField(TripleLang.Field(), blank=True, null=True)
     info = TripleLang.Field(blank=True, null=True)
