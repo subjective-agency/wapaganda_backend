@@ -391,9 +391,9 @@ class PeopleExtendedAPIView(WAPIView):
         response_data = person_serializer.data
 
         # Combine the serialized data and return the response
-        response_data['airtime'] = airtime_data
+        # response_data['airtime'] = airtime_data
         # TODO: Serialize Organizations
-        return Response(response_data)
+        return Response(response_data + airtime_data)
 
     @staticmethod
     def collect_smotrim(person_id):
