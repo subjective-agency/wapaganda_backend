@@ -23,7 +23,7 @@ from core.serializers import (PeopleExtendedBriefSerializer,
                               TheorySerializer,
                               AirtimeSerializer,
                               PopularStatsSerializer)
-from core.requests import PagingRequestSerializer, TheoryRequestSerializer
+from core.requests import PagingRequestSerializer, TheoryRequestSerializer, FiltersRequestSerializer
 from core.models import (PeopleExtended,
                          Theory,
                          PeopleBundles,
@@ -233,6 +233,13 @@ class FiltersAPIView(WAPIView):
     parser_classes = [JSONParser]
 
     def return_filters(self, request):
+        serializer = FiltersRequestSerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            logger.error(f'Invalid request data: {request.data}: {str(error)}')
+            return Response({'error': f"Filters.return_filters() {str(error)}"}, status=status.HTTP_400_BAD_REQUEST)
+
         bundles_options_raw = {bundle_type.value: [] for bundle_type in BundleType}
         for b in self.bundles:
             bundle_type_id = b.get("bundle_type_id")
