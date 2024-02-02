@@ -16,10 +16,24 @@ from rest_framework.exceptions import ValidationError
 from core.search import search_model_fulltext
 from wganda import settings
 from wganda.log_helper import logger
-from core.serializers import PeopleExtendedBriefSerializer, PeopleExtendedSerializer, CacheSerializer, BundleSerializer, TheorySerializer
+from core.serializers import (PeopleExtendedBriefSerializer,
+                              PeopleExtendedSerializer,
+                              CacheSerializer,
+                              BundleSerializer,
+                              TheorySerializer,
+                              AirtimeSerializer,
+                              PopularStatsSerializer)
 from core.requests import PagingRequestSerializer, TheoryRequestSerializer
-from core.models import PeopleExtended, Theory, PeopleBundles
-from core.models import PeopleOnSmotrim, PeopleOnYoutube, MediaSegments, YoutubeVids, SmotrimEpisodes, MediaRoles
+from core.models import (PeopleExtended,
+                         Theory,
+                         PeopleBundles,
+                         PeopleOnSmotrim,
+                         PeopleOnYoutube,
+                         MediaSegments,
+                         YoutubeVids,
+                         SmotrimEpisodes,
+                         MediaRoles,
+                         PopularStats)
 from core.pagination import CustomPostPagination
 
 
@@ -124,6 +138,23 @@ class WAPIView(generics.CreateAPIView):
             return self._post_protected(request, *args, **kwargs)
 
 
+class PopularStatsAPIView(WAPIView):
+    serializer_class = PopularStatsSerializer
+    parser_classes = [JSONParser]
+
+    def __init__(self):
+        super().__init__(request_handler={
+            'stats': self.collect_stats,
+        })
+
+    @staticmethod
+    def collect_stats(request):
+        data = PopularStats.objects.all()
+        serialzed = PopularStatsSerializer(data)
+        return Response(data=serialzed)
+
+
+
 class AirtimeAPIView(WAPIView):
     """
     API view to shape data related to patient's appearances on air
@@ -167,7 +198,7 @@ class AirtimeAPIView(WAPIView):
         })
 
     @staticmethod
-    def collect_youtube(self):
+    def collect_youtube(request):
         queryset = PeopleOnYoutube.objects.filter(person_id=request.data["person_id"])
         episodes = []
         for query in queryset:
@@ -278,7 +309,6 @@ class PeopleExtendedAPIView(WAPIView):
             'timestamp': max_timestamp
         }
         return Response(response_data)
-
 
     @staticmethod
     def return_page(request):
