@@ -61,7 +61,7 @@ class AirtimeSerializer(serializers.Serializer):
     episode_id = serializers.IntegerField()
     episode_title = serializers.CharField()
     episode_duration = serializers.IntegerField(allow_null=True)
-    episode_date = serializers.DateField()
+    episode_date = serializers.DateTimeField()
     media_segment_id = serializers.IntegerField(allow_null=True)
     media_segment_name = TripleLangSerializer(allow_null=True)
     role = serializers.CharField(allow_null=True)
