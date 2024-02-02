@@ -418,6 +418,7 @@ class PeopleExtendedAPIView(WAPIView):
             }
             episodes.append(obj)
         serialized = AirtimeSerializer(episodes, many=True)
+        logger.info(f"Got {len(serilized.data)} smotrim appearances")
 
         return {
             "total": {
@@ -425,7 +426,7 @@ class PeopleExtendedAPIView(WAPIView):
                 "roles": list(set([x.get("role") for x in episodes])),
                 # "segments": list(set([x.get("media_segment_name") for x in serialized]))
             },
-            "episodes": serialized
+            "episodes": serialized.data
         }
 
     @staticmethod
@@ -450,6 +451,7 @@ class PeopleExtendedAPIView(WAPIView):
             }
             episodes.append(obj)
         serialized = AirtimeSerializer(episodes, many=True)
+        logger.info(f"Got {len(serilized.data)} ytb appearances")
 
         return {
             "total": {
@@ -457,7 +459,7 @@ class PeopleExtendedAPIView(WAPIView):
                 "roles": list(set([x.get("role") for x in episodes])),
                 # "segments": list(set([x.get("media_segment_name") for x in serialized]))
             },
-            "episodes": serialized
+            "episodes": serialized.data
         }
 
 
