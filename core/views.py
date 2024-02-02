@@ -149,6 +149,13 @@ class PopularStatsAPIView(WAPIView):
 
     @staticmethod
     def collect_stats(request):
+        serializer = PopularStatsSerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            logger.error(f'Invalid request data: {request.data}: {str(error)}')
+            return Response({'error': f"Stats.collect_stats() {str(error)}"}, status=status.HTTP_400_BAD_REQUEST)
+
         data = PopularStats.objects.all()
         serialzed = PopularStatsSerializer(data)
         return Response(data=serialzed)
