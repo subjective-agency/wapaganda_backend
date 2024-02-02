@@ -390,8 +390,6 @@ class PeopleExtendedAPIView(WAPIView):
                 "on_youtube": self.collect_youtube(person_id)
         }}
         response_data = person_serializer.data
-        logger.info(f"Have {len(airtime_data['airtime']['on_smotrim'])} smotrim appearances")
-        logger.info(f"Have {len(airtime_data['airtime']['on_youtube'])} youtube appearances")
 
         # Combine the serialized data and return the response
         # response_data.update(airtime_data)
