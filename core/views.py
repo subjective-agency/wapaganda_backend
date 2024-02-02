@@ -403,7 +403,7 @@ class PeopleExtendedAPIView(WAPIView):
 
         episodes = []
         for query in queryset:
-            role_data = MediaRoles.objects.filter(id=query.role_id).first()
+            role_data = MediaRoles.objects.filter(id=query.media_role_id).first()
             episode_data = SmotrimEpisodes.objects.filter(id=query.episode_id).first()
             segment_data = MediaSegments.objects.filter(id=episode_data.segment_id).first()
             obj = {
@@ -435,7 +435,7 @@ class PeopleExtendedAPIView(WAPIView):
 
         episodes = []
         for query in queryset:
-            role_data = MediaRoles.objects.filter(id=query.role_id).first()
+            role_data = MediaRoles.objects.filter(id=query.media_role_id).first()
             episode_data = YoutubeVids.objects.filter(id=query.episode_id).first()
             segment_data = MediaSegments.objects.filter(id=episode_data.segment_id).first()
             obj = {
