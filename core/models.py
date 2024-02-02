@@ -530,14 +530,14 @@ class PeopleOnSmotrim(models.Model):
     | media_role_id | bigint | PRIMARY KEY, FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    person_id = models.ForeignKey(People, models.DO_NOTHING)
-    episode_id = models.ForeignKey(SmotrimEpisodes, models.DO_NOTHING)
-    media_role_id = models.ForeignKey(MediaRoles, models.DO_NOTHING, blank=True, null=True)
+    person = models.ForeignKey(People, models.DO_NOTHING)
+    episode = models.ForeignKey(SmotrimEpisodes, models.DO_NOTHING)
+    media_role = models.ForeignKey(MediaRoles, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = True
         db_table = 'people_on_smotrim'
-        unique_together = (('person_id', 'episode_id', 'media_role_id'),)
+        unique_together = (('person', 'episode', 'media_role'),)
 
 
 class PeopleOnYoutube(models.Model):
@@ -550,14 +550,14 @@ class PeopleOnYoutube(models.Model):
     | person_id | integer | FOREIGN KEY |
     """
     id = models.BigAutoField(primary_key=True)
-    person_id = models.ForeignKey(People, models.DO_NOTHING)
-    episode_id = models.ForeignKey(YoutubeVids, models.DO_NOTHING)
-    media_role_id = models.ForeignKey(MediaRoles, models.DO_NOTHING, blank=True, null=True)
+    person = models.ForeignKey(People, models.DO_NOTHING)
+    episode = models.ForeignKey(YoutubeVids, models.DO_NOTHING)
+    media_role = models.ForeignKey(MediaRoles, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = True
         db_table = 'people_on_youtube'
-        unique_together = (('person_id', 'episode_id', 'media_role_id'),)
+        unique_together = (('person', 'episode', 'media_role'),)
 
 
 class PeopleToMsegmentsMapping(models.Model):
