@@ -385,10 +385,9 @@ class PeopleExtendedAPIView(WAPIView):
         person_serializer = PeopleExtendedSerializer(person)
 
         airtime_data = {
-            "airtime": {
-                "on_smotrim": self.collect_smotrim(person_id),
-                "on_youtube": self.collect_youtube(person_id)
-        }}
+            "on_smotrim": self.collect_smotrim(person_id),
+            "on_youtube": self.collect_youtube(person_id)
+        }
         response_data = person_serializer.data
 
         # Combine the serialized data and return the response
