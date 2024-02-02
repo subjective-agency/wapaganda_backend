@@ -418,7 +418,7 @@ class PeopleExtendedAPIView(WAPIView):
             }
             episodes.append(obj)
         serialized = AirtimeSerializer(episodes, many=True)
-        logger.info(f"Got {len(serilized.data)} smotrim appearances")
+        logger.info(f"Got {len(serialized.data)} smotrim appearances")
 
         return {
             "total": {
@@ -451,7 +451,7 @@ class PeopleExtendedAPIView(WAPIView):
             }
             episodes.append(obj)
         serialized = AirtimeSerializer(episodes, many=True)
-        logger.info(f"Got {len(serilized.data)} ytb appearances")
+        logger.info(f"Got {len(serialized.data)} ytb appearances")
 
         return {
             "total": {
