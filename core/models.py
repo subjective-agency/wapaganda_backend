@@ -665,7 +665,7 @@ class SmotrimEpisodes(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.TextField(blank=True, null=True)
     timestamp_aired = models.DateTimeField(blank=True, null=True)
-    smotrim = models.ForeignKey(SmotrimEpisodes, models.DO_NOTHING, blank=True, null=True)
+    smotrim = models.TextField(blank=True, null=True)
     segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
     duration = models.BigIntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
