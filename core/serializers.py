@@ -154,9 +154,6 @@ class CacheSerializer(serializers.Serializer):
         )
 
 
-
-
-
 class PeopleExtendedSerializer(serializers.Serializer):
     """
     Full serializer to return almost all fields

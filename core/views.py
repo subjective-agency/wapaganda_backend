@@ -138,29 +138,6 @@ class WAPIView(generics.CreateAPIView):
             return self._post_protected(request, *args, **kwargs)
 
 
-class PopularStatsAPIView(WAPIView):
-    serializer_class = PopularStatsSerializer
-    parser_classes = [JSONParser]
-
-    def __init__(self):
-        super().__init__(request_handler={
-            'stats': self.collect_stats,
-        })
-
-    @staticmethod
-    def collect_stats(request):
-        serializer = PopularStatsSerializer(data=request.data)
-        try:
-            serializer.is_valid(raise_exception=True)
-        except ValidationError as error:
-            logger.error(f'Invalid request data: {request.data}: {str(error)}')
-            return Response({'error': f"Stats.collect_stats() {str(error)}"}, status=status.HTTP_400_BAD_REQUEST)
-
-        data = PopularStats.objects.all()
-        serialzed = PopularStatsSerializer(data)
-        return Response(data=serialzed)
-
-
 class PeopleExtendedAPIView(WAPIView):
     """
     API view to handle PeopleExtended data
@@ -205,10 +182,14 @@ class PeopleExtendedAPIView(WAPIView):
         # Collect filters data
         filters = self.collect_filters()
 
+        # Collect popular stats
+        stats = self.collect_stats()
+
         response_data = {
             'cache': serializer.data,
             'timestamp': max_timestamp,
-            'filters': filters
+            'filters': filters,
+            'stats': stats
         }
         return Response(response_data)
 
@@ -346,8 +327,8 @@ class PeopleExtendedAPIView(WAPIView):
         person_serializer = PeopleExtendedSerializer(person)
 
         airtime_data = {
-            "on_smotrim": self.collect_smotrim(person_id),
-            "on_youtube": self.collect_youtube(person_id)
+            "on_smotrim": self.collect_smotrim_airtime(person_id),
+            "on_youtube": self.collect_youtube_airtime(person_id)
         }
         response_data = person_serializer.data
 
@@ -357,7 +338,7 @@ class PeopleExtendedAPIView(WAPIView):
         return Response({"person": response_data, "airtime": airtime_data})
 
     @staticmethod
-    def collect_smotrim(person_id):
+    def collect_smotrim_airtime(person_id):
         queryset = PeopleOnSmotrim.objects.filter(person_id=person_id)
         if not queryset:
             return
@@ -390,7 +371,7 @@ class PeopleExtendedAPIView(WAPIView):
         }
 
     @staticmethod
-    def collect_youtube(person_id):
+    def collect_youtube_airtime(person_id):
         queryset = PeopleOnYoutube.objects.filter(person_id=person_id)
         if not queryset:
             return
@@ -454,6 +435,11 @@ class PeopleExtendedAPIView(WAPIView):
             {"value": "false", "label": "dead"},
         ]
         return {"bundles": bundles_options, "age": age_options, "gender": sex_options, "status": status_options}
+
+    @staticmethod
+    def collect_stats():
+        data = PopularStats.objects.all()
+        return PopularStatsSerializer(data)
 
 
 class TheoryAPIView(WAPIView):
