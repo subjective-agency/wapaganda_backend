@@ -426,7 +426,7 @@ class PeopleExtendedAPIView(WAPIView):
         bundles = PeopleBundles.objects.all()
         bundles_options_raw = {bundle_type.value: [] for bundle_type in BundleType}
         for b in bundles:
-            bundle_type_id = b.get("bundle_type_id")
+            bundle_type_id = b.bundle_type_id
             if bundle_type_id in BundleType.__members__:
                 bundle_type = BundleType(bundle_type_id)
                 bundles_options_raw[bundle_type.value].append(b)
