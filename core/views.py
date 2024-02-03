@@ -424,13 +424,15 @@ class PeopleExtendedAPIView(WAPIView):
 
     def collect_filters(self):
         bundles = PeopleBundles.objects.all()
-        bundles_options_raw = {bundle_type.value: [] for bundle_type in BundleType}
+        logger.info(f"Have {len(bundles)} bundles in total")
+        bundles_options_raw = {bundle_type.name: [] for bundle_type in BundleType}
         for b in bundles:
             bundle_type_id = b.bundle_type_id
-            if bundle_type_id in BundleType.__members__:
+            if bundle_type_id in BundleType:
                 bundle_type = BundleType(bundle_type_id)
-                bundles_options_raw[bundle_type.value].append(b)
-        serialized_bundles = {x: BundleSerializer(y, many=True).data for x, y in bundles_options_raw.items()}
+                bundles_options_raw[bundle_type.name].append(b)
+        serialized_bundles = {x: BundleSerializer(y, many=True) for x, y in bundles_options_raw.items()}
+        bundles_options = {x: y.data for x,y in serialized_bundles.items()}
 
         age_options = [
             {"value": "all", "label": "all"},
@@ -450,7 +452,7 @@ class PeopleExtendedAPIView(WAPIView):
             {"value": "true", "label": "alive"},
             {"value": "false", "label": "dead"},
         ]
-        return [serialized_bundles, age_options, sex_options, status_options]
+        return {"bundles": bundles_options, "age": age_options, "gender": sex_options, "status": status_options}
 
 
 class TheoryAPIView(WAPIView):
