@@ -426,12 +426,12 @@ class PeopleExtendedAPIView(WAPIView):
         bundles = PeopleBundles.objects.all()
         logger.info(f"Have {len(bundles)} bundles in total")
         bundles_options_raw = {bundle_type.name: [] for bundle_type in BundleType}
-        logger.info(f"Have {len(bundles_options_raw)} bundle types")
+        bundle_idx = [bundle_type.value for bundle_type in BundleType]
         for b in bundles:
             bundle_type_id = b.bundle_type_id
-            if bundle_type_id in BundleType.__members__.values():
-                bundle_type = BundleType(bundle_type_id)
-                bundles_options_raw[bundle_type.name].append(b)
+            if bundle_type_id in bundle_idx:
+                bundle_type = BundleType(bundle_type_id).name
+                bundles_options_raw[bundle_type].append(b)
         serialized_bundles = {x: BundleSerializer(y, many=True) for x, y in bundles_options_raw.items()}
         bundles_options = {x: y.data for x,y in serialized_bundles.items()}
 
