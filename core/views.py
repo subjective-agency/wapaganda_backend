@@ -157,7 +157,8 @@ class PeopleExtendedAPIView(WAPIView):
             'person': self.return_person_data
         })
 
-    def return_cache(self, request):
+    @staticmethod
+    def return_cache(request):
         """
         Return data for caching
         """
@@ -179,22 +180,13 @@ class PeopleExtendedAPIView(WAPIView):
         max_added_on = max_added_on_result['max_added_on']
         max_timestamp = int(max_added_on.timestamp()) if max_added_on else created_after
 
-        # Collect filters data
-        filters = self.collect_filters()
-
-        # Collect popular stats
-        stats = self.collect_stats()
-
         response_data = {
             'cache': serializer.data,
             'timestamp': max_timestamp,
-            'filters': filters,
-            'stats': stats
         }
         return Response(response_data)
 
-    @staticmethod
-    def return_page(request):
+    def return_page(self, request):
         """
         Return paginated and filtered data
         :param request: Object of type rest_framework.request.Request
@@ -221,8 +213,6 @@ class PeopleExtendedAPIView(WAPIView):
 
         # Tristate filters: True, False, None
         alive_filter = WAPIView.tristate_param(request.data.get('alive', None))
-        # traitors_filter = WAPIView.tristate_param(request.data.get('is_ttu', None))
-        # foreign_friends_filter = WAPIView.tristate_param(request.data.get('is_ff', None))
 
         if filter_value != '':
             people = people.filter(
@@ -253,12 +243,6 @@ class PeopleExtendedAPIView(WAPIView):
             people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
         logger.info(f"After filtering: {len(people)}")
 
-        # if traitors_filter is not None:
-        #     people = people.filter(is_ttu=traitors_filter)
-        #
-        # if foreign_friends_filter is not None:
-        #     people = people.filter(is_ff=foreign_friends_filter)
-
         # Apply sorting
         sort_by = request.data.get('sort_by', 'fullname.en')
         sort_direction = request.data.get('sort_direction', 'asc')
@@ -269,7 +253,19 @@ class PeopleExtendedAPIView(WAPIView):
         paginator = CustomPostPagination()
         result_page = paginator.paginate_queryset(people, request)
         serializer = PeopleExtendedBriefSerializer(result_page, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        page = paginator.get_paginated_data(serializer.data)
+
+        # Collect filters and popular stats
+        filters = self.collect_filters()
+        stats = self.collect_stats()
+
+        response_data = {
+            'page': page,
+            'filters': filters,
+            'stats': stats
+        }
+
+        return Response(response_data)
 
     @staticmethod
     def return_search_result(request):

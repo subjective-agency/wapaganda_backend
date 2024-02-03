@@ -50,14 +50,14 @@ class CustomPostPagination(PageNumberPagination):
             raise ValueError(f"Invalid page_size {page_size}; must below {self.max_page_size}")
         return page_size
 
-    def get_paginated_response(self, data):
+    def get_paginated_data(self, data):
         """
         Return the paginated response, add total number of records and page size
         Add server version to the response headers
         :return: Object of type rest_framework.response.Response
         """
-        return Response(data={
+        return {
             'total': self.page.paginator.count,
             'page_size': CustomPostPagination.page_size,
             'page': data
-        })
+        }
