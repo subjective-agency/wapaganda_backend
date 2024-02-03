@@ -440,7 +440,7 @@ class PeopleExtendedAPIView(WAPIView):
     def collect_stats():
         data = PopularStats.objects.all()
         serialized = PopularStatsSerializer(data)
-        return serialized
+        return serialized.data
 
 
 class TheoryAPIView(WAPIView):
