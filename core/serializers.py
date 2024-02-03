@@ -71,9 +71,9 @@ class PopularStatsSerializer(serializers.Serializer):
     count_total = serializers.IntegerField()
     count_female = serializers.IntegerField()
     count_male = serializers.IntegerField()
-    avg_age_total = serializers.DurationField()
-    avg_age_female = serializers.DurationField()
-    avg_age_male = serializers.DurationField()
+    avg_age_total = serializers.CharField()
+    avg_age_female = serializers.CharField()
+    avg_age_male = serializers.CharField()
 
 
 class BundleSerializer(serializers.Serializer):
