@@ -161,48 +161,6 @@ class PopularStatsAPIView(WAPIView):
         return Response(data=serialzed)
 
 
-class FiltersAPIView(WAPIView):
-    bundles = PeopleBundles.objects.all()
-    serializer_class = BundleSerializer
-    parser_classes = [JSONParser]
-
-    def return_filters(self, request):
-        serializer = FiltersRequestSerializer(data=request.data)
-        try:
-            serializer.is_valid(raise_exception=True)
-        except ValidationError as error:
-            logger.error(f'Invalid request data: {request.data}: {str(error)}')
-            return Response({'error': f"Filters.return_filters() {str(error)}"}, status=status.HTTP_400_BAD_REQUEST)
-
-        bundles_options_raw = {bundle_type.value: [] for bundle_type in BundleType}
-        for b in self.bundles:
-            bundle_type_id = b.get("bundle_type_id")
-            if bundle_type_id in BundleType.__members__:
-                bundle_type = BundleType(bundle_type_id)
-                bundles_options_raw[bundle_type.value].append(b)
-        serialized_bundles = {x: BundleSerializer(y, many=True).data for x, y in bundles_options_raw.items()}
-
-        age_options = [
-            {"value": "all", "label": "all"},
-            {"value": [None, 20], "label": "<20"},
-            {"value": [20, 30], "label": "20-30"},
-            {"value": [30, 50], "label": "30-50"},
-            {"value": [50, 70], "label": "50-70"},
-            {"value": [70, None], "label": "70+"},
-        ]
-        sex_options = [
-            {"value": "all", "label": "all"},
-            {"value": "m", "label": "male"},
-            {"value": "f", "label": "female"}
-        ]
-        status_options = [
-            {"value": "all", "label": "all"},
-            {"value": "true", "label": "alive"},
-            {"value": "false", "label": "dead"},
-        ]
-        return Response(data=[serialized_bundles, age_options, sex_options, status_options])
-
-
 class PeopleExtendedAPIView(WAPIView):
     """
     API view to handle PeopleExtended data
@@ -222,8 +180,7 @@ class PeopleExtendedAPIView(WAPIView):
             'person': self.return_person_data
         })
 
-    @staticmethod
-    def return_cache(request):
+    def return_cache(self, request):
         """
         Return data for caching
         """
@@ -245,9 +202,13 @@ class PeopleExtendedAPIView(WAPIView):
         max_added_on = max_added_on_result['max_added_on']
         max_timestamp = int(max_added_on.timestamp()) if max_added_on else created_after
 
+        # Collect filters data
+        filters = self.collect_filters()
+
         response_data = {
             'cache': serializer.data,
-            'timestamp': max_timestamp
+            'timestamp': max_timestamp,
+            'filters': filters
         }
         return Response(response_data)
 
@@ -460,6 +421,36 @@ class PeopleExtendedAPIView(WAPIView):
             },
             "episodes": serialized.data
         }
+
+    def collect_filters(self):
+        bundles = PeopleBundles.objects.all()
+        bundles_options_raw = {bundle_type.value: [] for bundle_type in BundleType}
+        for b in bundles:
+            bundle_type_id = b.get("bundle_type_id")
+            if bundle_type_id in BundleType.__members__:
+                bundle_type = BundleType(bundle_type_id)
+                bundles_options_raw[bundle_type.value].append(b)
+        serialized_bundles = {x: BundleSerializer(y, many=True).data for x, y in bundles_options_raw.items()}
+
+        age_options = [
+            {"value": "all", "label": "all"},
+            {"value": [None, 20], "label": "<20"},
+            {"value": [20, 30], "label": "20-30"},
+            {"value": [30, 50], "label": "30-50"},
+            {"value": [50, 70], "label": "50-70"},
+            {"value": [70, None], "label": "70+"},
+        ]
+        sex_options = [
+            {"value": "all", "label": "all"},
+            {"value": "m", "label": "male"},
+            {"value": "f", "label": "female"}
+        ]
+        status_options = [
+            {"value": "all", "label": "all"},
+            {"value": "true", "label": "alive"},
+            {"value": "false", "label": "dead"},
+        ]
+        return [serialized_bundles, age_options, sex_options, status_options]
 
 
 class TheoryAPIView(WAPIView):

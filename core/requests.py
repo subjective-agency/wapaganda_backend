@@ -164,15 +164,6 @@ class PagingRequestSerializer(CommonRequestSerializer):
         return super().to_internal_value(data)
 
 
-class FiltersRequestSerializer(CommonRequestSerializer):
-    type = serializers.CharField(required=True)
-
-    def validate_type(self, value):
-        if value.lower() != 'filters':
-            raise ValidationError('Invalid request type, "filters" expected')
-        return value
-
-
 # noinspection PyMethodMayBeStatic
 class TheoryRequestSerializer(CommonRequestSerializer):
     allowed_fields = ['id', 'title', 'type', 'publish_date']
