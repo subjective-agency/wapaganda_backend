@@ -132,7 +132,12 @@ class CacheSerializer(serializers.Serializer):
     """
     id = serializers.IntegerField()
     fullname = TripleLangSerializer()
-    added_on = fields.UnixTimestampField()
+    dob = serializers.DateField(allow_null=True)
+    dod = serializers.DateField(allow_null=True)
+    photo = serializers.CharField(allow_blank=True, allow_null=True)
+    thumb = serializers.CharField(allow_blank=True, allow_null=True)
+    sex = serializers.CharField(allow_blank=True, allow_null=True)
+    known_for = TripleLangSerializer()
 
     def create(self, validated_data):
         """
@@ -151,6 +156,11 @@ class CacheSerializer(serializers.Serializer):
         fields = (
             'id',
             'fullname',
+            'dob',
+            'dod',
+            'photo',
+            'thumb',
+            'sex'
         )
 
 

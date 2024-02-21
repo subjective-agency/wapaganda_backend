@@ -352,6 +352,7 @@ class PeopleExtendedAPIView(WAPIView):
                 "media_segment_id": episode_data.segment_id,
                 "media_segment_name": segment_data.name if segment_data else None,
                 "role": role_data.role if role_data else None,
+                "source": "smotrim"
             }
             episodes.append(obj)
         serialized = AirtimeSerializer(episodes, many=True)
@@ -385,6 +386,7 @@ class PeopleExtendedAPIView(WAPIView):
                 "media_segment_id": episode_data.segment_id,
                 "media_segment_name": segment_data.name if segment_data else None,
                 "role": role_data.role if role_data else None,
+                "source": "youtube"
             }
             episodes.append(obj)
         serialized = AirtimeSerializer(episodes, many=True)
