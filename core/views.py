@@ -323,7 +323,10 @@ class PeopleExtendedAPIView(WAPIView):
         logger.info(f'Person data request: {request_data}')
         person_serializer = PeopleExtendedSerializer(person)
 
+        logger.info("before")
         airtime_data = self.unify_airtime_data(person_id)
+        logger.info("after")
+
         response_data = person_serializer.data
 
         # Combine the serialized data and return the response
