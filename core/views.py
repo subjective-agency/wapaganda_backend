@@ -333,36 +333,37 @@ class PeopleExtendedAPIView(WAPIView):
         # return Response({"person": response_data})
 
     def unify_airtime_data(self, person_id):
-        smotrim_data = self.collect_smotrim_airtime(person_id)
-        youtube_data = self.collect_youtube_airtime(person_id)
-        episodes = dict()
-        counter = 0
+        episodes = self.collect_smotrim_airtime(person_id)
+        episodes.extend(self.collect_youtube_airtime(person_id))
+
+        sorted_episodes = list()
         roles = set()
+        unique_dates = set()
 
-        for collection in [smotrim_data, youtube_data]:
-            if collection:
-                for ep in collection:
-                    counter += 1
-                    if ep["role"]:
-                        roles.add(ep["role"])
+        for ep in episodes:
+            if ep["role"]:
+                roles.add(ep["role"])
 
-                    k = arrow.get(ep["episode_date"]).format("YYYY-MM-DD")
-                    if k not in episodes:
-                        episodes[k] = [AirtimeSerializer(ep),]
-                    else:
-                        episodes[k].append(AirtimeSerializer(ep))
+            k = arrow.get(ep["episode_date"]).format("YYYY-MM-DD")
+            if k not in unique_dates:
+                unique_dates.add(k)
+                sorted_episodes.append({"date": k, "episodes": []})
+
+            for se in sorted_episodes:
+                if se["date"] == k:
+                    se["episodes"].append(AirtimeSerializer(ep))
         logger.info(f"Collected {counter} episodes")
 
         return {
-            "total": {"appearances_count": counter, "roles": list(roles)},}
-            # "episodes": episodes}
+            "total": {"appearances_count": len(episodes), "roles": list(roles)},
+            "episodes": sorted_episodes}
 
 
     @staticmethod
     def collect_smotrim_airtime(person_id):
         queryset = PeopleOnSmotrim.objects.filter(person_id=person_id)
         if not queryset:
-            return
+            return []
 
         episodes = []
         for query in queryset:
@@ -387,7 +388,7 @@ class PeopleExtendedAPIView(WAPIView):
     def collect_youtube_airtime(person_id):
         queryset = PeopleOnYoutube.objects.filter(person_id=person_id)
         if not queryset:
-            return
+            return []
 
         episodes = []
         for query in queryset:
