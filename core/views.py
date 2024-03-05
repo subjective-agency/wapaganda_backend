@@ -352,7 +352,7 @@ class PeopleExtendedAPIView(WAPIView):
             for se in sorted_episodes:
                 if se["date"] == k:
                     se["episodes"].append(AirtimeSerializer(ep))
-        logger.info(f"Collected {counter} episodes")
+        logger.info(f"Collected {len(episodes)} episodes")
 
         return {
             "total": {"appearances_count": len(episodes), "roles": list(roles)},
