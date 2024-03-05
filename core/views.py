@@ -333,7 +333,9 @@ class PeopleExtendedAPIView(WAPIView):
 
     def unify_airtime_data(self, person_id):
         smotrim_data = self.collect_smotrim_airtime(person_id)
+        logger.info(f"Smotrim: {len(smotrim_data)}")
         youtube_data = self.collect_youtube_airtime(person_id)
+        logger.info(f"Ytb: {len(youtube_data)}")
         episodes = dict()
         counter = 0
         roles = set()
@@ -350,6 +352,7 @@ class PeopleExtendedAPIView(WAPIView):
                         episodes[k] = [AirtimeSerializer(ep),]
                     else:
                         episodes[k].append(AirtimeSerializer(ep))
+        logger.info(f"Collected {counter} episodes")
 
         return {
             "total": {"appearances_count": counter, "roles": list(roles)},
