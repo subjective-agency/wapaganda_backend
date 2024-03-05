@@ -324,13 +324,14 @@ class PeopleExtendedAPIView(WAPIView):
         person_serializer = PeopleExtendedSerializer(person)
 
         airtime_data = self.unify_airtime_data(person_id)
-        logger.info(f"{airtime_data['total']}")
         response_data = person_serializer.data
 
         # Combine the serialized data and return the response
         # response_data.update(airtime_data)
         # TODO: Serialize Organizations
-        return Response({"person": response_data, "airtime": airtime_data})
+        resp = Response({"person": response_data, "airtime": airtime_data})
+        logger.info(f"{resp}")
+        return resp
 
     def unify_airtime_data(self, person_id):
         smotrim_data = self.collect_smotrim_airtime(person_id)
