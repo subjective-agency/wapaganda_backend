@@ -323,10 +323,7 @@ class PeopleExtendedAPIView(WAPIView):
         logger.info(f'Person data request: {request_data}')
         person_serializer = PeopleExtendedSerializer(person)
 
-        logger.info("before")
         airtime_data = self.unify_airtime_data(person_id)
-        logger.info("after")
-
         response_data = person_serializer.data
 
         # Combine the serialized data and return the response
@@ -354,7 +351,8 @@ class PeopleExtendedAPIView(WAPIView):
 
             for se in sorted_episodes:
                 if se["date"] == k:
-                    se["episodes"].append(AirtimeSerializer(ep))
+                    serialized_ep = AirtimeSerializer(ep)
+                    se["episodes"].append(serialized_ep.data)
         logger.info(f"Collected {len(episodes)} episodes")
 
         return {
