@@ -98,7 +98,8 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
     photo = serializers.CharField(allow_blank=True, allow_null=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
     sex = serializers.CharField(allow_blank=True, allow_null=True)
-    known_for = TripleLangSerializer()
+    known_for = TripleLangSerializer(allow_null=True)
+    aliases = TripleLangSerializer(allow_null=True)
 
     def create(self, validated_data):
         """
@@ -121,7 +122,8 @@ class PeopleExtendedBriefSerializer(serializers.Serializer):
             'dod',
             'photo',
             'thumb',
-            'sex'
+            'sex',
+            'aliases'
         )
 
 
@@ -137,7 +139,8 @@ class CacheSerializer(serializers.Serializer):
     photo = serializers.CharField(allow_blank=True, allow_null=True)
     thumb = serializers.CharField(allow_blank=True, allow_null=True)
     sex = serializers.CharField(allow_blank=True, allow_null=True)
-    known_for = TripleLangSerializer()
+    known_for = TripleLangSerializer(allow_null=True)
+    aliases = TripleLangSerializer(allow_null=True)
 
     def create(self, validated_data):
         """
@@ -160,7 +163,8 @@ class CacheSerializer(serializers.Serializer):
             'dod',
             'photo',
             'thumb',
-            'sex'
+            'sex',
+            'aliases'
         )
 
 

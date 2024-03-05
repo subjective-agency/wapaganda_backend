@@ -201,13 +201,13 @@ class PeopleExtendedAPIView(WAPIView):
             return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
         people = PeopleExtended.objects.all()
-        logger.info(f'Before filtering: {len(people)}')
+        logger.debug(f'Before filtering: {len(people)}')
 
         # Apply filtering
         filter_value = request.data.get('filter', '')
         age_min = request.data.get('age_min', 1)
         age_max = request.data.get('age_max', 99)
-        logger.info(f"Before: Age min is {age_min}, Age max is {age_max}")
+        logger.debug(f"Before: Age min is {age_min}, Age max is {age_max}")
 
         sex_filter = request.data.get('sex', None)
 
@@ -241,7 +241,7 @@ class PeopleExtendedAPIView(WAPIView):
             birth_date_limit_max = today
             logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
             people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
-        logger.info(f"After filtering: {len(people)}")
+        logger.debug(f"After filtering: {len(people)}")
 
         # Apply sorting
         sort_by = request.data.get('sort_by', 'fullname.en')
