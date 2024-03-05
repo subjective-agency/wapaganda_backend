@@ -65,6 +65,7 @@ class AirtimeSerializer(serializers.Serializer):
     media_segment_id = serializers.IntegerField(allow_null=True)
     media_segment_name = TripleLangSerializer(allow_null=True)
     role = serializers.CharField(allow_null=True)
+    source = serializers.CharField()
 
 
 class PopularStatsSerializer(serializers.Serializer):
