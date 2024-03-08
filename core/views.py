@@ -339,10 +339,12 @@ class PeopleExtendedAPIView(WAPIView):
         sorted_episodes = list()
         roles = set()
         unique_dates = set()
+        total_airtime = 0
 
         for ep in episodes:
             if ep["role"]:
                 roles.add(ep["role"])
+            total_airtime += ep.get("episode_duration", 0)
             k = arrow.get(ep["episode_date"])
             if k not in unique_dates:
                 unique_dates.add(k)
@@ -355,7 +357,7 @@ class PeopleExtendedAPIView(WAPIView):
         logger.info(f"Collected {len(episodes)} episodes")
 
         return {
-            "total": {"appearances_count": len(episodes), "roles": list(roles), "most_recent_appearance_date": max(unique_dates).format("YYYY-MM-DD")},
+            "total": {"appearances_count": len(episodes), "roles": list(roles), "most_recent_appearance_date": max(unique_dates).format("YYYY-MM-DD"), "total_airtime": int(total_airtime)},
             "episodes": sorted_episodes}
 
 
