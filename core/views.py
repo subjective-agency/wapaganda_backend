@@ -333,33 +333,34 @@ class PeopleExtendedAPIView(WAPIView):
         # return Response({"person": response_data})
 
     def unify_airtime_data(self, person_id):
-        episodes = self.collect_smotrim_airtime(person_id)
-        episodes.extend(self.collect_youtube_airtime(person_id))
+        data = {"smotrim": self.collect_smotrim_airtime(person_id),
+                "youtube": self.collect_youtube_airtime(person_id)}
 
         sorted_episodes = list()
         roles = set()
         unique_dates = set()
         total_airtime = 0
 
-        for ep in episodes:
-            if ep["role"]:
-                roles.add(ep["role"])
-            total_airtime += ep.get("episode_duration", 0)
-            k = arrow.get(ep["episode_date"])
-            if k not in unique_dates:
-                unique_dates.add(k)
-                sorted_episodes.append({"date": k.format(), "episodes": [], "airtime": 0, "appearances": 0})
+        for platform, episodes in data.items():
+            for ep in episodes:
+                if ep["role"]:
+                    roles.add(ep["role"])
+                total_airtime += ep.get("episode_duration", 0)
+                k = arrow.get(ep["episode_date"])
+                if k not in unique_dates:
+                    unique_dates.add(k)
+                    sorted_episodes.append({"date": k.format(), "smotrim": [], "youtube": [], "airtime": 0, "appearances": 0})
 
-            for se in sorted_episodes:
-                if se["date"] == k.format():
-                    serialized_ep = AirtimeSerializer(ep)
-                    se["episodes"].append(serialized_ep.data)
-                    se["airtime"] += ep.get("episode_duration", 0)
-                    se["appearances"] += 1
-        logger.info(f"Collected {len(episodes)} episodes")
+                for se in sorted_episodes:
+                    if se["date"] == k.format():
+                        serialized_ep = AirtimeSerializer(ep)
+                        se[platform].append(serialized_ep.data)
+                        se["airtime"] += ep.get("episode_duration", 0)
+                        se["appearances"] += 1
+        # logger.info(f"Collected {len(episodes)} episodes")
 
         return {
-            "total": {"appearances_count": len(episodes),
+            "total": {"appearances_count": sum([se["appearances"] for se in sorted_episodes]),
                       "roles": list(roles),
                       "most_recent_appearance_date": max(unique_dates).format(),
                       "total_airtime": int(total_airtime)},
