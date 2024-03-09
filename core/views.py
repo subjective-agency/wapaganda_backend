@@ -342,6 +342,8 @@ class PeopleExtendedAPIView(WAPIView):
         total_airtime = 0
 
         for platform, episodes in data.items():
+            if not episodes:
+                continue
             for ep in episodes:
                 if ep["role"]:
                     roles.add(ep["role"])
@@ -349,12 +351,12 @@ class PeopleExtendedAPIView(WAPIView):
                 k = arrow.get(ep["episode_date"])
                 if k not in unique_dates:
                     unique_dates.add(k)
-                    sorted_episodes.append({"date": k.format(), "smotrim": [], "youtube": [], "airtime": 0, "appearances": 0})
+                    sorted_episodes.append({"date": k.format(), "episodes": [], "airtime": 0, "appearances": 0})
 
                 for se in sorted_episodes:
                     if se["date"] == k.format():
                         serialized_ep = AirtimeSerializer(ep)
-                        se[platform].append(serialized_ep.data)
+                        se["episodes"].append(serialized_ep.data)
                         se["airtime"] += ep.get("episode_duration", 0)
                         se["appearances"] += 1
         # logger.info(f"Collected {len(episodes)} episodes")
