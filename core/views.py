@@ -243,19 +243,19 @@ class PeopleExtendedAPIView(WAPIView):
         #
         # logger.debug(f"Before: Age min is {age_min}, Age max is {age_max}")
 
-        dataset = self.apply_age_filter(request.age_min, requestage_max, dataset)
+        dataset = self.apply_age_filter(request.get("age_min"), request.get("age_max"), dataset)
 
-        if custom_filter := request.filter:
+        if custom_filter := request.get("filter"):
             dataset = self.apply_custom_filter(custom_filter, dataset)
-        if alive_filter := request.alive:
+        if alive_filter := request.get("alive"):
             dataset = self.apply_alive_filter(alive_filter, dataset)
-        if sex_filter := request.sex:
+        if sex_filter := request.get("sex"):
             dataset = self.apply_sex_filter(sex_filter, dataset)
-        if flags_filter := request.flags:
+        if flags_filter := request.get("flags"):
             dataset = self.apply_bundle_filter(flags_filter, dataset)
-        if expertise_filter := request.expertise:
+        if expertise_filter := request.get("expertise"):
             dataset = self.apply_bundle_filter(expertise_filter, dataset)
-        if groups_filter := request.groups:
+        if groups_filter := request.get("groups"):
             dataset = self.apply_bundle_filter(groups_filter, dataset)
 
         # today = datetime.now().date()
@@ -302,7 +302,7 @@ class PeopleExtendedAPIView(WAPIView):
 
         people = PeopleExtended.objects.all()
         logger.debug(f'Before filtering: {len(people)}')
-        people_filtered = self.apply_filters_to_dataset(req_serializer, people)
+        people_filtered = self.apply_filters_to_dataset(req_serializer.validated_data, people)
 
         # Apply filtering
         # filter_value = request.data.get('filter', '')
@@ -348,7 +348,7 @@ class PeopleExtendedAPIView(WAPIView):
 
         # Apply sorting
 
-        people_sorted = self.apply_sorting_to_dataset(req_serializer, people_filtered)
+        people_sorted = self.apply_sorting_to_dataset(req_serializer.validated_data, people_filtered)
 
         paginator = CustomPostPagination()
         result_page = paginator.paginate_queryset(people_sorted, request)
