@@ -82,7 +82,7 @@ class PagingRequestSerializer(CommonRequestSerializer):
         """
         pass
 
-    allowed_fields = ['id', 'fullname', 'dob', 'dod', 'sex', 'lastname', 'bundles']
+    allowed_fields = ['id', 'fullname', 'lastname']
     type = serializers.CharField(required=True)
     page = serializers.IntegerField(required=True, min_value=0)
     page_size = serializers.IntegerField(required=True, min_value=8, max_value=120)
@@ -93,9 +93,9 @@ class PagingRequestSerializer(CommonRequestSerializer):
     age_min = serializers.IntegerField(required=False, min_value=1, max_value=99, allow_null=True)
     age_max = serializers.IntegerField(required=False, min_value=1, max_value=99, allow_null=True)
     alive = serializers.BooleanField(required=False, allow_null=True)
-    # bundles_n = serializers.CharField(required=False, allow_null=True)  # json structure with bundles data
-    # bundles_o = serializers.CharField(required=False, allow_null=True)
-    # bundles_e = serializers.CharField(required=False, allow_null=True)
+    flags = serializers.IntegerField(required=False, allow_null=True)
+    groups = serializers.IntegerField(required=False, allow_null=True)
+    expertise = serializers.IntegerField(required=False, allow_null=True)
 
     def validate(self, data):
         """

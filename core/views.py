@@ -187,72 +187,171 @@ class PeopleExtendedAPIView(WAPIView):
         }
         return Response(response_data)
 
+    @staticmethod
+    def apply_age_filter(age_min: int, age_max: int, dataset):
+        today = arrow.now()
+        ceiling = today.shift(days=-(int(age_min - 1) * 365)) if age_min else today
+        floor = today.shift(days=-(int(age_max) * 365)) if age_max else today.shift(days=-(99 * 365))
+        # if age_min and age_max:
+        #     floor = today.shift(days=-(int(age_max) * 365))
+        #     ceiling = today.shift(days=-(int(age_min - 1) * 365))
+        #     # birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+        #     # birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+        #
+        # elif age_min and not age_max:
+        #     floor = today.shift(days=-(99 * 365))
+        #     ceiling = today.shift(days=-(int(age_min - 1) * 365))
+        #     # birth_date_limit_min = today - timedelta(days=99 * 365)
+        #     # birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+        # elif age_max and not age_min:
+        #     floor = today.shift(days=-(int(age_max) * 365))
+        #     ceiling = today
+        #     # birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+        #     # birth_date_limit_max = today
+        # else: # neither params are sent over
+        #     floor = today.shift(days=-(99 * 365))
+        #     ceiling = today
+        logger.info(f'Birth date limits: {floor} - {ceiling}')
+        return dataset.filter(dob__gte=floor, dob__lte=ceiling)
+
+    @staticmethod
+    def apply_sex_filter(sex_filter: str, dataset):
+        return people.filter(sex=sex_filter)
+
+    @staticmethod
+    def apply_alive_filter(alive_filter: bool, dataset):
+        return dataset.filter(dod__isnull=alive_filter)
+
+    @staticmethod
+    def apply_custom_filter(custom_filter: str, dataset):
+        return dataset.filter(
+            Q(fullname_en__icontains=custom_filter) |
+            Q(fullname_ru__icontains=custom_filter) |
+            Q(fullname_uk__icontains=custom_filter)
+        )
+
+    @staticmethod
+    def apply_bundle_filter(bundle_filter: list[int], dataset):
+        return dataset.filter(bundles__id__in=bundle_filter)
+
+
+    def apply_filters_to_dataset(self, request, dataset):
+        # custom_filter = request.get("filter", "")
+        # age_min, age_max = request.get("age_min", 1), request.get("age_max", 99)
+        # sex_filter = request.get("sex", None)
+        # alive_filter = self.tristate_param(request.data.get('alive', None))
+        #
+        # logger.debug(f"Before: Age min is {age_min}, Age max is {age_max}")
+
+        dataset = self.apply_age_filter(request.get("age_min"), request.get("age_max"), dataset)
+
+        if custom_filter := request.get("filter"):
+            dataset = self.apply_custom_filter(custom_filter, dataset)
+        if alive_filter := request.get("alive"):
+            dataset = self.apply_alive_filter(alive_filter, dataset)
+        if sex_filter := request.get("sex"):
+            dataset = self.apply_sex_filter(sex_filter, dataset)
+        if flags_filter := request.get("flags"):
+            dataset = self.apply_bundle_filter(flags_filter, dataset)
+        if expertise_filter := request.get("expertise"):
+            dataset = self.apply_bundle_filter(expertise_filter, dataset)
+        if groups_filter := request.get("groups"):
+            dataset = self.apply_bundle_filter(groups_filter, dataset)
+
+        # today = datetime.now().date()
+        # if age_min and age_max:
+        #     birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+        #     birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+        #     logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+        #     people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+        # elif age_min and not age_max:
+        #     birth_date_limit_min = today - timedelta(days=99 * 365)
+        #     birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+        #     logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+        #     people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+        # elif age_max and not age_min:
+        #     birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+        #     birth_date_limit_max = today
+        #     logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+        #     people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+        # logger.debug(f"After filtering: {len(people)}")
+
+        return dataset
+
+    def apply_sorting_to_dataset(self, request, dataset):
+        sort_by = request.get("sort_by", "fullname.en")
+        sort_direction = request.get("sort_direction", "asc")
+        sort_by = f"-{sort_by}" if sort_direction == "desc" else sort_by
+        logger.debug(f'Sorting condition {sort_by}')
+        return dataset.order_by(sort_by)
+
+
     def return_page(self, request):
         """
         Return paginated and filtered data
         :param request: Object of type rest_framework.request.Request
         :return: Paginated and filtered data in short JSON format
         """
-        serializer = PagingRequestSerializer(data=request.data)
+        req_serializer = PagingRequestSerializer(data=request.data)
         logger.info(f"Received {len(request.data)} items")
         try:
-            serializer.is_valid(raise_exception=True)
+            req_serializer.is_valid(raise_exception=True)
         except ValidationError as error:
             logger.error(f'Invalid request data: {request.data}: {str(error)}')
             return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
         people = PeopleExtended.objects.all()
         logger.debug(f'Before filtering: {len(people)}')
+        people_filtered = self.apply_filters_to_dataset(req_serializer, people)
 
         # Apply filtering
-        filter_value = request.data.get('filter', '')
-        age_min = request.data.get('age_min', 1)
-        age_max = request.data.get('age_max', 99)
-        logger.debug(f"Before: Age min is {age_min}, Age max is {age_max}")
+        # filter_value = request.data.get('filter', '')
+        # age_min = request.data.get('age_min', 1)
+        # age_max = request.data.get('age_max', 99)
+        # logger.debug(f"Before: Age min is {age_min}, Age max is {age_max}")
+        #
+        # sex_filter = request.data.get('sex', None)
+        #
+        # # Tristate filters: True, False, None
+        # alive_filter = WAPIView.tristate_param(request.data.get('alive', None))
+        #
+        # if filter_value != '':
+        #     people = people.filter(
+        #         Q(fullname_en__icontains=filter_value) |
+        #         Q(fullname_ru__icontains=filter_value) |
+        #         Q(fullname_uk__icontains=filter_value)
+        #     )
+        # if alive_filter is not None:
+        #     people = people.filter(dod__isnull=alive_filter)
+        # if sex_filter is not None:
+        #     people = people.filter(sex=sex_filter)
+        #
+        # today = datetime.now().date()
+        # if age_min and age_max:
+        #     birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+        #     birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+        #     logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+        #     people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+        # elif age_min and not age_max:
+        #     birth_date_limit_min = today - timedelta(days=99 * 365)
+        #     birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+        #     logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+        #     people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+        # elif age_max and not age_min:
+        #     birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+        #     birth_date_limit_max = today
+        #     logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+        #     people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+        # logger.debug(f"After filtering: {len(people)}")
 
-        sex_filter = request.data.get('sex', None)
-
-        # Tristate filters: True, False, None
-        alive_filter = WAPIView.tristate_param(request.data.get('alive', None))
-
-        if filter_value != '':
-            people = people.filter(
-                Q(fullname_en__icontains=filter_value) |
-                Q(fullname_ru__icontains=filter_value) |
-                Q(fullname_uk__icontains=filter_value)
-            )
-        if alive_filter is not None:
-            people = people.filter(dod__isnull=alive_filter)
-        if sex_filter is not None:
-            people = people.filter(sex=sex_filter)
-
-        today = datetime.now().date()
-        if age_min and age_max:
-            birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
-            birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
-            logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
-            people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
-        elif age_min and not age_max:
-            birth_date_limit_min = today - timedelta(days=99 * 365)
-            birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
-            logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
-            people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
-        elif age_max and not age_min:
-            birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
-            birth_date_limit_max = today
-            logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
-            people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
-        logger.debug(f"After filtering: {len(people)}")
+        # parse new filters
 
         # Apply sorting
-        sort_by = request.data.get('sort_by', 'fullname.en')
-        sort_direction = request.data.get('sort_direction', 'asc')
-        sort_by = f'-{sort_by}' if sort_direction == 'desc' else sort_by
-        logger.info(f'Sorting condition {sort_by}')
-        people = people.order_by(sort_by)
+
+        people_sorted = self.apply_sorting_to_dataset(req_serializer, people_filtered)
 
         paginator = CustomPostPagination()
-        result_page = paginator.paginate_queryset(people, request)
+        result_page = paginator.paginate_queryset(people_sorted, request)
         serializer = PeopleExtendedBriefSerializer(result_page, many=True)
         page = paginator.get_paginated_data(serializer.data)
 
@@ -431,6 +530,8 @@ class PeopleExtendedAPIView(WAPIView):
                 bundles_options_raw[bundle_type].append(b)
         serialized_bundles = {x: BundleSerializer(y, many=True) for x, y in bundles_options_raw.items()}
         bundles_options = {x: y.data for x,y in serialized_bundles.items()}
+        for k in bundles_options:
+            bundles_options[k].append({"id": 0, "name": {"en": "all", "ru": "все", "uk": "всі"}})
 
         age_options = [
             {"value": "all", "label": "all"},
