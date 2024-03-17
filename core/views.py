@@ -243,19 +243,19 @@ class PeopleExtendedAPIView(WAPIView):
         #
         # logger.debug(f"Before: Age min is {age_min}, Age max is {age_max}")
 
-        dataset = self.apply_age_filter(request.get("age_min"), request.get("age_max"), dataset)
+        dataset = self.apply_age_filter(request.age_min, requestage_max, dataset)
 
-        if custom_filter := request.get("filter"):
+        if custom_filter := request.filter:
             dataset = self.apply_custom_filter(custom_filter, dataset)
-        if alive_filter := request.get("alive"):
+        if alive_filter := request.alive:
             dataset = self.apply_alive_filter(alive_filter, dataset)
-        if sex_filter := request.get("sex"):
+        if sex_filter := request.sex:
             dataset = self.apply_sex_filter(sex_filter, dataset)
-        if flags_filter := request.get("flags"):
+        if flags_filter := request.flags:
             dataset = self.apply_bundle_filter(flags_filter, dataset)
-        if expertise_filter := request.get("expertise"):
+        if expertise_filter := request.expertise:
             dataset = self.apply_bundle_filter(expertise_filter, dataset)
-        if groups_filter := request.get("groups"):
+        if groups_filter := request.groups:
             dataset = self.apply_bundle_filter(groups_filter, dataset)
 
         # today = datetime.now().date()
