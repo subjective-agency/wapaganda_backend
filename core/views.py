@@ -212,7 +212,7 @@ class PeopleExtendedAPIView(WAPIView):
         #     floor = today.shift(days=-(99 * 365))
         #     ceiling = today
         logger.info(f'Birth date limits: {floor.format()} - {ceiling.format()}')
-        return dataset.filter(dob__gte=floor.format, dob__lte=ceiling.format)
+        return dataset.filter(dob__gte=floor.format(), dob__lte=ceiling.format())
 
     @staticmethod
     def apply_sex_filter(sex_filter: str, dataset):
