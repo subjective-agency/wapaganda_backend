@@ -352,7 +352,7 @@ class PeopleExtendedAPIView(WAPIView):
 
         paginator = CustomPostPagination()
         result_page = paginator.paginate_queryset(people_sorted, request)
-        serializer = PeopleExtendedBriefSerializer(result_page, many=True)
+        serializer = PeopleExtendedSerializer(result_page, many=True)
         page = paginator.get_paginated_data(serializer.data)
 
         # Collect filters and popular stats
