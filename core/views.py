@@ -232,7 +232,12 @@ class PeopleExtendedAPIView(WAPIView):
 
     @staticmethod
     def apply_bundle_filter(bundle_filter: list[int], dataset):
-        return dataset.filter(bundles__id__in=bundle_filter)
+        filter_conditions = [Q(bundles__contains=[{"id": i}]) for i in bundle_filter]
+        combined_filter = Q()  # Combine the Q objects using the OR operator '|'
+        for condition in filter_conditions:
+            combined_filter |= condition
+
+        return dataset.filter(combined_filter)
 
 
     def apply_filters_to_dataset(self, request, dataset):
