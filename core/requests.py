@@ -137,22 +137,62 @@ class PagingRequestSerializer(CommonRequestSerializer):
         """
         return self.tristate_param(value)
 
-    # def validate_bundles_n(self, value):
-    #     if value is None:
-    #         return
-    #
+    def validate_flags(self, value):
+        """
+        Validate the "flags" field.
+        """
+        if value is not None:
+            if not isinstance(value, list):
+                raise ValidationError('Flags must be a list of integers')
+            if not all(isinstance(item, int) and item >= 0 for item in value):
+                raise ValidationError('Flags must be a list of non-negative integers')
+        return value
 
-    # def validate_is_ttu(self, value):
-    #     """
-    #     Convert a parameter to tristate value (True, False, None)
-    #     """
-    #     return self.tristate_param(value)
-    #
-    # def validate_is_ff(self, value):
-    #     """
-    #     Convert a parameter to tristate value (True, False, None)
-    #     """
-    #     return self.tristate_param(value)
+    def validate_groups(self, value):
+        """
+        Validate the "groups" field.
+        """
+        if value is not None:
+            if not isinstance(value, list):
+                raise ValidationError('Flags must be a list of integers')
+            if not all(isinstance(item, int) and item >= 0 for item in value):
+                raise ValidationError('Flags must be a list of non-negative integers')
+        return value
+
+    def validate_expertise(self, value):
+        """
+        Validate the "expertise" field.
+        """
+        if value is not None:
+            if not isinstance(value, list):
+                raise ValidationError('Flags must be a list of integers')
+            if not all(isinstance(item, int) and item >= 0 for item in value):
+                raise ValidationError('Flags must be a list of non-negative integers')
+        return value
+
+    def validate_sort_direction(self, value):
+        """
+        Validate the "sort_direction" field.
+        """
+        if value.lower() not in ['asc', 'desc']:
+            raise ValidationError('Invalid value for sort_direction. It must be "asc" or "desc".')
+        return value
+
+    def validate_page(self, value):
+        """
+        Validate the "page" field.
+        """
+        if value < 0:
+            raise ValidationError('Page number must be a non-negative integer')
+        return value
+
+    def validate_page_size(self, value):
+        """
+        Validate the "page_size" field.
+        """
+        if value < 8 or value > 120:
+            raise ValidationError('Page size must be between 8 and 120')
+        return value
 
     def to_internal_value(self, data):
         """
