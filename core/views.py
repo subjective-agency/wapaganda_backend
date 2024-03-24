@@ -118,10 +118,12 @@ class WAPIView(generics.CreateAPIView):
         """
         Version of POST with exception handling
         """
+        logger.info(f'INCOMING DATA ::: {request.data}')
         try:
             return self._post(request, *args, **kwargs)
         except Exception as e:
-            logger.error(f'Exception in _post_protected: {str(e)}')
+            logger.error(f'Exception in _post_protected WITH MESSAGE ::: {str(e)}')
+            logger.error(f'Exception in _post_protected DATA ::: {request.data}')
             return Response({'Server error:': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, *args, **kwargs):
