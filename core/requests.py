@@ -93,9 +93,9 @@ class PagingRequestSerializer(CommonRequestSerializer):
     age_min = serializers.IntegerField(required=False, min_value=1, max_value=99, allow_null=True)
     age_max = serializers.IntegerField(required=False, min_value=1, max_value=99, allow_null=True)
     alive = serializers.BooleanField(required=False, allow_null=True)
-    flags = serializers.IntegerField(required=False, allow_null=True)
-    groups = serializers.IntegerField(required=False, allow_null=True)
-    expertise = serializers.IntegerField(required=False, allow_null=True)
+    flags = serializers.ListField(child=serializers.IntegerField(), required=False, allow_null=True)
+    groups = serializers.ListField(child=serializers.IntegerField(), required=False, allow_null=True)
+    expertise = serializers.ListField(child=serializers.IntegerField(), required=False, allow_null=True)
 
     def validate(self, data):
         """
