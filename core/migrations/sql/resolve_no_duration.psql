@@ -1,0 +1,54 @@
+create or replace function resolve_no_duration()
+returns void
+returns null on null input
+as $$
+declare
+    i int;
+    dur int;
+    smo_id int;
+    yt_id int;
+    kms_id int;
+    n_id int;
+    d_id int;
+begin
+    for i, smo_id, yt_id, kms_id, n_id, d_id in
+        select id, smotrim_id, youtube_id, komso_id, ntv_id, dentv_id from data.transcripts where duration is null
+    loop
+    	select end_time from data.transcribed_content where transcript_id = i order by int_sequence desc limit 1 into dur;
+      update data.transcripts set duration = dur::int where id = i;
+      update public.smotrim_episodes set duration = case when smo_id is not null then dur::int end where id = smo_id;
+      update public.youtube_vids set duration = case when yt_id is not null then dur::int end where id = yt_id;
+      update public.komso_episodes set duration = case when kms_id is not null then dur::int end where id = kms_id;
+      update public.ntv_episodes set duration = case when n_id is not null then dur::int end where id = n_id;
+      update public.dentv_episodes set duration = case when d_id is not null then dur::int end where id = d_id;
+    end loop;
+end;
+$$ language plpgsql;
+
+create or replace function resolve_no_segment()
+returns void
+returns null on null input
+as $$
+declare
+    i int;
+    seg_id int;
+    smo_id int;
+    yt_id int;
+    kms_id int;
+    n_id int;
+    d_id int;
+begin
+    for i, smo_id, yt_id, kms_id, n_id, d_id in
+        select id, smotrim_id, youtube_id, komso_id, ntv_id, dentv_id from data.transcripts where segment_id is null
+    loop
+      update data.transcripts set segment_id = case
+      	when smo_id is not null then (select segment_id from public.smotrim_episodes where id = smo_id)
+      	when yt_id is not null then (select segment_id from public.youtube_vids where id = yt_id)
+      	when kms_id is not null then (select segment_id from public.komso_episodes where id = kms_id)
+      	when n_id is not null then (select segment_id from public.ntv_episodes where id = n_id)
+      	when d_id is not null then (select segment_id from public.dentv_episodes where id = d_id)
+	  end
+      where id = i;
+    end loop;
+end;
+$$ language plpgsql;

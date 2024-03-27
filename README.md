@@ -1,4 +1,4 @@
-# Supaword backend application
+# Backend application
 
 ## API
 
@@ -19,7 +19,7 @@ in order to have the same Python version on the server and developer's machine.
 For the deployment and starting server, we use `Procfile` file, which specifies the command to run the server.
 Example:
 ```bash
-web: python manage.py collectstatic --noinput && python manage.py fetchstatic 0.2.14 --noinput && gunicorn supaword.wsgi --log-level=info --log-file=-
+web: python manage.py collectstatic --noinput && python manage.py fetchstatic 0.2.14 --noinput && gunicorn wganda.wsgi --log-level=info --log-file=-
 ```
 
 We use `requirements.txt` file to specify Python dependencies.
