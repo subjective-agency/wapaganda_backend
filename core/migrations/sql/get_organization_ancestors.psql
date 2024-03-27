@@ -1,0 +1,26 @@
+-- TO BE DEPRECATED?
+
+
+CREATE OR REPLACE FUNCTION get_organization_ancestors(org_id bigint)
+RETURNS JSONB[]
+LANGUAGE SQL
+AS $$
+    WITH RECURSIVE org_hierarchy AS (
+        SELECT id, name_en, short_name, org_type, parent_org_id, 1 AS level
+        FROM public.organizations
+        WHERE id = org_id
+        UNION ALL
+        SELECT o.id, o.name_en, o.short_name, o.org_type, o.parent_org_id, h.level + 1
+        FROM public.organizations o
+        INNER JOIN org_hierarchy h ON o.id = h.parent_org_id
+        WHERE o.id != org_id
+    )
+    SELECT array_agg(jsonb_build_object(
+        'id', o.id,
+        'name_en', o.name_en,
+        'short_name', o.short_name,
+        'org_type', o.org_type
+    ) ORDER BY h.level)
+    FROM org_hierarchy h
+    JOIN public.organizations o ON h.id = o.id
+$$;

@@ -1,0 +1,49 @@
+-- TO BE DEPRECATED
+
+-- returns array of telegram channels' IDs per given patient
+
+create or replace function get_patient_tchannels_idx(oid bigint)
+returns integer ARRAY
+language sql
+returns null on null input
+as $$
+    select array_agg(t.id)
+    from public.telegram_channels t
+    left join public.telegram_authors ta on t.id = ta.channel_id
+    where oid = ta.person_id
+$$;
+
+
+CREATE OR REPLACE FUNCTION get_tchannels_data(ids INT[])
+  RETURNS JSONB[]
+  LANGUAGE plpgsql
+AS $$
+DECLARE
+  result JSONB[];
+  record_data RECORD;
+BEGIN
+  -- Query the table and iterate over the records
+  FOR record_data IN
+    SELECT tch.id, tch.handle, tch.title, tch.telemetr_id, tch.population, tch.date_created, tch.status, tch.description, tch.history_count
+    FROM telegram_channels tch
+    WHERE tch.id = ANY(ids)
+  LOOP
+    -- Create JSON object for each record
+    result := result || jsonb_build_object(
+      'id', record_data.id,
+      'handle', record_data.handle,
+      'title', record_data.title,
+      'telemetr_id', record_data.telemetr_id,
+      'population', record_data.population,
+      'date_created', record_data.date_created,
+      'status', record_data.status,
+      'description', record_data.description,
+      'history_count', record_data.history_count
+    );
+
+  END LOOP;
+
+  -- Return the array of JSON objects
+  RETURN result;
+END;
+$$;
