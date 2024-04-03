@@ -894,7 +894,7 @@ class YoutubeVids(models.Model):
     was_downloaded = models.BooleanField()
     need = models.BooleanField(blank=True, null=True)
     private = models.BooleanField()
-    view_count = models.BigIntegerField(blank=True, null=True)
+    views_count = models.BigIntegerField(blank=True, null=True)
     likes_count = models.BigIntegerField(blank=True, null=True)
     comments_count = models.BigIntegerField(blank=True, null=True)
     privacy_status = models.TextField(blank=True, null=True)
