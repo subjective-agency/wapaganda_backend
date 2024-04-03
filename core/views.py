@@ -470,8 +470,8 @@ class PeopleExtendedAPIView(WAPIView):
         return {
             "total": {"appearances_count": sum([se["appearances"] for se in sorted_episodes]),
                       "roles": list(roles),
-                      "most_recent_appearance_date": max(unique_dates).format(),
-                      "total_airtime": int(total_airtime)},
+                      "most_recent_appearance_date": max(unique_dates).format() if unique_dates else None,
+                      "total_airtime": int(total_airtime) if total_airtime else 0},
             "episodes": sorted_episodes}
 
 
