@@ -45,6 +45,7 @@ class EnumsBundleTypes(models.Model):
     created_at = models.DateTimeField()
     code = models.TextField(blank=True, null=True)
     description = TripleLang.Field(blank=True, null=True)
+    updated_on = models.DateTimeField()
 
     class Meta:
         managed = True
@@ -191,6 +192,10 @@ class DaysOfWar(models.Model):
         db_table = 'days_of_war'
 
 
+# class KomsoCategories(models.Model):
+#     ...
+
+
 class KomsoEpisodes(models.Model):
     """
     | Name | Type | Constraint type |
@@ -206,15 +211,18 @@ class KomsoEpisodes(models.Model):
     komso_seq = models.SmallIntegerField(blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    timestamp_aired = models.DateTimeField(blank=True, null=True)
+    aired_on = models.DateTimeField(blank=True, null=True)
     additional_data = models.JSONField(blank=True, null=True)
     duration = models.BigIntegerField(blank=True, null=True)
     segment = models.ForeignKey('MediaSegments', models.DO_NOTHING, blank=True, null=True)
-    have = models.BooleanField(blank=True, null=True)
+    was_downloaded = models.BooleanField(blank=True, null=True)
     need = models.BooleanField(blank=True, null=True)
-    url_is_alive = models.BooleanField(blank=True, null=True)
+    is_alive = models.BooleanField(blank=True, null=True)
     komso_url = models.TextField(unique=True, blank=True, null=True)
     direct_url = models.TextField(unique=True, blank=True, null=True)
+    cluster_id = models.BigIntegerField(blank=True, null=True)
+    relevance_status_id = models.BigIntegerField(blank=True, null=True)
+    komso_category_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
         managed = True
@@ -293,6 +301,9 @@ class MediaSegments(models.Model):
     komso_id = models.IntegerField(unique=True, blank=True, null=True)
     rutube_id = models.TextField(unique=True, blank=True, null=True)
     ntv_id = models.JSONField(unique=True, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    updated_on = models.DateTimeField(blank=True, null=True)
+    last_scanned_on = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = True
@@ -339,15 +350,17 @@ class NtvEpisodes(models.Model):
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
-    timestamp_aired = models.DateTimeField(blank=True, null=True)
-    views = models.IntegerField(blank=True, null=True)
+    aired_on = models.DateTimeField(blank=True, null=True)
+    views_count = models.IntegerField(blank=True, null=True)
     timeline = models.JSONField(blank=True, null=True)
     ntv = models.IntegerField(unique=True)
     need = models.BooleanField()
-    have = models.BooleanField()
-    url_is_alive = models.BooleanField()
+    was_downloaded = models.BooleanField()
+    is_alive = models.BooleanField()
     duration = models.IntegerField(blank=True, null=True)
     rutube = models.TextField(blank=True, null=True, unique=True)
+    cluster_id = models.IntegerField(blank=True, null=True)
+    relevance_status_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = True
@@ -654,6 +667,10 @@ class RutubeVids(models.Model):
         db_table = 'rutube_vids'
 
 
+# class SmotrimBrands(models.Model):
+#     ...
+
+
 class SmotrimEpisodes(models.Model):
     """
     | Name | Type | Constraint type |
@@ -664,14 +681,17 @@ class SmotrimEpisodes(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     title = models.TextField(blank=True, null=True)
-    timestamp_aired = models.DateTimeField(blank=True, null=True)
+    aired_on = models.DateTimeField(blank=True, null=True)
     smotrim_id = models.TextField(blank=True, null=True)
     segment = models.ForeignKey(MediaSegments, models.DO_NOTHING, blank=True, null=True)
     duration = models.BigIntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    have = models.BooleanField()
-    url_is_alive = models.BooleanField()
-    need = models.BooleanField(blank=True, null=True)
+    was_downloaded = models.BooleanField()
+    is_alive = models.BooleanField()
+    is_relevant = models.BooleanField(blank=True, null=True)
+    brand_id = models.BigIntegerField(blank=True, null=True)
+    cluster_id = models.BigIntegerField(blank=True, null=True)
+    relevance_status_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
         managed = True
@@ -832,7 +852,7 @@ class YoutubeChannels(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.TextField(blank=True, null=True)
     youtube_id = models.TextField(unique=True, blank=True, null=True)
-    date_created = models.DateTimeField(blank=True, null=True)
+    channel_created_on = models.DateTimeField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     subs_count = models.BigIntegerField(blank=True, null=True)
     vids_count = models.BigIntegerField(blank=True, null=True)
@@ -840,6 +860,11 @@ class YoutubeChannels(models.Model):
     uploads_playlist_id = models.TextField(blank=True, null=True)
     stats_updated_on = models.DateTimeField(blank=True, null=True)
     status = models.BooleanField(blank=True, null=True)
+    last_scanned_on = models.DateTimeField(blank=True, null=True)
+    target_type_id = models.BigIntegerField(blank=True, null=True)
+    added_on = models.DateTimeField(blank=True, null=True)
+    is_relevant = models.BooleanField(blank=True, null=True)
+    is_defunct = models.BooleanField(blank=True, null=True)
 
     class Meta:
         managed = True
@@ -862,13 +887,31 @@ class YoutubeVids(models.Model):
     duration = models.BigIntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     youtube_stats = models.JSONField(blank=True, null=True)
-    youtube_stats_updated_on = models.DateField(blank=True, null=True)
+    stats_updated_on = models.DateField(blank=True, null=True)
     youtube_channel = models.ForeignKey(YoutubeChannels, models.DO_NOTHING)
-    timestamp_aired = models.DateTimeField(blank=True, null=True)
-    url_is_alive = models.BooleanField()
-    have = models.BooleanField()
+    aired_on = models.DateTimeField(blank=True, null=True)
+    is_alive = models.BooleanField()
+    was_downloaded = models.BooleanField()
     need = models.BooleanField(blank=True, null=True)
     private = models.BooleanField()
+    view_count = models.BigIntegerField(blank=True, null=True)
+    likes_count = models.BigIntegerField(blank=True, null=True)
+    comments_count = models.BigIntegerField(blank=True, null=True)
+    privacy_status = models.TextField(blank=True, null=True)
+    is_livestream = models.BooleanField()
+    auto_default_lang = models.TextField(blank=True, null=True)
+    is_licensed = models.BooleanField()
+    topic_categories = ArrayField(models.TextField(), blank=True, null=True)
+    recording_details = models.JSONField(blank=True, null=True)
+    livestream_details = models.JSONField(blank=True, null=True)
+    is_deleted = models.BooleanField()
+    is_rejected = models.BooleanField()
+    rejection_reason = models.TextField(blank=True, null=True)
+    localizations = models.JSONField(blank=True, null=True)
+    blocked_in = ArrayField(models.TextField(), blank=True, null=True)
+    allowed_in = ArrayField(models.TextField(), blank=True, null=True)
+    cluster_id = models.BigIntegerField(blank=True, null=True)
+    relevance_status_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
         managed = True
