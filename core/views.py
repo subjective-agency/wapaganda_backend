@@ -515,7 +515,7 @@ class PeopleExtendedAPIView(WAPIView):
                 "episode_id": query.episode_id,
                 "episode_title": episode_data.title,
                 "episode_duration": episode_data.duration,
-                "episode_date": episode_data.timestamp_aired,
+                "episode_date": episode_data.aired_on,
                 "media_segment_id": episode_data.segment_id,
                 "media_segment_name": segment_data.name if segment_data else None,
                 "role": role_data.role if role_data else None,
