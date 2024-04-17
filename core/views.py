@@ -541,7 +541,7 @@ class PeopleExtendedAPIView(WAPIView):
             bundles_options[k].append({"id": 0, "name": {"en": "all", "ru": "все", "uk": "всі"}})
 
         age_options = [
-            {"value": "all", "label": "all"},
+            {"value": [None, None], "label": "all"},
             {"value": [None, 20], "label": "<20"},
             {"value": [20, 30], "label": "20-30"},
             {"value": [30, 50], "label": "30-50"},
@@ -549,12 +549,12 @@ class PeopleExtendedAPIView(WAPIView):
             {"value": [70, None], "label": "70+"},
         ]
         sex_options = [
-            {"value": "all", "label": "all"},
+            {"value": None, "label": "all"},
             {"value": "m", "label": "male"},
             {"value": "f", "label": "female"}
         ]
         status_options = [
-            {"value": "all", "label": "all"},
+            {"value": None, "label": "all"},
             {"value": "true", "label": "alive"},
             {"value": "false", "label": "dead"},
         ]
