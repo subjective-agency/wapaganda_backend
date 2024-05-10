@@ -1101,3 +1101,18 @@ class PopularStats(models.Model):
     class Meta:
         managed = True
         db_table = 'popular_stats'
+
+
+class OrgsExtended(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = TripleLang.Field()
+    short_name = TripleLang.Field()
+    org_type = TripleLang.Field()
+    parent_orgs = ArrayField(base_field=models.JSONField(), blank=True, null=True)
+    source_url = models.TextField(blank=True, null=True)
+    state_affiliated = models.BooleanField()
+    ppl = ArrayField(base_field=models.JSONField(), blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'orgs_extended'

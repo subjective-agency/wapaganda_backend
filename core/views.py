@@ -23,7 +23,8 @@ from core.serializers import (PeopleExtendedBriefSerializer,
                               BundleSerializer,
                               TheorySerializer,
                               AirtimeSerializer,
-                              PopularStatsSerializer)
+                              PopularStatsSerializer,
+                              OrgsSerializer)
 from core.requests import PagingRequestSerializer, TheoryRequestSerializer
 from core.models import (PeopleExtended,
                          Theory,
@@ -34,9 +35,15 @@ from core.models import (PeopleExtended,
                          YoutubeVids,
                          SmotrimEpisodes,
                          MediaRoles,
-                         PopularStats)
+                         PopularStats,
+                         OrgsExtended)
 from core.pagination import CustomPostPagination
 
+def bad_request(request):
+    """
+    Return 400 Bad Request for GET requests
+    """
+    return HttpResponseBadRequest('<h1>400 Bad Request</h1>')
 
 class BundleType(Enum):
     ExpertBundles = 1
@@ -647,8 +654,235 @@ class TheoryAPIView(WAPIView):
         return Response(data=serializer.data)
 
 
-def bad_request(request):
-    """
-    Return 400 Bad Request for GET requests
-    """
-    return HttpResponseBadRequest('<h1>400 Bad Request</h1>')
+class OrgsAPIView(WAPIView):
+    serializer_class = OrgsSerializer
+    parser_classes = [JSONParser]
+    pagination_class = CustomPostPagination
+
+    def __init__(self):
+        """
+        Initialize the class
+        """
+        super().__init__(request_handler={
+            'cache': self.return_cache,
+            'page': self.return_page,
+            'search': self.return_fulltext_search_result,
+            'person': self.return_org_data
+        })
+
+    @staticmethod
+    def return_cache(request):
+        """
+        Return data for caching
+        """
+        if request.data.get('type', '') != 'cache':
+            logger.error(f'Invalid request type: {request.data.get("type", "")}')
+            return Response({'error': 'Invalid request type, "cache" expected'}, status=status.HTTP_400_BAD_REQUEST)
+
+        request_data = request.data
+        logger.info(f'Cache request: {request_data}')
+        created_after = request_data.get('timestamp', 0) + 1
+        created_after_datetime = datetime.fromtimestamp(created_after, tz=timezone.utc)
+
+        logger.info(f"All records created after the specified timestamp: {created_after_datetime}")
+        orgs = OrgsExtended.objects.filter(added_on__gt=created_after_datetime).order_by('id')
+        serializer = CacheSerializer(orgs, many=True)
+
+        # Find the maximum value of added_on across all people
+        max_added_on_result = orgs.aggregate(max_added_on=Max('added_on'))
+        max_added_on = max_added_on_result['max_added_on']
+        max_timestamp = int(max_added_on.timestamp()) if max_added_on else created_after
+
+        response_data = {
+            'cache': serializer.data,
+            'timestamp': max_timestamp,
+        }
+        return Response(response_data)
+
+    # def apply_filters_to_dataset(self, request, dataset):
+    #     # custom_filter = request.get("filter", "")
+    #     # age_min, age_max = request.get("age_min", 1), request.get("age_max", 99)
+    #     # sex_filter = request.get("sex", None)
+    #     # alive_filter = self.tristate_param(request.data.get('alive', None))
+    #     #
+    #     # logger.debug(f"Before: Age min is {age_min}, Age max is {age_max}")
+    #
+    #     dataset = self.apply_age_filter(request.get("age_min"), request.get("age_max"), dataset)
+    #
+    #     if custom_filter := request.get("filter"):
+    #         dataset = self.apply_custom_filter(custom_filter, dataset)
+    #     if alive_filter := request.get("alive"):
+    #         dataset = self.apply_alive_filter(alive_filter, dataset)
+    #     if sex_filter := request.get("sex"):
+    #         dataset = self.apply_sex_filter(sex_filter, dataset)
+    #     if flags_filter := request.get("flags"):
+    #         dataset = self.apply_bundle_filter(flags_filter, dataset)
+    #     if expertise_filter := request.get("expertise"):
+    #         dataset = self.apply_bundle_filter(expertise_filter, dataset)
+    #     if groups_filter := request.get("groups"):
+    #         dataset = self.apply_bundle_filter(groups_filter, dataset)
+    #
+    #     # today = datetime.now().date()
+    #     # if age_min and age_max:
+    #     #     birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+    #     #     birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+    #     #     logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+    #     #     people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+    #     # elif age_min and not age_max:
+    #     #     birth_date_limit_min = today - timedelta(days=99 * 365)
+    #     #     birth_date_limit_max = today - timedelta(days=int(age_min - 1) * 365)
+    #     #     logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+    #     #     people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+    #     # elif age_max and not age_min:
+    #     #     birth_date_limit_min = today - timedelta(days=int(age_max) * 365)
+    #     #     birth_date_limit_max = today
+    #     #     logger.info(f'Birth date limits: {birth_date_limit_min} - {birth_date_limit_max}')
+    #     #     people = people.filter(dob__gte=birth_date_limit_min, dob__lte=birth_date_limit_max)
+    #     # logger.debug(f"After filtering: {len(people)}")
+    #
+    #     return dataset
+
+    # def apply_sorting_to_dataset(self, request, dataset):
+    #     sort_by = request.get("sort_by", "fullname.en")
+    #     sort_direction = request.get("sort_direction", "asc")
+    #     sort_by = f"-{sort_by}" if sort_direction == "desc" else sort_by
+    #     logger.debug(f'Sorting condition {sort_by}')
+    #     return dataset.order_by(sort_by)
+
+    def return_page(self, request):
+        """
+        Return paginated and filtered data
+        :param request: Object of type rest_framework.request.Request
+        :return: Paginated and filtered data in short JSON format
+        """
+        req_serializer = PagingRequestSerializer(data=request.data)
+        logger.info(f"Received {len(request.data)} items")
+        try:
+            req_serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            logger.error(f'Invalid request data: {request.data}: {str(error)}')
+            return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+
+        orgs = OrgsExtended.objects.all()
+        logger.debug(f'Before filtering: {len(orgs)}')
+
+        # orgs_filtered = self.apply_filters_to_dataset(req_serializer.validated_data, orgs)
+        # orgs_sorted = self.apply_sorting_to_dataset(req_serializer.validated_data, orgs_filtered)
+
+        paginator = CustomPostPagination()
+        result_page = paginator.paginate_queryset(orgs, request)
+        serializer = OrgsSerializer(result_page, many=True)
+        page = paginator.get_paginated_data(serializer.data)
+
+        # Collect filters and popular stats
+        filters = self.collect_filters()
+        stats = self.collect_stats()
+
+        response_data = {
+            'page': page,
+            'filters': filters,
+            'stats': stats
+        }
+
+        return Response(response_data)
+
+    @staticmethod
+    def return_search_result(request):
+        """
+        Return search result
+        :param request: Object of type rest_framework.request.Request
+        :return: JSON response
+        """
+        request_data = request.data
+        values = request_data.get('values', [])
+        logger.info(f'Search request: {request_data}')
+        orgs = OrgsExtended.objects.filter(reduce(lambda x, y: x | y, [
+            Q(fullname_en=value) |
+            Q(fullname_ru=value) |
+            Q(fullname_uk=value) for value in values]))
+        serializer = OrgsSerializer(orgs, many=True)
+        return Response(serializer.data)
+
+    @staticmethod
+    def return_fulltext_search_result(request):
+        """
+        Return fulltext search result
+        :param request: Object of type rest_framework.request.Request
+        :return: JSON response
+        """
+        request_data = request.data
+        values = request_data.get('values', [])
+        logger.info(f'Fulltext search request: {request_data}')
+        orgs = search_model_fulltext(model=OrgsExtended,
+                                     fields=['name', 'short_name'],
+                                     values=values)
+
+        serializer = OrgsSerializer(orgs, many=True)
+        return Response(serializer.data)
+
+    # @staticmethod
+    def return_org_data(self, request):
+        """
+        Return person data
+        :param request: Object of type rest_framework.request.Request
+        :return: JSON response full data of the person
+        """
+        request_data = request.data
+        org_id = request_data.get('id')
+
+        try:
+            org = OrgsExtended.objects.get(id=org_id)
+        except OrgsExtended.DoesNotExist:
+            logger.error(f'Person with id={org_id} does not exist')
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # Serialize the person and organizations data
+        logger.info(f'Person data request: {request_data}')
+        org_serializer = OrgsSerializer(org)
+
+        response_data = org_serializer.data
+
+        return Response({"org": response_data})
+
+    def collect_filters(self):
+        pass
+        # bundles = PeopleBundles.objects.all()
+        # logger.info(f"Have {len(bundles)} bundles in total")
+        # bundles_options_raw = {bundle_type.name: [] for bundle_type in BundleType}
+        # bundle_idx = [bundle_type.value for bundle_type in BundleType]
+        # for b in bundles:
+        #     bundle_type_id = b.bundle_type_id
+        #     if bundle_type_id in bundle_idx:
+        #         bundle_type = BundleType(bundle_type_id).name
+        #         bundles_options_raw[bundle_type].append(b)
+        # serialized_bundles = {x: BundleSerializer(y, many=True) for x, y in bundles_options_raw.items()}
+        # bundles_options = {x: y.data for x,y in serialized_bundles.items()}
+        # for k in bundles_options:
+        #     bundles_options[k].append({"id": 0, "name": {"en": "all", "ru": "все", "uk": "всі"}})
+        #
+        # age_options = [
+        #     {"value": [None, None], "label": "all"},
+        #     {"value": [None, 20], "label": "<20"},
+        #     {"value": [20, 30], "label": "20-30"},
+        #     {"value": [30, 50], "label": "30-50"},
+        #     {"value": [50, 70], "label": "50-70"},
+        #     {"value": [70, None], "label": "70+"},
+        # ]
+        # sex_options = [
+        #     {"value": None, "label": "all"},
+        #     {"value": "m", "label": "male"},
+        #     {"value": "f", "label": "female"}
+        # ]
+        # status_options = [
+        #     {"value": None, "label": "all"},
+        #     {"value": "true", "label": "alive"},
+        #     {"value": "false", "label": "dead"},
+        # ]
+        # return {"bundles": bundles_options, "age": age_options, "gender": sex_options, "status": status_options}
+
+    @staticmethod
+    def collect_stats():
+        pass
+        # data = PopularStats.objects.all()
+        # serialized = PopularStatsSerializer(data, many=True)
+        # return serialized.data

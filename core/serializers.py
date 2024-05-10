@@ -303,3 +303,44 @@ class OrganizationSerializer(serializers.Serializer):
             'international',
             'relevant'
         )
+
+
+class OrgsSerializer(serializers.Serializer):
+    """
+    Serializer for model Organizations
+    """
+    id = serializers.IntegerField()
+    name = TripleLangSerializer()
+    short_name = TripleLangSerializer()
+    org_type = TripleLangSerializer()
+    parent_orgs = serializers.JSONField(allow_null=True)
+    source_url = serializers.CharField(allow_blank=True, allow_null=True)
+    state_affiliated = serializers.BooleanField(allow_null=True)
+    ppl = serializers.JSONField(allow_null=True)
+
+
+    def create(self, validated_data):
+        """
+        We do not manage the creation of the data
+        """
+        pass
+
+    def update(self, instance, validated_data):
+        """
+        We do not manage the update of the data
+        """
+        pass
+
+
+    class Meta:
+        model = models.OrgsExtended
+        fields = (
+            'id',
+            'name',
+            'short_name',
+            'org_type',
+            'parent_orgs',
+            'source_url',
+            'state_affiliated',
+            'ppl'
+        )
