@@ -260,3 +260,81 @@ class TheoryRequestSerializer(CommonRequestSerializer):
         if 'type' in data and data['type'] is not None:
             data['type'] = data['type'].lower()
         return super().to_internal_value(data)
+
+
+class OrgsRequestSerializer(CommonRequestSerializer):
+    def update(self, instance, validated_data):
+        """
+        We do not manage the update of the data
+        """
+        pass
+
+    def create(self, validated_data):
+        """
+        We do not manage the update of the data
+        """
+        pass
+
+    allowed_fields = ['id', 'name', 'short_name']
+    type = serializers.CharField(required=True)
+    page = serializers.IntegerField(required=True, min_value=0)
+    page_size = serializers.IntegerField(required=True, min_value=8, max_value=120)
+    sort_by = serializers.ChoiceField(choices=allowed_fields, required=False, default='id')
+    sort_direction = serializers.ChoiceField(choices=['asc', 'desc'], required=False, default='asc')
+    filter = serializers.CharField(required=False, allow_blank=True, allow_null=True, max_length=100)
+
+
+    def validate_type(self, value):
+        """
+        Validate the "type" field
+        """
+        if value.lower() != 'page':
+            raise ValidationError('Invalid request type, "page" expected')
+        return value
+
+    def validate_filter(self, value):
+        """
+        Validate the "filter" value to match wildcard mask
+        """
+        if value is None or value.strip() == '':
+            return value
+
+        valid_wildcard_mask = re.compile(r'^[\w\s*?]+$')
+
+        if not valid_wildcard_mask.match(value):
+            raise ValidationError('Invalid filter format: it must be a valid wildcard mask or empty')
+
+        return value
+
+    def validate_sort_direction(self, value):
+        """
+        Validate the "sort_direction" field.
+        """
+        if value.lower() not in ['asc', 'desc']:
+            raise ValidationError('Invalid value for sort_direction. It must be "asc" or "desc".')
+        return value
+
+    def validate_page(self, value):
+        """
+        Validate the "page" field.
+        """
+        if value < 0:
+            raise ValidationError('Page number must be a non-negative integer')
+        return value
+
+    def validate_page_size(self, value):
+        """
+        Validate the "page_size" field.
+        """
+        if value < 8 or value > 120:
+            raise ValidationError('Page size must be between 8 and 120')
+        return value
+
+    def to_internal_value(self, data):
+        """
+        Convert the "sex" and "age_direction" value to lowercase before validation
+        ("m" or "f", "below" or "above", respectively)
+        """
+        if 'sex' in data and data['sex'] is not None:
+            data['sex'] = data['sex'].lower()
+        return super().to_internal_value(data)

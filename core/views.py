@@ -25,7 +25,7 @@ from core.serializers import (PeopleExtendedBriefSerializer,
                               AirtimeSerializer,
                               PopularStatsSerializer,
                               OrgsSerializer)
-from core.requests import PagingRequestSerializer, TheoryRequestSerializer
+from core.requests import PagingRequestSerializer, TheoryRequestSerializer, OrgsRequestSerializer
 from core.models import (PeopleExtended,
                          Theory,
                          PeopleBundles,
@@ -755,7 +755,7 @@ class OrgsAPIView(WAPIView):
         :param request: Object of type rest_framework.request.Request
         :return: Paginated and filtered data in short JSON format
         """
-        req_serializer = PagingRequestSerializer(data=request.data)
+        req_serializer = OrgsRequestSerializer(data=request.data)
         logger.info(f"Received {len(request.data)} items")
         try:
             req_serializer.is_valid(raise_exception=True)
