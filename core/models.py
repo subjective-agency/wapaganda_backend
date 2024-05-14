@@ -1115,4 +1115,4 @@ class OrgsExtended(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'orgs_extended'
+        db_table = 'organizations_extended'

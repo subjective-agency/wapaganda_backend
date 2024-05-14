@@ -225,7 +225,7 @@ class PeopleExtendedAPIView(WAPIView):
 
     @staticmethod
     def apply_sex_filter(sex_filter: str, dataset):
-        return people.filter(sex=sex_filter)
+        return dataset.filter(sex=sex_filter)
 
     @staticmethod
     def apply_alive_filter(alive_filter: bool, dataset):
